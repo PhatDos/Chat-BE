@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Post, Body, Delete } from '@nestjs/common';
 import { ProfileService } from './profile.service';
+import { CreateProfileDto } from './dto/create-profile.dto';
 
 @Controller('profiles')
 export class ProfileController {
@@ -16,7 +17,7 @@ export class ProfileController {
   }
 
   @Post()
-  create(@Body() data: any) {
+  create(@Body() data: CreateProfileDto) {
     return this.profileService.create(data);
   }
 
