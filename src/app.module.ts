@@ -3,12 +3,21 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { PrismaModule } from './prisma/prisma.module';
-import { ProfileModule } from './modules/profile/profile.module';
-import { ServerModule } from './modules/server/server.module';
-import { MemberModule } from './modules/member/member.module';
+import { ProfileModule } from '~/profile/profile.module';
+import { ServerModule } from '~/server/server.module';
+import { MemberModule } from '~/member/member.module';
+import { DirectMessageModule } from './direct-message/direct-message.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
-  imports: [PrismaModule, ProfileModule, ServerModule, MemberModule],
+  imports: [
+    PrismaModule,
+    ProfileModule,
+    ServerModule,
+    MemberModule,
+    DirectMessageModule,
+    MessageModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

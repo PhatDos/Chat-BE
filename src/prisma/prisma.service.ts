@@ -8,11 +8,11 @@ export class PrismaService
 {
   async onModuleInit() {
     await this.$connect();
-    console.log('✅ Connected to PostgreSQL via Prisma');
+    console.log('✅ Connected to Databaseee');
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
-    console.log('🛑 Disconnected from PostgreSQL');
+    console.log('🛑 Disconnected from Databaseee');
   }
 }
