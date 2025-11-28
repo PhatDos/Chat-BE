@@ -2,42 +2,23 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { MessageService } from './message.service';
-import { Prisma } from '@prisma/client';
+import { Server } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class MessageGateway {
-  constructor(private readonly messageService: MessageService) {}
+  @WebSocketServer()
+  server: Server;
 
-  @SubscribeMessage('createMessage')
-  create(@MessageBody() createMessageDto: Prisma.MessageCreateInput) {
-    return this.messageService.create(createMessageDto);
-  }
-
-  @SubscribeMessage('findAllMessage')
-  findAll() {
-    return this.messageService.findAll();
-  }
-
-  @SubscribeMessage('findOneMessage')
-  findOne(@MessageBody() id: string) {
-    return this.messageService.findOne(id);
-  }
-
-  @SubscribeMessage('updateMessage')
-  update(
-    @MessageBody()
-    payload: {
-      id: string;
-      updateMessageDto: Prisma.MessageUpdateInput;
-    },
-  ) {
-    return this.messageService.update(payload.id, payload.updateMessageDto);
-  }
-
-  @SubscribeMessage('removeMessage')
-  remove(@MessageBody() id: string) {
-    return this.messageService.remove(id);
+  @SubscribeMessage('send_message')
+  handleMessage(@MessageBody() data: any) {
+    // nhận message từ FE
+    // broadcast cho các client khác
+    this.server.emit('receive_message', data);
   }
 }

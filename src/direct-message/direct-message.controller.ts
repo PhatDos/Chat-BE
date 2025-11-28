@@ -6,7 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  // Query,
+  Query,
 } from '@nestjs/common';
 import { DirectMessageService } from './direct-message.service';
 import { Prisma } from '@prisma/client';
@@ -20,9 +20,15 @@ export class DirectMessageController {
     return this.directMessageService.create(createDirectMessageDto);
   }
 
+  // =============================
+  // GET MESSAGES WITH PAGINATION
+  // =============================
   @Get()
-  findAll() {
-    return this.directMessageService.findAll();
+  getMessages(
+    @Query('conversationId') conversationId: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    return this.directMessageService.getMessages(conversationId, cursor);
   }
 
   @Get(':id')

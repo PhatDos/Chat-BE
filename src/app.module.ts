@@ -8,6 +8,7 @@ import { ServerModule } from '~/server/server.module';
 import { MemberModule } from '~/member/member.module';
 import { DirectMessageModule } from './direct-message/direct-message.module';
 import { MessageModule } from './message/message.module';
+import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MessageModule } from './message/message.module';
     MemberModule,
     DirectMessageModule,
     MessageModule,
+    ConversationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

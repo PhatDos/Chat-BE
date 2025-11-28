@@ -1,36 +1,70 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '~/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DirectMessageService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createDirectMessageDto: Prisma.DirectMessageCreateInput) {
-    return this.prismaService.directMessage.create({
+  async create(createDirectMessageDto: Prisma.DirectMessageCreateInput) {
+    return this.prisma.directMessage.create({
       data: createDirectMessageDto,
+      include: {
+        member: { include: { profile: true } },
+      },
     });
   }
 
-  findAll() {
-    return this.prismaService.directMessage.findMany();
+  // =============================
+  // PAGINATION CHUẨN FE
+  // =============================
+  async getMessages(conversationId: string, cursor?: string) {
+    const LIMIT = 20;
+
+    const messages = await this.prisma.directMessage.findMany({
+      where: { conversationId },
+      take: LIMIT,
+      skip: cursor ? 1 : 0, // skip cursor itself
+      cursor: cursor ? { id: cursor } : undefined,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        member: { include: { profile: true } },
+      },
+    });
+
+    const nextCursor =
+      messages.length === LIMIT ? messages[messages.length - 1].id : null;
+
+    return {
+      items: messages,
+      nextCursor,
+    };
   }
 
-  findOne(id: string) {
-    return this.prismaService.directMessage.findUnique({
+  async findOne(id: string) {
+    return this.prisma.directMessage.findUnique({
       where: { id },
+      include: {
+        member: { include: { profile: true } },
+      },
     });
   }
 
-  update(id: string, updateDirectMessageDto: Prisma.DirectMessageUpdateInput) {
-    return this.prismaService.directMessage.update({
+  async update(
+    id: string,
+    updateDirectMessageDto: Prisma.DirectMessageUpdateInput,
+  ) {
+    return this.prisma.directMessage.update({
       where: { id },
       data: updateDirectMessageDto,
+      include: {
+        member: { include: { profile: true } },
+      },
     });
   }
 
-  remove(id: string) {
-    return this.prismaService.directMessage.delete({
+  async remove(id: string) {
+    return this.prisma.directMessage.delete({
       where: { id },
     });
   }
