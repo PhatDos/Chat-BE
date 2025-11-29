@@ -46,7 +46,6 @@ export class DirectMessageGateway
     console.log(`👉 Client joined room: ${payload.conversationId}`);
   }
 
-  // 2️⃣ Client gửi message → Lưu DB → Emit cho room
   @SubscribeMessage('message:create')
   async handleCreateMessage(
     @ConnectedSocket() client: Socket,
@@ -60,7 +59,6 @@ export class DirectMessageGateway
   ) {
     const { content, fileUrl, conversationId, memberId } = payload;
 
-    // Lưu vào DB
     const message = await this.directMessageService.create({
       content: content!,
       fileUrl,
@@ -71,10 +69,51 @@ export class DirectMessageGateway
     // Event realtime FE sẽ nghe
     const eventName = 'conversation:message';
 
-    // Emit cho những client đã join room
     this.server.to(conversationId).emit(eventName, message);
     console.log(`📨 New message in room ${conversationId}`);
 
     return message;
+  }
+
+  @SubscribeMessage('message:update')
+  async handleUpdateMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: {
+      id: string; // message ID
+      content?: string;
+      fileUrl?: string;
+      conversationId: string;
+    },
+  ) {
+    const { id, content, fileUrl, conversationId } = payload;
+
+    const updatedMessage = await this.directMessageService.update(id, {
+      content,
+      fileUrl,
+    });
+
+    const eventName = 'conversation:message:update';
+    this.server.to(conversationId).emit(eventName, updatedMessage);
+
+    console.log(`✏️ Updated message in room ${conversationId}: ${id}`);
+
+    return updatedMessage;
+  }
+
+  @SubscribeMessage('message:delete')
+  async handleDeleteMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: { id: string; conversationId: string },
+  ) {
+    const { id, conversationId } = payload;
+
+    await this.directMessageService.delete(id);
+
+    this.server.to(conversationId).emit('conversation:message:delete', { id });
+
+    console.log(`🗑️ Deleted message in room ${conversationId}: ${id}`);
+    return { success: true };
   }
 }

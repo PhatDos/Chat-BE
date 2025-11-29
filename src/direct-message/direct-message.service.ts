@@ -58,14 +58,30 @@ export class DirectMessageService {
       where: { id },
       data: updateDirectMessageDto,
       include: {
-        member: { include: { profile: true } },
+        member: {
+          include: {
+            profile: true,
+          },
+        },
       },
     });
   }
 
-  async remove(id: string) {
-    return this.prisma.directMessage.delete({
+  async delete(id: string) {
+    return this.prisma.directMessage.update({
       where: { id },
+      data: {
+        fileUrl: null,
+        content: 'This message has been deleted',
+        deleted: true,
+      },
+      include: {
+        member: {
+          include: {
+            profile: true,
+          },
+        },
+      },
     });
   }
 }
