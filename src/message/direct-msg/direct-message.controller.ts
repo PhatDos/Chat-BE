@@ -46,6 +46,6 @@ export class DirectMessageController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.directMessageService.remove(id);
+    return this.directMessageService.delete(id);
   }
 }
