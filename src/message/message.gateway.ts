@@ -25,9 +25,6 @@ export class MessageGateway
     private readonly channelMessageService: ChannelMessageService,
   ) {}
 
-  // ============================
-  // CONNECTION IO
-  // ============================
   handleConnection(client: Socket) {
     console.log(`✅ Socket connected: ${client.id}`);
     this.server.emit('Connected', 'A new client has connected.');
@@ -37,9 +34,7 @@ export class MessageGateway
     console.log(`❌ Socket disconnected: ${client.id}`);
   }
 
-  // ============================
-  // 1️⃣ Client join room
-  // ============================
+  // CONVERSATION CONVERSATION CONVERSATION CONVERSATION CONVERSATION CONVERSATION
   @SubscribeMessage('conversation:join')
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
@@ -50,6 +45,7 @@ export class MessageGateway
     console.log(`👉 Client joined room: ${payload.conversationId}`);
   }
 
+  // Create
   @SubscribeMessage('message:create')
   async handleCreateMessage(
     @ConnectedSocket() client: Socket,
@@ -70,7 +66,6 @@ export class MessageGateway
       conversation: { connect: { id: conversationId } },
     });
 
-    // Event realtime FE sẽ nghe
     const eventName = 'conversation:message';
 
     this.server.to(conversationId).emit(eventName, message);
@@ -79,6 +74,7 @@ export class MessageGateway
     return message;
   }
 
+  // Update
   @SubscribeMessage('message:update')
   async handleUpdateMessage(
     @ConnectedSocket() client: Socket,
@@ -121,9 +117,7 @@ export class MessageGateway
     return { success: true };
   }
 
-  // ============================
-  // 1️⃣ Client join channel room
-  // ============================
+  // CHANNEL CHANNEL CHANNEL CHANNEL CHANNEL CHANNEL CHANNEL CHANNEL CHANNEL CHANNEL
   @SubscribeMessage('channel:join')
   handleJoinChannel(
     @ConnectedSocket() client: Socket,
@@ -133,38 +127,46 @@ export class MessageGateway
     console.log(`👉 Client joined channel room: ${payload.channelId}`);
   }
 
-  // ============================
-  // 2️⃣ Create message
-  // ============================
+  // Create
   @SubscribeMessage('channel:message:create')
   async handleCreateChannelMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody()
     payload: {
       content?: string;
-      fileUrl?: string;
       channelId: string;
+      serverId: string;
       memberId: string;
+      fileUrl?: string;
     },
   ) {
-    const { content, fileUrl, channelId, memberId } = payload;
+    const { content, fileUrl, channelId, memberId: clerkUserId } = payload;
+
+    const channel = await this.channelMessageService.findChannel(channelId);
+    if (!channel) throw new Error('Channel not found');
+
+    const member =
+      await this.channelMessageService.findMemberByUserIdAndServerId(
+        clerkUserId,
+        channel.serverId,
+      );
+    if (!member) throw new Error('Member not found in this server');
 
     const message = await this.channelMessageService.create({
       content: content!,
       fileUrl,
-      member: { connect: { id: memberId } },
+      member: { connect: { id: member.id } },
       channel: { connect: { id: channelId } },
     });
 
+    // 4️⃣ Emit cho cả channel
     this.server.to(channelId).emit('channel:message', message);
     console.log(`📨 New message in channel ${channelId}`);
 
     return message;
   }
 
-  // ============================
-  // 3️⃣ Update message
-  // ============================
+  // Update
   @SubscribeMessage('channel:message:update')
   async handleUpdateChannelMessage(
     @ConnectedSocket() client: Socket,
@@ -189,9 +191,7 @@ export class MessageGateway
     return updatedMessage;
   }
 
-  // ============================
-  // 4️⃣ Delete message
-  // ============================
+  // Delete
   @SubscribeMessage('channel:message:delete')
   async handleDeleteChannelMessage(
     @ConnectedSocket() client: Socket,
@@ -201,7 +201,6 @@ export class MessageGateway
 
     await this.channelMessageService.delete(id);
 
-    // Chỉ emit id, FE tự render "This message has been deleted"
     this.server.to(channelId).emit('channel:message:delete', { id });
 
     console.log(`🗑️ Deleted message in channel ${channelId}: ${id}`);

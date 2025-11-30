@@ -56,4 +56,22 @@ export class ChannelMessageService {
       messages.length === LIMIT ? messages[messages.length - 1].id : null;
     return { items: messages, nextCursor };
   }
+
+  async findChannel(channelId: string) {
+    return this.prisma.channel.findUnique({ where: { id: channelId } });
+  }
+
+  async findMemberByUserIdAndServerId(userId: string, serverId: string) {
+    return this.prisma.member.findFirst({
+      where: {
+        serverId,
+        profile: {
+          userId, // Clerk userId
+        },
+      },
+      include: {
+        profile: true,
+      },
+    });
+  }
 }
