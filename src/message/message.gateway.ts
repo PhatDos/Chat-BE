@@ -135,7 +135,6 @@ export class MessageGateway
     payload: {
       content?: string;
       channelId: string;
-      serverId: string;
       memberId: string;
       fileUrl?: string;
     },
