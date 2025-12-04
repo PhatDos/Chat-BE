@@ -74,4 +74,11 @@ export class ChannelMessageService {
       },
     });
   }
+
+  async findMemberById(id: string) {
+    return this.prisma.member.findUnique({
+      where: { id },
+      include: { profile: true },
+    });
+  }
 }

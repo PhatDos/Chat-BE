@@ -7,43 +7,50 @@ import {
   Param,
   Delete,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { DirectMessageService } from './direct-message.service';
-import { Prisma } from '@prisma/client';
+import {
+  CreateDirectMessageDto,
+  UpdateDirectMessageDto,
+} from './direct-message.dto';
 
 @Controller('direct-message')
 export class DirectMessageController {
   constructor(private readonly directMessageService: DirectMessageService) {}
 
+  // CREATE MESSAGE
   @Post()
-  create(@Body() createDirectMessageDto: Prisma.DirectMessageCreateInput) {
-    return this.directMessageService.create(createDirectMessageDto);
+  create(@Body() dto: CreateDirectMessageDto) {
+    return this.directMessageService.create(dto);
   }
 
-  // =============================
   // GET MESSAGES WITH PAGINATION
-  // =============================
   @Get()
   getMessages(
     @Query('conversationId') conversationId: string,
     @Query('cursor') cursor?: string,
   ) {
+    if (!conversationId) {
+      throw new BadRequestException('conversationId is required');
+    }
+
     return this.directMessageService.getMessages(conversationId, cursor);
   }
 
+  // GET ONE
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.directMessageService.findOne(id);
   }
 
+  // UPDATE
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateDirectMessageDto: Prisma.DirectMessageUpdateInput,
-  ) {
-    return this.directMessageService.update(id, updateDirectMessageDto);
+  update(@Param('id') id: string, @Body() dto: UpdateDirectMessageDto) {
+    return this.directMessageService.update(id, dto);
   }
 
+  // DELETE
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.directMessageService.delete(id);

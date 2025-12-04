@@ -8,7 +8,6 @@ import { ProfileModule } from '~/profile/profile.module';
 import { ServerModule } from '~/server/server.module';
 import { MemberModule } from '~/member/member.module';
 import { MessageModule } from '~/message/message.module';
-import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
   imports: [
@@ -17,7 +16,6 @@ import { ConversationModule } from './conversation/conversation.module';
     ServerModule,
     MemberModule,
     MessageModule,
-    ConversationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

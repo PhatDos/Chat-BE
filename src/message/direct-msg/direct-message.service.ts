@@ -1,34 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import {
+  CreateDirectMessageDto,
+  UpdateDirectMessageDto,
+} from './direct-message.dto';
+import { FileType } from '@prisma/client';
 
 @Injectable()
 export class DirectMessageService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createDirectMessageDto: Prisma.DirectMessageCreateInput) {
+  // CREATE MESSAGE
+  async create(dto: CreateDirectMessageDto) {
     return this.prisma.directMessage.create({
-      data: createDirectMessageDto,
+      data: {
+        content: dto.content ?? '',
+        fileUrl: dto.fileUrl ?? null,
+        fileType: dto.fileType ?? FileType.text,
+        conversation: { connect: { id: dto.conversationId } },
+        sender: { connect: { id: dto.senderId } },
+      },
       include: {
-        member: { include: { profile: true } },
+        sender: true, //Profile
       },
     });
   }
 
-  // =============================
-  // PAGINATION CHUẨN FE
-  // =============================
+  // GET MESSAGES
   async getMessages(conversationId: string, cursor?: string) {
     const LIMIT = 20;
 
     const messages = await this.prisma.directMessage.findMany({
       where: { conversationId },
       take: LIMIT,
-      skip: cursor ? 1 : 0, // skip cursor itself
+      skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
       orderBy: { createdAt: 'desc' },
       include: {
-        member: { include: { profile: true } },
+        sender: true,
       },
     });
 
@@ -41,32 +50,27 @@ export class DirectMessageService {
     };
   }
 
+  // FIND ONE
   async findOne(id: string) {
     return this.prisma.directMessage.findUnique({
       where: { id },
-      include: {
-        member: { include: { profile: true } },
-      },
+      include: { sender: true },
     });
   }
 
-  async update(
-    id: string,
-    updateDirectMessageDto: Prisma.DirectMessageUpdateInput,
-  ) {
+  // UPDATE
+  async update(id: string, dto: UpdateDirectMessageDto) {
     return this.prisma.directMessage.update({
       where: { id },
-      data: updateDirectMessageDto,
-      include: {
-        member: {
-          include: {
-            profile: true,
-          },
-        },
+      data: {
+        content: dto.content ?? undefined,
+        fileUrl: dto.fileUrl ?? undefined,
       },
+      include: { sender: true },
     });
   }
 
+  // DELETE
   async delete(id: string) {
     return this.prisma.directMessage.update({
       where: { id },
@@ -75,13 +79,7 @@ export class DirectMessageService {
         content: 'This message has been deleted',
         deleted: true,
       },
-      include: {
-        member: {
-          include: {
-            profile: true,
-          },
-        },
-      },
+      include: { sender: true },
     });
   }
 }

@@ -10,14 +10,20 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ChannelMessageService } from './channel-message.service';
+import { CreateChannelMessageDto } from './channel-message.dto';
 
 @Controller('channel-message')
 export class ChannelMessageController {
   constructor(private readonly channelMessageService: ChannelMessageService) {}
 
   @Post()
-  create(@Body() createChannelMessageDto: Prisma.MessageCreateInput) {
-    return this.channelMessageService.create(createChannelMessageDto);
+  create(@Body() body: CreateChannelMessageDto) {
+    return this.channelMessageService.create({
+      content: body.content!,
+      fileUrl: body.fileUrl,
+      member: { connect: { id: body.memberId } },
+      channel: { connect: { id: body.channelId } },
+    });
   }
 
   // =============================
