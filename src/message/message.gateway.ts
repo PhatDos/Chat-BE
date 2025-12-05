@@ -26,9 +26,7 @@ export class MessageGateway
     private readonly channelMessageService: ChannelMessageService,
   ) {}
 
-  /* ============================= */
-  /*         CONNECTION            */
-  /* ============================= */
+  //CONNECTION
 
   handleConnection(client: Socket) {
     console.log(`✅ Socket connected: ${client.id}`);
@@ -89,7 +87,8 @@ export class MessageGateway
     const { content, fileUrl, conversationId, senderId } = payload;
 
     // 1️⃣ Kiểm tra conversation
-    const conversation = await this.conversationService.findOne(conversationId);
+    const conversation =
+      await this.directMessageService.findConversationById(conversationId);
 
     if (!conversation) {
       return { error: 'Conversation not found' };
@@ -112,7 +111,7 @@ export class MessageGateway
       conversationId,
     });
 
-    this.server.to(`conversation:${conversationId}`).emit('dm:new', message);
+    this.server.to(`conversation:${conversationId}`).emit('dm:create', message);
     console.log(`📨 New DM → conversation:${conversationId}`);
 
     // Notify user còn lại

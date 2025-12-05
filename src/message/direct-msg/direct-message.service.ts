@@ -21,7 +21,7 @@ export class DirectMessageService {
         sender: { connect: { id: dto.senderId } },
       },
       include: {
-        sender: true, //Profile
+        sender: true,
       },
     });
   }
@@ -80,6 +80,16 @@ export class DirectMessageService {
         deleted: true,
       },
       include: { sender: true },
+    });
+  }
+
+  async findConversationById(conversationId: string) {
+    return this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        profileOne: true,
+        profileTwo: true,
+      },
     });
   }
 }
