@@ -7,7 +7,6 @@ import qs from 'qs';
 declare const module: any;
 
 async function bootstrap() {
-  // ✅ Khai báo rõ là dùng Express (để dùng được app.set)
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.set('query parser', (str: string) => qs.parse(str));
@@ -22,15 +21,13 @@ async function bootstrap() {
     }),
   );
 
-  // const port = process.env.PORT ?? 3000;
-  // await app.listen(port);
-  // console.log(`🚀 Application is running on: http://localhost:${port}`);
-
   const port = process.env.PORT ?? 3000;
+
+  // Listen trên 0.0.0.0 để FE từ ngoài EC2 có thể connect
   await app.listen(port, '0.0.0.0');
-  console.log(
-    `🚀 Application is running on: http://${process.env.PUBLIC_IP}:${port}`,
-  );
+
+  // Log IP public của server trực tiếp (hoặc hardcode nếu cần)
+  console.log(`🚀 Application is running on: http://3.26.147.207:${port}`);
 
   if (module.hot) {
     module.hot.accept();
