@@ -22,9 +22,15 @@ async function bootstrap() {
     }),
   );
 
+  // const port = process.env.PORT ?? 3000;
+  // await app.listen(port);
+  // console.log(`🚀 Application is running on: http://localhost:${port}`);
+
   const port = process.env.PORT ?? 3000;
-  await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
+  await app.listen(port, '0.0.0.0');
+  console.log(
+    `🚀 Application is running on: http://${process.env.PUBLIC_IP}:${port}`,
+  );
 
   if (module.hot) {
     module.hot.accept();

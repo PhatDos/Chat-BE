@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProfileModule } from '~/profile/profile.module';
 import { ServerModule } from '~/server/server.module';
-import { MemberModule } from '~/member/member.module';
 import { MessageModule } from '~/message/message.module';
 
 @Module({
@@ -14,7 +13,6 @@ import { MessageModule } from '~/message/message.module';
     PrismaModule,
     ProfileModule,
     ServerModule,
-    MemberModule,
     MessageModule,
   ],
   controllers: [AppController],
