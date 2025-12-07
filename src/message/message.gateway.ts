@@ -13,7 +13,10 @@ import { ChannelMessageService } from './channel-msg/channel-message.service';
 import { FileType } from '@prisma/client';
 
 @WebSocketGateway({
-  cors: { origin: '*' },
+  cors: {
+    origin: ['https://chat-web-app-phat.vercel.app', 'http://localhost:3000'],
+    methods: ['GET', 'POST'],
+  },
 })
 export class MessageGateway
   implements OnGatewayConnection, OnGatewayDisconnect
