@@ -14,7 +14,11 @@ import { FileType } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
-    origin: ['https://chat-web-app-phat.vercel.app', 'http://localhost:3000'],
+    origin: [
+      'https://chat-web-app-phat.vercel.app',
+      'https://phat-chat.duckdns.org',
+      'http://localhost:3000',
+    ],
     methods: ['GET', 'POST'],
     credentials: true,
   },
