@@ -10,7 +10,6 @@ import { FileType } from '@prisma/client';
 export class DirectMessageService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // CREATE MESSAGE
   async create(dto: CreateDirectMessageDto) {
     return this.prisma.directMessage.create({
       data: {
@@ -26,7 +25,6 @@ export class DirectMessageService {
     });
   }
 
-  // GET MESSAGES
   async getMessages(conversationId: string, cursor?: string) {
     const LIMIT = 20;
 

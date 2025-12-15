@@ -87,6 +87,7 @@ export class MessageGateway
   async handleCreateDirectMessage(
     @MessageBody()
     payload: {
+      tempId: string;
       content?: string;
       fileUrl?: string;
       fileType?: 'text' | 'img' | 'pdf';
@@ -94,37 +95,47 @@ export class MessageGateway
       senderId: string; // profileId
     },
   ) {
-    const { content, fileUrl, conversationId, senderId } = payload;
+    const { tempId, content, fileUrl, conversationId, senderId, fileType } =
+      payload;
 
-    // 1️⃣ Kiểm tra conversation
     const conversation =
       await this.directMessageService.findConversationById(conversationId);
 
     if (!conversation) {
-      return { error: 'Conversation not found' };
+      this.server.to(`profile:${senderId}`).emit('dm:error', {
+        tempId,
+        error: 'Conversation not found',
+      });
+      return;
     }
 
     if (
       senderId !== conversation.profileOneId &&
       senderId !== conversation.profileTwoId
     ) {
-      return { error: 'Invalid sender for this conversation' };
+      this.server.to(`profile:${senderId}`).emit('dm:error', {
+        tempId,
+        error: 'Invalid sender',
+      });
+      return;
     }
 
     const message = await this.directMessageService.create({
-      content: content || '',
+      content: content ?? '',
       fileUrl: fileUrl ?? null,
-      fileType: payload.fileType
-        ? (payload.fileType as FileType)
-        : FileType.text,
+      fileType: fileType ? (fileType as FileType) : FileType.text,
       senderId,
       conversationId,
     });
 
-    this.server.to(`conversation:${conversationId}`).emit('dm:create', message);
+    this.server.to(`conversation:${conversationId}`).emit('dm:create', {
+      ...message,
+      tempId,
+    });
+
     console.log(`📨 New DM → conversation:${conversationId}`);
 
-    // Notify user còn lại
+    // 4️⃣ Notify user còn lại
     const otherProfile =
       conversation.profileOneId === senderId
         ? conversation.profileTwoId
@@ -137,8 +148,6 @@ export class MessageGateway
     });
 
     console.log(`🔔 DM notification → profile:${otherProfile}`);
-
-    return message;
   }
 
   @SubscribeMessage('dm:update')
@@ -186,47 +195,69 @@ export class MessageGateway
   async handleCreateChannelMessage(
     @MessageBody()
     payload: {
+      tempId: string; // 👈 FE tạo
       content?: string;
       channelId: string;
       fileType?: 'text' | 'img' | 'pdf';
-      memberId: string; // FE gửi userId (Clerk), map sang Member
+      memberId: string; // FE gửi userId (Clerk)
       fileUrl?: string;
     },
   ) {
-    const { content, fileUrl, channelId, memberId: userId } = payload;
+    const {
+      tempId,
+      content,
+      fileUrl,
+      channelId,
+      memberId: userId,
+      fileType,
+    } = payload;
 
+    // 1️⃣ Check channel
     const channel = await this.channelMessageService.findChannel(channelId);
-    if (!channel) throw new Error('Channel not found');
+    if (!channel) {
+      throw new Error('Channel not found');
+    }
 
-    // Map userId sang member trong server
+    // 2️⃣ Map userId → Member
     const member =
       await this.channelMessageService.findMemberByUserIdAndServerId(
         userId,
         channel.serverId,
       );
-    if (!member) throw new Error('Member not found in this server');
+    if (!member) {
+      throw new Error('Member not found in this server');
+    }
 
+    // 3️⃣ Create message thật trong DB
     const message = await this.channelMessageService.create({
       content: content ?? '',
       fileUrl,
-      fileType: payload.fileType
-        ? (payload.fileType as FileType)
-        : FileType.text, // default
+      fileType: fileType ? (fileType as FileType) : FileType.text,
       member: { connect: { id: member.id } },
       channel: { connect: { id: channelId } },
     });
 
-    this.server.to(`channel:${channelId}`).emit('channel:message', message);
-    console.log(`📨 New channel message → channel:${channelId}`);
+    // 4️⃣ Emit message kèm tempId (QUAN TRỌNG)
+    this.server.to(`channel:${channelId}`).emit('channel:message', {
+      message,
+      tempId,
+    });
 
+    console.log(`📨 New channel message → channel:${channelId}`, {
+      messageId: message.id,
+      tempId,
+    });
+
+    // 5️⃣ Emit notification (không cần tempId)
     this.server.to(`profile:${member.profileId}`).emit('channel:notification', {
       channelId,
       serverId: member.serverId,
       unread: 1,
     });
+
     console.log(`🔔 Channel notify → profile:${member.profileId}`);
 
-    return message;
+    return { message, tempId };
   }
 
   @SubscribeMessage('channel:message:update')
