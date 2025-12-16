@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ServerService } from './server.service';
+import { JwtModule } from '@nestjs/jwt';
 import { ServerController } from './server.controller';
-import { PrismaModule } from '../prisma/prisma.module';
+import { ServerService } from './server.service';
+import { AuthGuard } from '~/common/guards/auth.guard';
+import { PrismaModule } from '~/prisma/prisma.module';
 
 @Module({
+  imports: [
+    JwtModule.register({ secret: 'temp-secret' }),
+    PrismaModule,
+  ],
   controllers: [ServerController],
-  providers: [ServerService],
-  imports: [PrismaModule],
+  providers: [ServerService, AuthGuard],
 })
 export class ServerModule {}

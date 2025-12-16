@@ -25,6 +25,7 @@ import { FileType } from '@prisma/client';
   transports: ['websocket', 'polling'],
   path: '/socket.io',
 })
+
 export class MessageGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {

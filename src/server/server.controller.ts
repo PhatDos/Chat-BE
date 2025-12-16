@@ -1,44 +1,74 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus } from '@nestjs/common';
 import { ServerService } from './server.service';
-import { Prisma } from '@prisma/client';
+import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
+import { AuthGuard } from '~/common/guards/auth.guard';
+import { CreateServerDto } from './dto/create-server.dto';
+import { UpdateServerDto } from './dto/update-server.dto';
 
 @Controller('servers')
+@UseGuards(AuthGuard)
 export class ServerController {
-  constructor(private readonly serverService: ServerService) {}
+  constructor(private serverService: ServerService) {}
 
   @Post()
-  create(@Body() createServerDto: Prisma.ServerCreateInput) {
-    return this.serverService.create(createServerDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.serverService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.serverService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateServerDto: Prisma.ServerUpdateInput,
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body(ValidationPipe) dto: CreateServerDto,
+    @CurrentProfile() profile: any,
   ) {
-    return this.serverService.update(id, updateServerDto);
+    return await this.serverService.createServer(profile.id, dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.serverService.remove(id);
+  @Patch(':serverId')
+  @HttpCode(HttpStatus.OK)
+  async update(
+    @Param('serverId') serverId: string,
+    @Body(ValidationPipe) dto: UpdateServerDto,
+    @CurrentProfile() profile: any,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.updateServer(serverId, profile.id, dto);
+  }
+
+  @Delete(':serverId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @Param('serverId') serverId: string,
+    @CurrentProfile() profile: any,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    await this.serverService.deleteServer(serverId, profile.id);
+  }
+
+  @Patch(':serverId/invite-code')
+  @HttpCode(HttpStatus.OK)
+  async updateInviteCode(
+    @Param('serverId') serverId: string,
+    @CurrentProfile() profile: any,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.updateInviteCode(serverId, profile.id);
+  }
+
+  @Patch(':serverId/leave')
+  @HttpCode(HttpStatus.OK)
+  async leaveServer(
+    @Param('serverId') serverId: string,
+    @CurrentProfile() profile: any,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.leaveServer(serverId, profile.id);
   }
 }
