@@ -4,10 +4,58 @@ import { v4 as uuidv4 } from 'uuid';
 import { MemberRole } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { DEFAULT_PAGE_SIZE } from '~/utils/constants';
 
 @Injectable()
 export class ServerService {
   constructor(private prisma: PrismaService) {}
+
+  async getServersByProfileId(profileId: string, paginationDto: PaginationDto) {
+    const skip = paginationDto.skip ?? 0;
+    const limit = paginationDto.limit ?? DEFAULT_PAGE_SIZE;
+
+    const [servers, total] = await Promise.all([
+      this.prisma.server.findMany({
+        where: {
+          members: {
+            some: {
+              profileId: profileId,
+            },
+          },
+        },
+        include: {
+          members: {
+            where: {
+              profileId: profileId,
+            },
+          },
+        },
+        orderBy: {
+          createAt: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      this.prisma.server.count({
+        where: {
+          members: {
+            some: {
+              profileId: profileId,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      data: servers,
+      total,
+      skip,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 
   async createServer(profileId: string, dto: CreateServerDto) {
     const server = await this.prisma.server.create({

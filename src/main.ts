@@ -31,11 +31,9 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
 
-  // Listen trên 0.0.0.0 để FE từ ngoài EC2 có thể connect
   await app.listen(port, '0.0.0.0');
 
-  // Log IP public của server trực tiếp (hoặc hardcode nếu cần)
-  console.log(`🚀 Application is running on: http://3.26.147.207:${port}`);
+  console.log(`🚀 Application is running on port: ${port}`);
 
   if (module.hot) {
     module.hot.accept();

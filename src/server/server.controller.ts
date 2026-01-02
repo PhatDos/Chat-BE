@@ -1,14 +1,21 @@
-import { Controller, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus, Query } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('servers')
 @UseGuards(AuthGuard)
 export class ServerController {
   constructor(private serverService: ServerService) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getMyServers(@CurrentProfile() profile: any, @Query() paginationDto: PaginationDto) {
+    return await this.serverService.getServersByProfileId(profile.id, paginationDto);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
