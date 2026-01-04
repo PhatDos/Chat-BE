@@ -213,13 +213,12 @@ export class MessageGateway
       fileType,
     } = payload;
 
-    // 1️⃣ Check channel
     const channel = await this.channelMessageService.findChannel(channelId);
     if (!channel) {
       throw new Error('Channel not found');
     }
 
-    // 2️⃣ Map userId → Member
+    // Map userId → Member
     const member =
       await this.channelMessageService.findMemberByUserIdAndServerId(
         userId,
@@ -229,7 +228,6 @@ export class MessageGateway
       throw new Error('Member not found in this server');
     }
 
-    // 3️⃣ Create message thật trong DB
     const message = await this.channelMessageService.create({
       content: content ?? '',
       fileUrl,
@@ -238,7 +236,6 @@ export class MessageGateway
       channel: { connect: { id: channelId } },
     });
 
-    // 4️⃣ Emit message kèm tempId (QUAN TRỌNG)
     this.server.to(`channel:${channelId}`).emit('channel:message', {
       message,
       tempId,
@@ -249,14 +246,22 @@ export class MessageGateway
       tempId,
     });
 
-    // 5️⃣ Emit notification (không cần tempId)
-    this.server.to(`profile:${member.profileId}`).emit('channel:notification', {
-      channelId,
-      serverId: member.serverId,
-      unread: 1,
-    });
+    // Notify other members in the same server (exclude sender)
+    const members = await this.channelMessageService.getMembersInServer(
+      member.serverId,
+    );
 
-    console.log(`🔔 Channel notify → profile:${member.profileId}`);
+    members
+      .filter((m) => m.profileId !== member.profileId)
+      .forEach((m) => {
+        this.server.to(`profile:${m.profileId}`).emit('channel:notification', {
+          serverId: member.serverId,
+          channelId,
+          inc: 1,
+        });
+      });
+
+    console.log(`🔔 Channel notify (others) → server:${member.serverId}`);
 
     return { message, tempId };
   }

@@ -117,4 +117,15 @@ export class ChannelMessageService {
       },
     });
   }
+
+  async getMembersInServer(serverId: string) {
+    return this.prisma.member.findMany({
+      where: { serverId },
+      select: {
+        id: true,
+        profileId: true,
+        serverId: true,
+      },
+    });
+  }
 }

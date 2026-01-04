@@ -14,10 +14,14 @@ import { ChannelMessageService } from './channel-message.service';
 import { CreateChannelMessageDto } from './channel-message.dto';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
+import { MessageGateway } from '../message.gateway';
 
 @Controller('channels')
 export class ChannelMessageController {
-  constructor(private readonly channelMessageService: ChannelMessageService) {}
+  constructor(
+    private readonly channelMessageService: ChannelMessageService,
+    private readonly messageGateway: MessageGateway,
+  ) {}
 
   @Post()
   create(@Body() body: CreateChannelMessageDto) {
@@ -65,10 +69,28 @@ export class ChannelMessageController {
     @Body() { serverId }: { serverId: string },
     @CurrentProfile() profile: any,
   ) {
-    return this.channelMessageService.markChannelAsRead(
+    const channelRead = await this.channelMessageService.markChannelAsRead(
       channelId,
       serverId,
       profile.id,
     );
+
+    // Emit events to current user
+    this.messageGateway.server
+      .to(`profile:${profile.id}`)
+      .emit('channel:mark-read', {
+        channelId,
+        serverId,
+        lastReadAt: channelRead.lastReadAt,
+      });
+
+    this.messageGateway.server
+      .to(`profile:${profile.id}`)
+      .emit('server:unread-update', {
+        serverId,
+        channelId,
+      });
+
+    return channelRead;
   }
 }
