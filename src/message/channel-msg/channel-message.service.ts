@@ -81,4 +81,40 @@ export class ChannelMessageService {
       include: { profile: true },
     });
   }
+
+  async markChannelAsRead(
+    channelId: string,
+    serverId: string,
+    profileId: string,
+  ) {
+    // Find member to verify user is part of this server
+    const member = await this.prisma.member.findFirst({
+      where: {
+        profileId,
+        serverId,
+      },
+    });
+
+    if (!member) {
+      throw new Error('User is not a member of this server');
+    }
+
+    // Upsert ChannelRead record
+    return this.prisma.channelRead.upsert({
+      where: {
+        memberId_channelId: {
+          memberId: member.id,
+          channelId,
+        },
+      },
+      update: {
+        lastReadAt: new Date(),
+      },
+      create: {
+        memberId: member.id,
+        channelId,
+        lastReadAt: new Date(),
+      },
+    });
+  }
 }

@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ChannelMessageService } from './channel-message.service';
 import { CreateChannelMessageDto } from './channel-message.dto';
+import { AuthGuard } from '~/common/guards/auth.guard';
+import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 
-@Controller('channel-message')
+@Controller('channels')
 export class ChannelMessageController {
   constructor(private readonly channelMessageService: ChannelMessageService) {}
 
@@ -53,5 +56,19 @@ export class ChannelMessageController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.channelMessageService.delete(id);
+  }
+
+  @Post(':channelId/read')
+  @UseGuards(AuthGuard)
+  async markChannelAsRead(
+    @Param('channelId') channelId: string,
+    @Body() { serverId }: { serverId: string },
+    @CurrentProfile() profile: any,
+  ) {
+    return this.channelMessageService.markChannelAsRead(
+      channelId,
+      serverId,
+      profile.id,
+    );
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { MemberRole } from '@prisma/client';
@@ -15,41 +19,102 @@ export class ServerService {
     const skip = paginationDto.skip ?? 0;
     const limit = paginationDto.limit ?? DEFAULT_PAGE_SIZE;
 
+    // 1️⃣ Lấy servers + memberId + channels
     const [servers, total] = await Promise.all([
       this.prisma.server.findMany({
         where: {
-          members: {
-            some: {
-              profileId: profileId,
-            },
-          },
+          members: { some: { profileId } },
         },
         include: {
           members: {
-            where: {
-              profileId: profileId,
-            },
+            where: { profileId },
+            select: { id: true }, // memberId
           },
-        },
-        orderBy: {
-          createAt: 'desc',
+          channels: {
+            select: { id: true },
+          },
         },
         skip,
         take: limit,
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.server.count({
         where: {
-          members: {
-            some: {
-              profileId: profileId,
-            },
-          },
+          members: { some: { profileId } },
         },
       }),
     ]);
 
+    if (servers.length === 0) {
+      return {
+        data: [],
+        total,
+        skip,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+
+    // 2️⃣ Gom memberIds & channelIds
+    const memberIds = servers.flatMap((s) => s.members.map((m) => m.id));
+    const channelIds = servers.flatMap((s) => s.channels.map((c) => c.id));
+
+    // 3️⃣ Lấy lastReadAt
+    const channelReads = await this.prisma.channelRead.findMany({
+      where: {
+        memberId: { in: memberIds },
+        channelId: { in: channelIds },
+      },
+      select: {
+        memberId: true,
+        channelId: true,
+        lastReadAt: true,
+      },
+    });
+
+    // Map: channelId -> lastReadAt
+    const lastReadMap = new Map<string, Date>();
+    for (const r of channelReads) {
+      lastReadMap.set(r.channelId, r.lastReadAt);
+    }
+
+    // 4️⃣ Count unread per channel (DB làm việc nặng)
+    const unreadByChannel = await Promise.all(
+      channelIds.map(async (channelId) => {
+        const lastReadAt = lastReadMap.get(channelId) ?? new Date(0);
+
+        const count = await this.prisma.message.count({
+          where: {
+            channelId,
+            deleted: false,
+            createdAt: { gt: lastReadAt },
+          },
+        });
+
+        return { channelId, count };
+      }),
+    );
+
+    const unreadMap = new Map(
+      unreadByChannel.map((i) => [i.channelId, i.count]),
+    );
+
+    // 5️⃣ Gộp unreadCount theo server
+    const data = servers.map((server) => {
+      const unreadCount = server.channels.reduce((sum, ch) => {
+        return sum + (unreadMap.get(ch.id) ?? 0);
+      }, 0);
+
+      return {
+        id: server.id,
+        name: server.name,
+        imageUrl: server.imageUrl,
+        unreadCount,
+      };
+    });
+
     return {
-      data: servers,
+      data,
       total,
       skip,
       limit,
@@ -76,7 +141,11 @@ export class ServerService {
     return server;
   }
 
-  async updateServer(serverId: string, profileId: string, dto: UpdateServerDto) {
+  async updateServer(
+    serverId: string,
+    profileId: string,
+    dto: UpdateServerDto,
+  ) {
     // Only server owner can update
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
