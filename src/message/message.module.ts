@@ -11,6 +11,8 @@ import { ChannelMessageController } from './channel-msg/channel-message.controll
 import { NotificationController } from './notification/notification.controller';
 
 import { MessageGateway } from './message.gateway';
+import { DirectMessageGateway } from './direct-msg/direct-message.gateway';
+import { ChannelMessageGateway } from './channel-msg/channel-message.gateway';
 import { AuthGuard } from '~/common/guards/auth.guard';
 
 @Module({
@@ -27,6 +29,8 @@ import { AuthGuard } from '~/common/guards/auth.guard';
     DirectMessageService,
     ChannelMessageService,
     MessageGateway,
+    DirectMessageGateway,
+    ChannelMessageGateway,
     NotificationService,
     AuthGuard,
   ],
