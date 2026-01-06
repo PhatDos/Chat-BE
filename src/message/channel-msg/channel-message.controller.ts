@@ -75,7 +75,7 @@ export class ChannelMessageController {
       profile.id,
     );
 
-    // Emit events to current user
+    // Listen per channel (chưa dùng)
     this.messageGateway.server
       .to(`profile:${profile.id}`)
       .emit('channel:mark-read', {
@@ -84,11 +84,17 @@ export class ChannelMessageController {
         lastReadAt: channelRead.lastReadAt,
       });
 
+    const totalUnread = await this.channelMessageService.getTotalUnreadForSpecificServer(
+      serverId,
+      profile.id,
+    );
+
     this.messageGateway.server
       .to(`profile:${profile.id}`)
       .emit('server:unread-update', {
         serverId,
-        channelId,
+        // channelId,
+        totalUnread,
       });
 
     return channelRead;

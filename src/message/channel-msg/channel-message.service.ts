@@ -125,7 +125,69 @@ export class ChannelMessageService {
         id: true,
         profileId: true,
         serverId: true,
+        profile: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
+  }
+
+  async getTotalUnreadForSpecificServer(serverId: string, profileId: string) {
+    const member = await this.prisma.member.findFirst({
+      where: { serverId, profileId },
+      select: { id: true },
+    });
+
+    if (!member) {
+      throw new Error('User is not a member of this server');
+    }
+
+    const memberId = member.id;
+
+    const unread: Array<Record<string, any>> =
+      (await this.prisma.message.aggregateRaw({
+        pipeline: [
+          { $match: { deleted: false } },
+          {
+            $lookup: {
+              from: 'Channel',
+              localField: 'channelId',
+              foreignField: '_id',
+              as: 'channel',
+            },
+          },
+          { $unwind: '$channel' },
+          { $match: { 'channel.serverId': serverId } },
+          {
+            $lookup: {
+              from: 'ChannelRead',
+              let: { channelId: '$channelId' },
+              pipeline: [
+                {
+                  $match: {
+                    memberId,
+                    $expr: { $eq: ['$channelId', '$$channelId'] },
+                  },
+                },
+              ],
+              as: 'read',
+            },
+          },
+          {
+            $addFields: {
+              lastReadAt: {
+                $ifNull: [{ $first: '$read.lastReadAt' }, new Date(0)],
+              },
+            },
+          },
+          { $match: { $expr: { $gt: ['$createdAt', '$lastReadAt'] } } },
+          { $count: 'totalUnread' },
+        ],
+      })) as any;
+
+    const totalUnread = (unread && unread[0] && unread[0].totalUnread) || 0;
+    return Number(totalUnread) || 0;
   }
 }

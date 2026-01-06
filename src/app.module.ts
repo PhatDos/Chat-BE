@@ -11,7 +11,7 @@ import { ServerModule } from '~/server/server.module';
 
 @Module({
   imports: [
-    JwtModule.register({ secret: 'temp-secret' }), // For decoding only
+    JwtModule.register({ secret: 'temp-secret' }), 
     PrismaModule,
     MessageModule,
     ServerModule,

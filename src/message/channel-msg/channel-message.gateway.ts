@@ -10,24 +10,21 @@ import { FileType } from '@prisma/client';
 import { WEBSOCKET_GATEWAY_CONFIG } from '../gateway.config';
 
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
-
 export class ChannelMessageGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(
-    private readonly channelMessageService: ChannelMessageService,
-  ) {}
+  constructor(private readonly channelMessageService: ChannelMessageService) {}
 
   @SubscribeMessage('channel:message:create')
   async handleCreateChannelMessage(
     @MessageBody()
     payload: {
-      tempId: string; // FE gửi để đối chiếu khi nhận phản hồi
+      tempId: string;
       content?: string;
       channelId: string;
       fileType?: 'text' | 'img' | 'pdf';
-      memberId: string; // FE gửi userId (Clerk)
+      memberId: string; // profileId
       fileUrl?: string;
     },
   ) {
@@ -36,24 +33,19 @@ export class ChannelMessageGateway {
       content,
       fileUrl,
       channelId,
-      memberId: userId,
+      memberId: profileId,
       fileType,
     } = payload;
 
     const channel = await this.channelMessageService.findChannel(channelId);
-    if (!channel) {
-      throw new Error('Channel not found');
-    }
+    if (!channel) throw new Error('Channel not found');
 
-    // Map userId → Member
     const member =
       await this.channelMessageService.findMemberByUserIdAndServerId(
-        userId,
+        profileId,
         channel.serverId,
       );
-    if (!member) {
-      throw new Error('Member not found in this server');
-    }
+    if (!member) throw new Error('Member not found');
 
     const message = await this.channelMessageService.create({
       content: content ?? '',
@@ -63,31 +55,27 @@ export class ChannelMessageGateway {
       channel: { connect: { id: channelId } },
     });
 
+    // 1️⃣ Emit message cho những người đang mở channel
     this.server.to(`channel:${channelId}`).emit('channel:message', {
       message,
       tempId,
     });
 
-    console.log(`📨 New channel message → channel:${channelId}`, {
-      messageId: message.id,
-      tempId,
-    });
-
+    // 2️⃣ Notify member khác trong server (increment unread)
     const members = await this.channelMessageService.getMembersInServer(
       member.serverId,
     );
 
-    members
-      .filter((m) => m.profileId !== member.profileId)
-      .forEach((m) => {
-        this.server.to(`profile:${m.profileId}`).emit('channel:notification', {
-          serverId: member.serverId,
-          channelId,
-          inc: 1,
-        });
-      });
+    for (const m of members) {
+      const userId = m.profile.userId;
+      if (m.profileId === member.profileId) continue;
 
-    console.log(`🔔 Channel notify (others) → server:${member.serverId}`);
+      this.server.to(`profile:${userId}`).emit('channel:notification', {
+        serverId: member.serverId,
+        channelId,
+        inc: 1,
+      });
+    }
 
     return { message, tempId };
   }
