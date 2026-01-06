@@ -38,19 +38,16 @@ export class DirectMessageController {
     return this.directMessageService.getMessages(conversationId, cursor);
   }
 
-  // GET ONE
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.directMessageService.findOne(id);
   }
 
-  // UPDATE
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateDirectMessageDto) {
     return this.directMessageService.update(id, dto);
   }
 
-  // DELETE
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.directMessageService.delete(id);

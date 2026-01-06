@@ -8,23 +8,15 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WEBSOCKET_GATEWAY_CONFIG } from './gateway.config';
 
-@WebSocketGateway({
-  cors: {
-    origin: process.env.CORS_ORIGINS?.split(',') || [],
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-  transports: ['websocket', 'polling'],
-  path: '/socket.io',
-})
+@WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
+
 export class MessageGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
-
-  //CONNECTION
 
   handleConnection(client: Socket) {
     console.log(`✅ Socket connected: ${client.id}`);
@@ -34,10 +26,6 @@ export class MessageGateway
   handleDisconnect(client: Socket) {
     console.log(`❌ Socket disconnected: ${client.id}`);
   }
-
-  /* ============================= */
-  /*            ROOMS              */
-  /* ============================= */
 
   @SubscribeMessage('profile:join')
   handleJoinProfileRoom(

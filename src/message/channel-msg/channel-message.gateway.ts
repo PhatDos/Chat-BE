@@ -7,20 +7,10 @@ import {
 import { Server } from 'socket.io';
 import { ChannelMessageService } from './channel-message.service';
 import { FileType } from '@prisma/client';
+import { WEBSOCKET_GATEWAY_CONFIG } from '../gateway.config';
 
-@WebSocketGateway({
-  cors: {
-    origin: [
-      'https://chat-web-app-phat.vercel.app',
-      'https://phat-chat.duckdns.org',
-      'http://localhost:3000',
-    ],
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-  transports: ['websocket', 'polling'],
-  path: '/socket.io',
-})
+@WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
+
 export class ChannelMessageGateway {
   @WebSocketServer()
   server: Server;
@@ -29,14 +19,11 @@ export class ChannelMessageGateway {
     private readonly channelMessageService: ChannelMessageService,
   ) {}
 
-  /* ============================= */
-  /*            CHANNEL            */
-  /* ============================= */
   @SubscribeMessage('channel:message:create')
   async handleCreateChannelMessage(
     @MessageBody()
     payload: {
-      tempId: string; // 👈 FE tạo
+      tempId: string; // FE gửi để đối chiếu khi nhận phản hồi
       content?: string;
       channelId: string;
       fileType?: 'text' | 'img' | 'pdf';
@@ -86,7 +73,6 @@ export class ChannelMessageGateway {
       tempId,
     });
 
-    // Notify other members in the same server (exclude sender)
     const members = await this.channelMessageService.getMembersInServer(
       member.serverId,
     );

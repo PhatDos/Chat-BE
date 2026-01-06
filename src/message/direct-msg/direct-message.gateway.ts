@@ -4,28 +4,20 @@ import {
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
+import { BadRequestException } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { DirectMessageService } from './direct-message.service';
 import { FileType } from '@prisma/client';
+import { WEBSOCKET_GATEWAY_CONFIG } from '../gateway.config';
 
-@WebSocketGateway({
-  cors: {
-    origin: process.env.CORS_ORIGINS?.split(',') || [],
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-  transports: ['websocket', 'polling'],
-  path: '/socket.io',
-})
+@WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
+
 export class DirectMessageGateway {
   @WebSocketServer()
   server: Server;
 
   constructor(private readonly directMessageService: DirectMessageService) {}
 
-  /* ============================= */
-  /*        DIRECT MESSAGE         */
-  /* ============================= */
   @SubscribeMessage('dm:create')
   async handleCreateDirectMessage(
     @MessageBody()
@@ -45,22 +37,14 @@ export class DirectMessageGateway {
       await this.directMessageService.findConversationById(conversationId);
 
     if (!conversation) {
-      this.server.to(`profile:${senderId}`).emit('dm:error', {
-        tempId,
-        error: 'Conversation not found',
-      });
-      return;
+      throw new BadRequestException('Conversation not found');
     }
 
     if (
       senderId !== conversation.profileOneId &&
       senderId !== conversation.profileTwoId
     ) {
-      this.server.to(`profile:${senderId}`).emit('dm:error', {
-        tempId,
-        error: 'Invalid sender',
-      });
-      return;
+      throw new BadRequestException('Invalid sender');
     }
 
     const message = await this.directMessageService.create({
