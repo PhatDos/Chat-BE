@@ -11,7 +11,6 @@ import { Server, Socket } from 'socket.io';
 import { WEBSOCKET_GATEWAY_CONFIG } from './gateway.config';
 
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
-
 export class MessageGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -32,6 +31,7 @@ export class MessageGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: { profileId: string },
   ) {
+    client.data.profileId = payload.profileId;
     client.join(`profile:${payload.profileId}`);
     console.log(`👤 Joined profile room: profile:${payload.profileId}`);
   }
@@ -54,5 +54,14 @@ export class MessageGateway
   ) {
     client.join(`channel:${payload.channelId}`);
     console.log(`👉 Joined channel room: channel:${payload.channelId}`);
+  }
+
+  @SubscribeMessage('channel:leave')
+  handleLeaveChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { channelId: string },
+  ) {
+    client.leave(`channel:${payload.channelId}`);
+    // console.log(`👋 Left channel room: channel:${payload.channelId}`);
   }
 }

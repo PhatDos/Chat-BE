@@ -33,9 +33,7 @@ export class ChannelMessageController {
     });
   }
 
-  // =============================
   // GET MESSAGES WITH PAGINATION
-  // =============================
   @Get()
   getMessages(
     @Query('channelId') channelId: string,

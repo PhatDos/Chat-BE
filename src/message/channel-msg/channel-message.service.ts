@@ -61,7 +61,7 @@ export class ChannelMessageService {
     return this.prisma.channel.findUnique({ where: { id: channelId } });
   }
 
-  async findMemberByUserIdAndServerId(userId: string, serverId: string) {
+  async findMemberByProfileIdAndServerId(userId: string, serverId: string) {
     return this.prisma.member.findFirst({
       where: {
         serverId,
@@ -87,7 +87,7 @@ export class ChannelMessageService {
     serverId: string,
     profileId: string,
   ) {
-    // Find member to verify user is part of this server
+    // Check if user is part of this server
     const member = await this.prisma.member.findFirst({
       where: {
         profileId,
@@ -99,7 +99,6 @@ export class ChannelMessageService {
       throw new Error('User is not a member of this server');
     }
 
-    // Upsert ChannelRead record
     return this.prisma.channelRead.upsert({
       where: {
         memberId_channelId: {

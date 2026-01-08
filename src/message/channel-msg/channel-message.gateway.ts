@@ -41,7 +41,7 @@ export class ChannelMessageGateway {
     if (!channel) throw new Error('Channel not found');
 
     const member =
-      await this.channelMessageService.findMemberByUserIdAndServerId(
+      await this.channelMessageService.findMemberByProfileIdAndServerId(
         profileId,
         channel.serverId,
       );
@@ -55,22 +55,35 @@ export class ChannelMessageGateway {
       channel: { connect: { id: channelId } },
     });
 
-    // 1️⃣ Emit message cho những người đang mở channel
+    // 1️⃣ emit message cho channel
     this.server.to(`channel:${channelId}`).emit('channel:message', {
       message,
       tempId,
     });
 
-    // 2️⃣ Notify member khác trong server (increment unread)
+    // 2️⃣ lấy socket đang ở channel (đang đọc)
+    const socketsInChannel = await this.server
+      .in(`channel:${channelId}`)
+      .allSockets();
+
     const members = await this.channelMessageService.getMembersInServer(
       member.serverId,
     );
 
     for (const m of members) {
-      const userId = m.profile.userId;
       if (m.profileId === member.profileId) continue;
 
-      this.server.to(`profile:${userId}`).emit('channel:notification', {
+      const userId = m.profile.userId;
+
+      // ❗ nếu user đang join channel => skip unread
+      const isReading = [...socketsInChannel].some((socketId) => {
+        const socket = this.server.sockets.sockets.get(socketId);
+        return socket?.data?.profileId === m.profileId;
+      });
+
+      if (isReading) continue;
+
+      this.server.to(`profile:${m.profileId}`).emit('channel:notification', {
         serverId: member.serverId,
         channelId,
         inc: 1,
