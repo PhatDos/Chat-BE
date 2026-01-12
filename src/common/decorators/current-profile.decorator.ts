@@ -1,25 +1,16 @@
-import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 
 export const CurrentProfile = createParamDecorator(
-  async (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    const userId = request.user?.id || request.userId;
+  (data: unknown, ctx: ExecutionContext) => {
+    const req = ctx.switchToHttp().getRequest();
+    const prisma: PrismaService = req.prismaService; 
+    const userId = req.user?.userId;
 
-    if (!userId) {
-      throw new UnauthorizedException('User ID not found');
-    }
+    if (!userId) throw new UnauthorizedException();
 
-    const prisma = request.app?.get(PrismaService) || new PrismaService();
+    if (!prisma) throw new Error('PrismaService not found in request');
 
-    const profile = await prisma.profile.findUnique({
-      where: { userId },
-    });
-
-    if (!profile) {
-      throw new UnauthorizedException('User profile not found');
-    }
-
-    return profile;
+    return prisma.profile.findUnique({ where: { userId } });
   },
 );

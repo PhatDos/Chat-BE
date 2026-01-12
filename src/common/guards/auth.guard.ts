@@ -4,44 +4,49 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { verifyToken } from '@clerk/clerk-sdk-node';
+import { PrismaService } from '~/prisma/prisma.service';
+
+// @Injectable()
+// export class AuthGuard implements CanActivate {
+//   async canActivate(context: ExecutionContext): Promise<boolean> {
+//     const req = context.switchToHttp().getRequest();
+//     const authHeader = req.headers.authorization;
+
+//     if (!authHeader?.startsWith('Bearer ')) throw new UnauthorizedException();
+
+//     const token = authHeader.slice(7);
+
+//     try {
+//       const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY! });
+
+//       req.user = { userId: payload.sub };
+//       return true;
+//     } catch {
+//       throw new UnauthorizedException('Invalid Clerk token');
+//     }
+//   }
+// }
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(private prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
+    const req = context.switchToHttp().getRequest();
+    const authHeader = req.headers.authorization;
 
-    // Try to extract Bearer token from Authorization header
-    let userId: string | null = null;
+    if (!authHeader?.startsWith('Bearer ')) throw new UnauthorizedException();
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.slice(7); // Remove 'Bearer ' prefix
-      try {
-        // Decode JWT token from Clerk (without verification - adjust if needed)
-        const decoded = this.jwtService.decode(token) as any;
-        userId = decoded?.sub || decoded?.userId || decoded?.user_id;
-      } catch (error) {
-        console.error('Failed to decode JWT token:', error);
-      }
+    const token = authHeader.slice(7);
+
+    try {
+      const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY! });
+      req.user = { userId: payload.sub };
+      req.prismaService = this.prisma; // attach Prisma vào request
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid Clerk token');
     }
-
-    // Fallback to other sources if no Bearer token
-    if (!userId) {
-      userId =
-        request.auth?.userId || // Clerk context
-        request.user?.id || // Passport JWT
-        request.userId || // Custom middleware
-        request.headers['x-user-id']; // Custom header
-    }
-
-    if (!userId) {
-      throw new UnauthorizedException('Missing user authentication');
-    }
-
-    request.userId = userId;
-    return true;
   }
 }
