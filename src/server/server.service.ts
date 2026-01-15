@@ -253,4 +253,71 @@ export class ServerService {
 
     return updatedServer;
   }
+
+  async getUnreadMap(serverId: string, profileId: string) {
+    // 1. Verify user is a member of the server
+    const server = await this.prisma.server.findUnique({
+      where: { id: serverId },
+      include: { members: true },
+    });
+
+    if (!server) {
+      throw new NotFoundException('Server not found');
+    }
+
+    const isMember = server.members.some((m) => m.profileId === profileId);
+    if (!isMember && server.profileId !== profileId) {
+      throw new ForbiddenException('You are not a member of this server');
+    }
+
+    // 2. Get member
+    const member = await this.prisma.member.findFirst({
+      where: {
+        serverId,
+        profileId,
+      },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Member not found');
+    }
+
+    // 3. Get channels
+    const channels = await this.prisma.channel.findMany({
+      where: {
+        serverId,
+      },
+      select: { id: true },
+    });
+
+    // 4. Get read state
+    const reads = await this.prisma.channelRead.findMany({
+      where: {
+        memberId: member.id,
+      },
+    });
+
+    const readMap = new Map(
+      reads.map((r) => [r.channelId, r.lastReadAt]),
+    );
+
+    // 5. Count unread
+    const result: Record<string, number> = {};
+
+    for (const channel of channels) {
+      const lastReadAt = readMap.get(channel.id);
+
+      const count = await this.prisma.message.count({
+        where: {
+          channelId: channel.id,
+          deleted: false,
+          createdAt: lastReadAt ? { gt: lastReadAt } : undefined,
+        },
+      });
+
+      result[channel.id] = count;
+    }
+
+    return result;
+  }
 }

@@ -78,4 +78,13 @@ export class ServerController {
 
     return await this.serverService.leaveServer(serverId, profile.id);
   }
+
+  @Get(':serverId/unread')
+  @HttpCode(HttpStatus.OK)
+  async getUnreadByServer(
+    @Param('serverId') serverId: string,
+    @CurrentProfile() profile: any,
+  ) {
+    return await this.serverService.getUnreadMap(serverId, profile.id);
+  }
 }

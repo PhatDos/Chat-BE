@@ -55,13 +55,12 @@ export class ChannelMessageGateway {
       channel: { connect: { id: channelId } },
     });
 
-    // 1️⃣ emit message cho channel
     this.server.to(`channel:${channelId}`).emit('channel:message', {
       message,
       tempId,
     });
 
-    // 2️⃣ lấy socket đang ở channel (đang đọc)
+    // lấy socket đang ở channel (đang đọc)
     const socketsInChannel = await this.server
       .in(`channel:${channelId}`)
       .allSockets();
