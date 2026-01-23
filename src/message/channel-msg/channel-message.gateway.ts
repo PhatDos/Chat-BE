@@ -78,7 +78,14 @@ export class ChannelMessageGateway {
         return socket?.data?.profileId === m.profileId;
       });
 
-      if (isReading) continue;
+      if (isReading) {
+        await this.channelMessageService.markChannelAsRead(
+          channelId,
+          member.serverId,
+          m.profileId,
+        );
+        continue;
+      }
 
       console.log('member.profileId', m.profileId);
       console.log('is reading', isReading);

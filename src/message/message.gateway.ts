@@ -62,6 +62,6 @@ export class MessageGateway
     @MessageBody() payload: { channelId: string },
   ) {
     client.leave(`channel:${payload.channelId}`);
-    // console.log(`👋 Left channel room: channel:${payload.channelId}`);
+    console.log(`👋 Left channel room: channel:${payload.channelId}`);
   }
 }
