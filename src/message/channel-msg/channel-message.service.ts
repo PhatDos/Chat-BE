@@ -148,7 +148,7 @@ export class ChannelMessageService {
     const unread: Array<Record<string, any>> =
       (await this.prisma.message.aggregateRaw({
         pipeline: [
-          { $match: { deleted: false } },
+          { $match: { deleted: false, memberId: { $ne: memberId } } },
           {
             $lookup: {
               from: 'Channel',

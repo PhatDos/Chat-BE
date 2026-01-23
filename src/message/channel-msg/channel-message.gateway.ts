@@ -72,15 +72,17 @@ export class ChannelMessageGateway {
     for (const m of members) {
       if (m.profileId === member.profileId) continue;
 
-      const userId = m.profile.userId;
-
-      // ❗ nếu user đang join channel => skip unread
+      // Nếu user đang join channel => skip unread
       const isReading = [...socketsInChannel].some((socketId) => {
         const socket = this.server.sockets.sockets.get(socketId);
         return socket?.data?.profileId === m.profileId;
       });
 
       if (isReading) continue;
+
+      console.log('member.profileId', m.profileId);
+      console.log('is reading', isReading);
+      console.log('socketsInChannel', [...socketsInChannel]);
 
       this.server.to(`profile:${m.profileId}`).emit('channel:notification', {
         serverId: member.serverId,

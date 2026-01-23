@@ -87,6 +87,7 @@ export class ServerService {
           where: {
             channelId,
             deleted: false,
+            member: { profileId: { not: profileId } },
             createdAt: { gt: lastReadAt },
           },
         });
@@ -311,6 +312,7 @@ export class ServerService {
         where: {
           channelId: channel.id,
           deleted: false,
+          member: { profileId: { not: profileId } },
           createdAt: lastReadAt ? { gt: lastReadAt } : undefined,
         },
       });
