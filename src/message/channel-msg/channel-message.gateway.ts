@@ -78,18 +78,7 @@ export class ChannelMessageGateway {
         return socket?.data?.profileId === m.profileId;
       });
 
-      if (isReading) {
-        await this.channelMessageService.markChannelAsRead(
-          channelId,
-          member.serverId,
-          m.profileId,
-        );
-        continue;
-      }
-
-      console.log('member.profileId', m.profileId);
-      console.log('is reading', isReading);
-      console.log('socketsInChannel', [...socketsInChannel]);
+      if (isReading) continue;
 
       this.server.to(`profile:${m.profileId}`).emit('channel:notification', {
         serverId: member.serverId,

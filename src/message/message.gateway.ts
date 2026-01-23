@@ -8,6 +8,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ChannelMessageService } from './channel-msg/channel-message.service';
 import { WEBSOCKET_GATEWAY_CONFIG } from './gateway.config';
 
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
@@ -16,6 +17,10 @@ export class MessageGateway
 {
   @WebSocketServer()
   server: Server;
+
+  constructor(
+    private readonly channelMessageService: ChannelMessageService,
+  ) {}
 
   handleConnection(client: Socket) {
     console.log(`✅ Socket connected: ${client.id}`);
@@ -63,5 +68,22 @@ export class MessageGateway
   ) {
     client.leave(`channel:${payload.channelId}`);
     console.log(`👋 Left channel room: channel:${payload.channelId}`);
+
+    const profileId = client.data?.profileId;
+    if (!profileId) return;
+
+    this.channelMessageService
+      .findChannel(payload.channelId)
+      .then((channel) => {
+        if (!channel) return;
+        return this.channelMessageService.markChannelAsRead(
+          payload.channelId,
+          channel.serverId,
+          profileId,
+        );
+      })
+      .catch((err) =>
+        console.warn('channel:leave markChannelAsRead failed', err?.message),
+      );
   }
 }
