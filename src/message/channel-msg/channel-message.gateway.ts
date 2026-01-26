@@ -55,6 +55,7 @@ export class ChannelMessageGateway {
       channel: { connect: { id: channelId } },
     });
 
+    // Sending state
     this.server.to(`channel:${channelId}`).emit('channel:message', {
       message,
       tempId,

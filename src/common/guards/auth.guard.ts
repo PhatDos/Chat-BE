@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { verifyToken } from '@clerk/clerk-sdk-node';
+import { verifyToken } from '@clerk/backend';
 import { PrismaService } from '~/prisma/prisma.service';
 
 // @Injectable()

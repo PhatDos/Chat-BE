@@ -79,21 +79,10 @@ export class ServerService {
     }
 
     // 4️⃣ Count unread per channel (DB làm việc nặng)
-    const unreadByChannel = await Promise.all(
-      channelIds.map(async (channelId) => {
-        const lastReadAt = lastReadMap.get(channelId) ?? new Date(0);
-
-        const count = await this.prisma.message.count({
-          where: {
-            channelId,
-            deleted: false,
-            member: { profileId: { not: profileId } },
-            createdAt: { gt: lastReadAt },
-          },
-        });
-
-        return { channelId, count };
-      }),
+    const unreadByChannel = await this.countUnreadInChannels(
+      channelIds,
+      profileId,
+      lastReadMap,
     );
 
     const unreadMap = new Map(
@@ -303,23 +292,40 @@ export class ServerService {
     );
 
     // 5. Count unread
+    const unreadStats = await this.countUnreadInChannels(
+      channels.map((c) => c.id),
+      profileId,
+      readMap,
+    );
+
     const result: Record<string, number> = {};
-
-    for (const channel of channels) {
-      const lastReadAt = readMap.get(channel.id);
-
-      const count = await this.prisma.message.count({
-        where: {
-          channelId: channel.id,
-          deleted: false,
-          member: { profileId: { not: profileId } },
-          createdAt: lastReadAt ? { gt: lastReadAt } : undefined,
-        },
-      });
-
-      result[channel.id] = count;
+    for (const stat of unreadStats) {
+      result[stat.channelId] = stat.count;
     }
 
     return result;
+  }
+
+  private async countUnreadInChannels(
+    channelIds: string[],
+    profileId: string,
+    lastReadMap: Map<string, Date>,
+  ) {
+    return await Promise.all(
+      channelIds.map(async (channelId) => {
+        const lastReadAt = lastReadMap.get(channelId) ?? new Date();
+
+        const count = await this.prisma.message.count({
+          where: {
+            channelId,
+            deleted: false,
+            member: { profileId: { not: profileId } },
+            createdAt: { gt: lastReadAt },
+          },
+        });
+
+        return { channelId, count };
+      }),
+    );
   }
 }
