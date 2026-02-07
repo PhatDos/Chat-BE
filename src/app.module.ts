@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { MessageModule } from '~/message/message.module';
 import { ServerModule } from '~/server/server.module';
 import { ProfileModule } from '~/profile/profile.module';
+import { ChannelModule } from '~/channel/channel.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ProfileModule } from '~/profile/profile.module';
     MessageModule,
     ServerModule,
     ProfileModule,
+    ChannelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

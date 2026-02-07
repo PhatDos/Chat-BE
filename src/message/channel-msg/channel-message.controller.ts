@@ -16,7 +16,7 @@ import { AuthGuard } from '~/common/guards/auth.guard';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { MessageGateway } from '../message.gateway';
 
-@Controller('channels')
+@Controller('channel-messages')
 export class ChannelMessageController {
   constructor(
     private readonly channelMessageService: ChannelMessageService,

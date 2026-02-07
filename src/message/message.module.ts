@@ -34,6 +34,11 @@ import { AuthGuard } from '~/common/guards/auth.guard';
     NotificationService,
     AuthGuard,
   ],
-  exports: [DirectMessageService, ChannelMessageService, NotificationService],
+  exports: [
+    DirectMessageService,
+    ChannelMessageService,
+    ChannelMessageGateway,
+    NotificationService,
+  ],
 })
 export class MessageModule {}

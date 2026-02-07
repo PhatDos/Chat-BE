@@ -136,7 +136,7 @@ export class ServerService {
     profileId: string,
     dto: UpdateServerDto,
   ) {
-    // Only server owner can update
+ 
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
     });
@@ -145,6 +145,7 @@ export class ServerService {
       throw new NotFoundException('Server not found');
     }
 
+    // Only server owner can update
     if (server.profileId !== profileId) {
       throw new ForbiddenException('Only server owner can update this server');
     }
@@ -161,7 +162,7 @@ export class ServerService {
   }
 
   async deleteServer(serverId: string, profileId: string) {
-    // Only server owner can delete
+
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
     });
@@ -170,6 +171,7 @@ export class ServerService {
       throw new NotFoundException('Server not found');
     }
 
+    // Only server owner can delete
     if (server.profileId !== profileId) {
       throw new ForbiddenException('Only server owner can delete this server');
     }
