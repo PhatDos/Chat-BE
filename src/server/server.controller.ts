@@ -87,4 +87,17 @@ export class ServerController {
   ) {
     return await this.serverService.getUnreadMap(serverId, profile.id);
   }
+
+  @Post('invite/:inviteCode')
+  @HttpCode(HttpStatus.OK)
+  async joinByInviteCode(
+    @Param('inviteCode') inviteCode: string,
+    @CurrentProfile() profile: any,
+  ) {
+    if (!inviteCode) {
+      throw new BadRequestException('Invite code is required');
+    }
+
+    return await this.serverService.joinServerByInviteCode(inviteCode, profile.id);
+  }
 }

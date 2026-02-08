@@ -136,7 +136,6 @@ export class ServerService {
     profileId: string,
     dto: UpdateServerDto,
   ) {
- 
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
     });
@@ -162,7 +161,6 @@ export class ServerService {
   }
 
   async deleteServer(serverId: string, profileId: string) {
-
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
     });
@@ -184,7 +182,7 @@ export class ServerService {
   }
 
   async leaveServer(serverId: string, profileId: string) {
-    // Check if server exists and user is a member (but not owner)
+
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
       include: { members: true },
@@ -247,22 +245,17 @@ export class ServerService {
   }
 
   async getUnreadMap(serverId: string, profileId: string) {
-    // 1. Verify user is a member of the server
+
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
-      include: { members: true },
+      select: { id: true },
     });
 
     if (!server) {
       throw new NotFoundException('Server not found');
     }
 
-    const isMember = server.members.some((m) => m.profileId === profileId);
-    if (!isMember && server.profileId !== profileId) {
-      throw new ForbiddenException('You are not a member of this server');
-    }
-
-    // 2. Get member
+    // Verify member (owner is also a member)
     const member = await this.prisma.member.findFirst({
       where: {
         serverId,
@@ -271,29 +264,25 @@ export class ServerService {
     });
 
     if (!member) {
-      throw new NotFoundException('Member not found');
+      throw new ForbiddenException('You are not a member of this server');
     }
 
-    // 3. Get channels
+    // Get channels
     const channels = await this.prisma.channel.findMany({
-      where: {
-        serverId,
-      },
+      where: { serverId },
       select: { id: true },
     });
 
-    // 4. Get read state
+    // Get read state
     const reads = await this.prisma.channelRead.findMany({
-      where: {
-        memberId: member.id,
-      },
+      where: { memberId: member.id },
     });
 
-    const readMap = new Map(
+    const readMap = new Map<string, Date>(
       reads.map((r) => [r.channelId, r.lastReadAt]),
     );
 
-    // 5. Count unread
+    // Count unread
     const unreadStats = await this.countUnreadInChannels(
       channels.map((c) => c.id),
       profileId,
@@ -306,6 +295,49 @@ export class ServerService {
     }
 
     return result;
+  }
+
+  async joinServerByInviteCode(inviteCode: string, profileId: string) {
+
+    const server = await this.prisma.server.findFirst({
+      where: { inviteCode },
+      include: { members: true },
+    });
+
+    if (!server) {
+      throw new NotFoundException('Server not found or invite code is invalid');
+    }
+
+    // User is already a member
+    const existingMember = server.members.find(
+      (m) => m.profileId === profileId,
+    );
+    if (existingMember) {
+      return {
+        id: server.id,
+        name: server.name,
+        imageUrl: server.imageUrl,
+      };
+    }
+
+    const updatedServer = await this.prisma.server.update({
+      where: { id: server.id },
+      data: {
+        members: {
+          create: {
+            profileId,
+            role: MemberRole.GUEST,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+      },
+    });
+
+    return updatedServer;
   }
 
   private async countUnreadInChannels(
