@@ -11,6 +11,12 @@ import { PaginationDto } from './dto/pagination.dto';
 export class ServerController {
   constructor(private serverService: ServerService) {}
 
+  @Get('initial')
+  @HttpCode(HttpStatus.OK)
+  async getInitialServer(@CurrentProfile() profile: any) {
+    return await this.serverService.getInitialServer(profile.id);
+  }
+
   @Get()
   @HttpCode(HttpStatus.OK)
   async getMyServers(@CurrentProfile() profile: any, @Query() paginationDto: PaginationDto) {

@@ -331,6 +331,18 @@ export class ServerService {
     return updatedServer;
   }
 
+  async getInitialServer(profileId: string) {
+    return await this.prisma.server.findFirst({
+      where: {
+        members: {
+          some: {
+            profileId,
+          },
+        },
+      },
+    });
+  }
+
   private async countUnreadInChannels(
     channelIds: string[],
     profileId: string,
