@@ -313,11 +313,7 @@ export class ServerService {
       (m) => m.profileId === profileId,
     );
     if (existingMember) {
-      return {
-        id: server.id,
-        name: server.name,
-        imageUrl: server.imageUrl,
-      };
+      return server;
     }
 
     const updatedServer = await this.prisma.server.update({
@@ -329,11 +325,6 @@ export class ServerService {
             role: MemberRole.GUEST,
           },
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        imageUrl: true,
       },
     });
 
