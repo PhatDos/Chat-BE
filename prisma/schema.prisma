@@ -55,7 +55,7 @@ model Member {
 
   // channel messages
   messages     Message[]
-  channelReads ChannelRead[]
+  channelReads ChannelRead[] @relation("MemberChannelReads")
 
   @@index([profileId])
   @@index([serverId])
@@ -73,7 +73,7 @@ model Channel {
   profile  Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
   server   Server        @relation(fields: [serverId], references: [id], onDelete: Cascade)
   messages Message[]
-  reads    ChannelRead[]
+  reads    ChannelRead[] @relation("ChannelReads")
 
   @@index([profileId])
   @@index([serverId])
@@ -153,10 +153,10 @@ model ChannelRead {
   id String @id @default(uuid()) @map("_id")
 
   memberId String
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member   Member @relation("MemberChannelReads", fields: [memberId], references: [id], onDelete: Cascade)
 
   channelId String
-  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel   Channel @relation("ChannelReads", fields: [channelId], references: [id], onDelete: Cascade)
 
   lastReadAt DateTime @default(now())
 
