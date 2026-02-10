@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   BadRequestException,
+  NotFoundException,
   UseGuards
 } from '@nestjs/common';
 import { DirectMessageService } from './direct-message.service';
@@ -54,11 +55,34 @@ export class DirectMessageController {
     @Body() body: { otherProfileId: string },
     @CurrentProfile() profile: Profile,
   ) {
+    // Validate otherProfile exists
+    const otherProfile = await this.directMessageService.validateProfile(
+      body.otherProfileId,
+    );
+
+    if (!otherProfile) {
+      throw new NotFoundException('Profile not found');
+    }
+
     const conversation = await this.directMessageService.getOrCreateConversation(
       profile.id,
       body.otherProfileId,
     );
-    return { conversation };
+
+    if (!conversation) {
+      throw new BadRequestException('Failed to create conversation');
+    }
+
+    // Determine which profile is the "other" profile
+    const conversationOtherProfile =
+      conversation.profileOne.id === profile.id
+        ? conversation.profileTwo
+        : conversation.profileOne;
+
+    return { 
+      conversation,
+      otherProfile: conversationOtherProfile,
+    };
   }
 
   @Get(':id')

@@ -107,6 +107,12 @@ export class DirectMessageService {
     });
   }
 
+  async validateProfile(profileId: string) {
+    return this.prisma.profile.findUnique({
+      where: { id: profileId },
+    });
+  }
+
   async getOrCreateConversation(
     profileAId: string,
     profileBId: string,
@@ -121,11 +127,19 @@ export class DirectMessageService {
         where: {
           profileOneId_profileTwoId: { profileOneId, profileTwoId },
         },
+        include: {
+          profileOne: true,
+          profileTwo: true,
+        },
       });
 
       if (!conversation) {
         conversation = await this.prisma.conversation.create({
           data: { profileOneId, profileTwoId },
+          include: {
+            profileOne: true,
+            profileTwo: true,
+          },
         });
       }
 
