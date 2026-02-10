@@ -8,14 +8,19 @@ import {
   Delete,
   Query,
   BadRequestException,
+  UseGuards
 } from '@nestjs/common';
 import { DirectMessageService } from './direct-message.service';
 import {
   CreateDirectMessageDto,
   UpdateDirectMessageDto,
 } from './direct-message.dto';
+import { CurrentProfile } from 'src/common/decorators/current-profile.decorator';
+import type { Profile } from '@prisma/client';
+import { AuthGuard } from '~/common/guards/auth.guard';
 
 @Controller('direct-message')
+@UseGuards(AuthGuard)
 export class DirectMessageController {
   constructor(private readonly directMessageService: DirectMessageService) {}
 
@@ -36,6 +41,24 @@ export class DirectMessageController {
     }
 
     return this.directMessageService.getMessages(conversationId, cursor);
+  }
+
+  @Get('conversations/list')
+  async getConversationsList(@CurrentProfile() profile: Profile) {
+    const conversations = await this.directMessageService.getConversationsList(profile.id);
+    return { conversations };
+  }
+
+  @Post('conversations/create-or-get')
+  async getOrCreateConversation(
+    @Body() body: { otherProfileId: string },
+    @CurrentProfile() profile: Profile,
+  ) {
+    const conversation = await this.directMessageService.getOrCreateConversation(
+      profile.id,
+      body.otherProfileId,
+    );
+    return { conversation };
   }
 
   @Get(':id')
