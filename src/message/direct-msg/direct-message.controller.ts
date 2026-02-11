@@ -9,7 +9,8 @@ import {
   Query,
   BadRequestException,
   NotFoundException,
-  UseGuards
+  UseGuards,
+  UnauthorizedException
 } from '@nestjs/common';
 import { DirectMessageService } from './direct-message.service';
 import {
@@ -34,9 +35,14 @@ export class DirectMessageController {
   // GET MESSAGES WITH PAGINATION
   @Get()
   getMessages(
+    @CurrentProfile() profile: Profile,
     @Query('conversationId') conversationId: string,
     @Query('cursor') cursor?: string,
   ) {
+    if (!profile) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
     if (!conversationId) {
       throw new BadRequestException('conversationId is required');
     }

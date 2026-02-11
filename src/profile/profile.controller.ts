@@ -46,18 +46,19 @@ export class ProfileController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   async getMyProfile(@CurrentProfile() profile: any) {
-    if (!profile?.id) {
+    if (!profile) {
       throw new UnauthorizedException('Profile not found');
     }
 
-    const profileData = await this.profileService.findByProfileId(profile.id);
-    if (!profileData) {
-      throw new UnauthorizedException('Profile not found');
-    }
-
+    // CurrentProfile decorator đã query profile, không cần query lại
     return {
-      id: profileData.id,
-      userId: profileData.userId,
+      id: profile.id,
+      userId: profile.userId,
+      name: profile.name,
+      imageUrl: profile.imageUrl,
+      email: profile.email,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
     };
   }
 }

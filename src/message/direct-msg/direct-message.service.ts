@@ -26,7 +26,7 @@ export class DirectMessageService {
   }
 
   async getMessages(conversationId: string, cursor?: string) {
-    const LIMIT = 20;
+    const LIMIT = 10;
 
     const messages = await this.prisma.directMessage.findMany({
       where: { conversationId },
