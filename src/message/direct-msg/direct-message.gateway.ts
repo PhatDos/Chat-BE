@@ -68,11 +68,22 @@ export class DirectMessageGateway {
         ? conversation.profileTwoId
         : conversation.profileOneId;
 
-    this.server.to(`profile:${otherProfile}`).emit('dm:notification', {
-      conversationId,
-      senderId,
-      unread: 1,
+    const socketsInConversation = await this.server
+      .in(`conversation:${conversationId}`)
+      .allSockets();
+
+    const isReading = [...socketsInConversation].some((socketId) => {
+      const socket = this.server.sockets.sockets.get(socketId);
+      return socket?.data?.profileId === otherProfile;
     });
+
+    if (!isReading) {
+      this.server.to(`profile:${otherProfile}`).emit('dm:notification', {
+        conversationId,
+        senderId,
+        unread: 1,
+      });
+    }
 
     console.log(`🔔 DM notification → profile:${otherProfile}`);
   }

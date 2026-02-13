@@ -58,7 +58,10 @@ export class ChannelMessageService {
   }
 
   async findChannel(channelId: string) {
-    return this.prisma.channel.findUnique({ where: { id: channelId } });
+    return this.prisma.channel.findUnique({
+      where: { id: channelId },
+      include: { server: true },
+    });
   }
 
   async findMemberByProfileIdAndServerId(userId: string, serverId: string) {
