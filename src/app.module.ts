@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -14,7 +14,7 @@ import { MemberModule } from '~/member/member.module';
 
 @Module({
   imports: [
-    JwtModule.register({ secret: 'temp-secret' }), 
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     MessageModule,
     ServerModule,
@@ -26,3 +26,4 @@ import { MemberModule } from '~/member/member.module';
   providers: [AppService],
 })
 export class AppModule {}
+
