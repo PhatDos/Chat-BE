@@ -1,12 +1,10 @@
 import { Controller, Delete, Param, UseGuards, HttpCode, HttpStatus, BadRequestException, Query, Patch, Body, ValidationPipe } from '@nestjs/common';
 import { MemberService } from './member.service';
-import { AuthGuard } from '~/common/guards/auth.guard';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import { DeleteMemberDto } from './dto/delete-member.dto';
 
 @Controller('members')
-@UseGuards(AuthGuard)
 export class MemberController {
   constructor(private memberService: MemberService) {}
 

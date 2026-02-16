@@ -12,19 +12,8 @@ import { UpdateChannelDto } from './dto/update-channel.dto';
 export class ChannelService {
   constructor(private prisma: PrismaService) {}
 
-  async getChannelsByServerId(serverId: string, profileId: string) {
-    // Verify user is a member of the server
-    const member = await this.prisma.member.findFirst({
-      where: {
-        serverId,
-        profileId,
-      },
-    });
-
-    if (!member) {
-      throw new ForbiddenException('You are not a member of this server');
-    }
-
+  async getChannelsByServerId(serverId: string) {
+    // Guard đã verify membership
     const channels = await this.prisma.channel.findMany({
       where: { serverId },
       orderBy: { createdAt: 'asc' },
@@ -43,11 +32,13 @@ export class ChannelService {
       throw new NotFoundException('Channel not found');
     }
 
-    // Verify user is a member of the server
-    const member = await this.prisma.member.findFirst({
+    // Verify user is a member - TODO: Use guard when URL refactored
+    const member = await this.prisma.member.findUnique({
       where: {
-        serverId: channel.serverId,
-        profileId,
+        serverId_profileId: {
+          serverId: channel.serverId,
+          profileId,
+        },
       },
     });
 
@@ -59,6 +50,7 @@ export class ChannelService {
   }
 
   async createChannel(profileId: string, dto: CreateChannelDto) {
+    // Guard đã verify membership & role
     if (dto.name === 'general') {
       throw new ForbiddenException('Name cannot be "general"');
     }
@@ -74,37 +66,20 @@ export class ChannelService {
       throw new ForbiddenException('Channel name already exists in this server');
     }
 
-    const server = await this.prisma.server.update({
-      where: {
-        id: dto.serverId,
-        members: {
-          some: {
-            profileId,
-            role: {
-              in: [MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER],
-            },
-          },
-        },
-      },
+    const channel = await this.prisma.channel.create({
       data: {
-        channels: {
-          create: {
-            profileId,
-            name: dto.name,
-            type: dto.type,
-          },
-        },
+        serverId: dto.serverId,
+        profileId: profileId,
+        name: dto.name,
+        type: dto.type,
       },
     });
 
-    return server;
+    return channel;
   }
 
-  async updateChannel(
-    channelId: string,
-    profileId: string,
-    dto: UpdateChannelDto,
-  ) {
+  async updateChannel(channelId: string, dto: UpdateChannelDto) {
+    // Guard đã verify membership & role
     if (dto.name === 'general') {
       throw new ForbiddenException('Name cannot be "general"');
     }
@@ -129,56 +104,31 @@ export class ChannelService {
       }
     }
 
-    const server = await this.prisma.server.update({
-      where: {
-        id: dto.serverId,
-        members: {
-          some: {
-            profileId,
-            role: {
-              in: [MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER],
-            },
-          },
-        },
-      },
-      data: {
-        channels: {
-          update: {
-            where: {
-              id: channelId,
-              NOT: {
-                name: 'general',
-              },
-            },
-            data: {
-              name: dto.name,
-              type: dto.type,
-            },
-          },
-        },
-      },
-      include: {
-        channels: {
-          where: { id: channelId },
-        },
-      },
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
     });
 
-    if (!server) {
-      throw new ForbiddenException(
-        'Only server owner or vice owner can update channels',
-      );
-    }
-
-    const updated = server.channels[0];
-    if (!updated) {
+    if (!channel) {
       throw new NotFoundException('Channel not found');
     }
+
+    if (channel.name === 'general') {
+      throw new ForbiddenException('Cannot update general channel');
+    }
+
+    const updated = await this.prisma.channel.update({
+      where: { id: channelId },
+      data: {
+        ...(dto.name && { name: dto.name }),
+        ...(dto.type && { type: dto.type }),
+      },
+    });
 
     return updated;
   }
 
-  async deleteChannel(channelId: string, profileId: string) {
+  async deleteChannel(channelId: string) {
+    // Guard đã verify membership & role
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelId },
       select: { id: true, serverId: true, name: true },
@@ -192,23 +142,8 @@ export class ChannelService {
       throw new ForbiddenException('Cannot delete general channel');
     }
 
-    await this.prisma.server.update({
-      where: {
-        id: channel.serverId,
-        members: {
-          some: {
-            profileId,
-            role: {
-              in: [MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER],
-            },
-          },
-        },
-      },
-      data: {
-        channels: {
-          delete: { id: channelId },
-        },
-      },
+    await this.prisma.channel.delete({
+      where: { id: channelId },
     });
 
     return { message: 'Channel deleted successfully' };

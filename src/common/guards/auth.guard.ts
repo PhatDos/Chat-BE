@@ -5,15 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { verifyToken, createClerkClient } from '@clerk/backend';
-import { PrismaService } from '~/prisma/prisma.service';
+import { verifyToken } from '@clerk/backend';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-    private configService: ConfigService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private configService: ConfigService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -33,33 +29,7 @@ export class AuthGuard implements CanActivate {
         secretKey: clerkSecretKey!,
       });
 
-      const clerkClient = createClerkClient({
-        secretKey: clerkSecretKey!,
-      });
-
-      const userId = payload.sub;
-
-      let profile = await this.prisma.profile.findUnique({
-        where: { userId },
-      });
-
-      if (!profile) {
-        const clerkUser = await clerkClient.users.getUser(userId);
-
-        profile = await this.prisma.profile.create({
-          data: {
-            userId,
-            name:
-              `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() ||
-              clerkUser.username ||
-              'User',
-            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
-            imageUrl: clerkUser.imageUrl || '',
-          },
-        });
-      }
-
-      req.profile = profile;
+      req.userId = payload.sub;
 
       return true;
     } catch (error) {

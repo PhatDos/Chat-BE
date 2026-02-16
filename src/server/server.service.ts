@@ -182,10 +182,10 @@ export class ServerService {
   }
 
   async leaveServer(serverId: string, profileId: string) {
-
+    // Guard đã verify membership
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },
-      include: { members: true },
+      select: { id: true, profileId: true },
     });
 
     if (!server) {
@@ -195,12 +195,6 @@ export class ServerService {
     // User cannot leave if they are the server owner
     if (server.profileId === profileId) {
       throw new ForbiddenException('Server owner cannot leave the server');
-    }
-
-    // Check if user is a member
-    const isMember = server.members.some((m) => m.profileId === profileId);
-    if (!isMember) {
-      throw new ForbiddenException('You are not a member of this server');
     }
 
     // Remove user from members
@@ -218,23 +212,8 @@ export class ServerService {
     return updatedServer;
   }
 
-  async updateInviteCode(serverId: string, profileId: string) {
-    // Check if server exists and user is a member
-    const server = await this.prisma.server.findUnique({
-      where: { id: serverId },
-      include: { members: true },
-    });
-
-    if (!server) {
-      throw new NotFoundException('Server not found');
-    }
-
-    // Check if user is a member (or owner)
-    const isMember = server.members.some((m) => m.profileId === profileId);
-    if (!isMember && server.profileId !== profileId) {
-      throw new ForbiddenException('You are not a member of this server');
-    }
-
+  async updateInviteCode(serverId: string) {
+    // Guard đã verify membership & role
     // Update invite code
     const updatedServer = await this.prisma.server.update({
       where: { id: serverId },
@@ -245,26 +224,18 @@ export class ServerService {
   }
 
   async getUnreadMap(serverId: string, profileId: string) {
-
-    const server = await this.prisma.server.findUnique({
-      where: { id: serverId },
-      select: { id: true },
-    });
-
-    if (!server) {
-      throw new NotFoundException('Server not found');
-    }
-
-    // Verify member (owner is also a member)
-    const member = await this.prisma.member.findFirst({
+    // Guard đã verify membership
+    const member = await this.prisma.member.findUnique({
       where: {
-        serverId,
-        profileId,
+        serverId_profileId: {
+          serverId,
+          profileId,
+        },
       },
     });
 
     if (!member) {
-      throw new ForbiddenException('You are not a member of this server');
+      throw new NotFoundException('Member not found');
     }
 
     // Get channels

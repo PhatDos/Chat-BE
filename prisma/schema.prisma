@@ -57,6 +57,7 @@ model Member {
   messages     Message[]
   channelReads ChannelRead[] @relation("MemberChannelReads")
 
+  @@unique([serverId, profileId])
   @@index([profileId])
   @@index([serverId])
 }

@@ -2,12 +2,15 @@ import { Controller, Get, Post, Patch, Delete, Param, UseGuards, BadRequestExcep
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { AuthGuard } from '~/common/guards/auth.guard';
+import { ServerMemberGuard } from '~/common/guards/server-member.guard';
+import { RoleGuard } from '~/common/guards/role.guard';
+import { Roles } from '~/common/decorators/roles.decorator';
+import { MemberRole } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('servers')
-@UseGuards(AuthGuard)
 export class ServerController {
   constructor(private serverService: ServerService) {}
 
@@ -32,6 +35,8 @@ export class ServerController {
     return await this.serverService.createServer(profile.id, dto);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Patch(':serverId')
   @HttpCode(HttpStatus.OK)
   async update(
@@ -46,6 +51,8 @@ export class ServerController {
     return await this.serverService.updateServer(serverId, profile.id, dto);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER)
   @Delete(':serverId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
@@ -59,6 +66,8 @@ export class ServerController {
     await this.serverService.deleteServer(serverId, profile.id);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Patch(':serverId/invite-code')
   @HttpCode(HttpStatus.OK)
   async updateInviteCode(
@@ -69,9 +78,10 @@ export class ServerController {
       throw new BadRequestException('Server ID is required');
     }
 
-    return await this.serverService.updateInviteCode(serverId, profile.id);
+    return await this.serverService.updateInviteCode(serverId);
   }
 
+  @UseGuards(ServerMemberGuard)
   @Patch(':serverId/leave')
   @HttpCode(HttpStatus.OK)
   async leaveServer(
@@ -85,6 +95,7 @@ export class ServerController {
     return await this.serverService.leaveServer(serverId, profile.id);
   }
 
+  @UseGuards(ServerMemberGuard)
   @Get(':serverId/unread')
   @HttpCode(HttpStatus.OK)
   async getUnreadByServer(

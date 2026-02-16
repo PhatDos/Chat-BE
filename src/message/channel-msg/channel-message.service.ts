@@ -90,11 +90,13 @@ export class ChannelMessageService {
     serverId: string,
     profileId: string,
   ) {
-    // Check if user is part of this server
-    const member = await this.prisma.member.findFirst({
+    // Check if user is part of this server - optimized with unique index
+    const member = await this.prisma.member.findUnique({
       where: {
-        profileId,
-        serverId,
+        serverId_profileId: {
+          serverId,
+          profileId,
+        },
       },
     });
 
@@ -137,8 +139,13 @@ export class ChannelMessageService {
   }
 
   async getTotalUnreadForSpecificServer(serverId: string, profileId: string) {
-    const member = await this.prisma.member.findFirst({
-      where: { serverId, profileId },
+    const member = await this.prisma.member.findUnique({
+      where: {
+        serverId_profileId: {
+          serverId,
+          profileId,
+        },
+      },
       select: { id: true },
     });
 

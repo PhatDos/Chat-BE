@@ -14,15 +14,18 @@ import {
 } from '@nestjs/common';
 import { ChannelService } from './channel.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
-import { AuthGuard } from '~/common/guards/auth.guard';
+import { ServerMemberGuard } from '~/common/guards/server-member.guard';
+import { RoleGuard } from '~/common/guards/role.guard';
+import { Roles } from '~/common/decorators/roles.decorator';
+import { MemberRole } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 
 @Controller('channels')
-@UseGuards(AuthGuard)
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
 
+  @UseGuards(ServerMemberGuard)
   @Get('server/:serverId')
   @HttpCode(HttpStatus.OK)
   async getChannelsByServer(
@@ -33,10 +36,7 @@ export class ChannelController {
       throw new BadRequestException('Server ID is required');
     }
 
-    return await this.channelService.getChannelsByServerId(
-      serverId,
-      profile.id,
-    );
+    return await this.channelService.getChannelsByServerId(serverId);
   }
 
   @Get(':channelId')
@@ -52,6 +52,8 @@ export class ChannelController {
     return await this.channelService.getChannelById(channelId, profile.id);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
@@ -61,6 +63,8 @@ export class ChannelController {
     return await this.channelService.createChannel(profile.id, dto);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Patch(':channelId')
   @HttpCode(HttpStatus.OK)
   async update(
@@ -72,9 +76,11 @@ export class ChannelController {
       throw new BadRequestException('Channel ID is required');
     }
 
-    return await this.channelService.updateChannel(channelId, profile.id, dto);
+    return await this.channelService.updateChannel(channelId, dto);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Delete(':channelId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
@@ -85,6 +91,6 @@ export class ChannelController {
       throw new BadRequestException('Channel ID is required');
     }
 
-    await this.channelService.deleteChannel(channelId, profile.id);
+    await this.channelService.deleteChannel(channelId);
   }
 }
