@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
-import { MemberRole } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 
@@ -22,7 +21,7 @@ export class ChannelService {
     return channels;
   }
 
-  async getChannelById(channelId: string, profileId: string) {
+  async getChannelById(serverId: string, channelId: string) {
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelId },
       include: { server: true },
@@ -32,24 +31,18 @@ export class ChannelService {
       throw new NotFoundException('Channel not found');
     }
 
-    // Verify user is a member - TODO: Use guard when URL refactored
-    const member = await this.prisma.member.findUnique({
-      where: {
-        serverId_profileId: {
-          serverId: channel.serverId,
-          profileId,
-        },
-      },
-    });
-
-    if (!member) {
-      throw new ForbiddenException('You are not a member of this server');
+    if (channel.serverId !== serverId) {
+      throw new ForbiddenException('Channel does not belong to this server');
     }
 
     return channel;
   }
 
-  async createChannel(profileId: string, dto: CreateChannelDto) {
+  async createChannel(
+    serverId: string,
+    profileId: string,
+    dto: CreateChannelDto,
+  ) {
     // Guard đã verify membership & role
     if (dto.name === 'general') {
       throw new ForbiddenException('Name cannot be "general"');
@@ -57,7 +50,7 @@ export class ChannelService {
 
     const existingChannel = await this.prisma.channel.findFirst({
       where: {
-        serverId: dto.serverId,
+        serverId,
         name: dto.name,
       },
     });
@@ -68,7 +61,7 @@ export class ChannelService {
 
     const channel = await this.prisma.channel.create({
       data: {
-        serverId: dto.serverId,
+        serverId,
         profileId: profileId,
         name: dto.name,
         type: dto.type,
@@ -78,20 +71,20 @@ export class ChannelService {
     return channel;
   }
 
-  async updateChannel(channelId: string, dto: UpdateChannelDto) {
+  async updateChannel(
+    serverId: string,
+    channelId: string,
+    dto: UpdateChannelDto,
+  ) {
     // Guard đã verify membership & role
     if (dto.name === 'general') {
       throw new ForbiddenException('Name cannot be "general"');
     }
 
-    if (!dto.serverId) {
-      throw new NotFoundException('Server ID is required');
-    }
-
     if (dto.name) {
       const existingChannel = await this.prisma.channel.findFirst({
         where: {
-          serverId: dto.serverId,
+          serverId,
           name: dto.name,
           id: { not: channelId },
         },
@@ -112,6 +105,10 @@ export class ChannelService {
       throw new NotFoundException('Channel not found');
     }
 
+    if (channel.serverId !== serverId) {
+      throw new ForbiddenException('Channel does not belong to this server');
+    }
+
     if (channel.name === 'general') {
       throw new ForbiddenException('Cannot update general channel');
     }
@@ -127,7 +124,7 @@ export class ChannelService {
     return updated;
   }
 
-  async deleteChannel(channelId: string) {
+  async deleteChannel(serverId: string, channelId: string) {
     // Guard đã verify membership & role
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelId },
@@ -136,6 +133,10 @@ export class ChannelService {
 
     if (!channel) {
       throw new NotFoundException('Channel not found');
+    }
+
+    if (channel.serverId !== serverId) {
+      throw new ForbiddenException('Channel does not belong to this server');
     }
 
     if (channel.name === 'general') {

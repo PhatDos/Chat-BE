@@ -21,16 +21,15 @@ import { MemberRole } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 
-@Controller('channels')
+@Controller('servers/:serverId/channels')
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
 
   @UseGuards(ServerMemberGuard)
-  @Get('server/:serverId')
+  @Get()
   @HttpCode(HttpStatus.OK)
   async getChannelsByServer(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -39,17 +38,22 @@ export class ChannelController {
     return await this.channelService.getChannelsByServerId(serverId);
   }
 
+  @UseGuards(ServerMemberGuard)
   @Get(':channelId')
   @HttpCode(HttpStatus.OK)
   async getChannelById(
+    @Param('serverId') serverId: string,
     @Param('channelId') channelId: string,
-    @CurrentProfile() profile: any,
   ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
     if (!channelId) {
       throw new BadRequestException('Channel ID is required');
     }
 
-    return await this.channelService.getChannelById(channelId, profile.id);
+    return await this.channelService.getChannelById(serverId, channelId);
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)
@@ -57,10 +61,15 @@ export class ChannelController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
+    @Param('serverId') serverId: string,
     @Body(ValidationPipe) dto: CreateChannelDto,
     @CurrentProfile() profile: any,
   ) {
-    return await this.channelService.createChannel(profile.id, dto);
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.channelService.createChannel(serverId, profile.id, dto);
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)
@@ -68,15 +77,19 @@ export class ChannelController {
   @Patch(':channelId')
   @HttpCode(HttpStatus.OK)
   async update(
+    @Param('serverId') serverId: string,
     @Param('channelId') channelId: string,
     @Body(ValidationPipe) dto: UpdateChannelDto,
-    @CurrentProfile() profile: any,
   ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
     if (!channelId) {
       throw new BadRequestException('Channel ID is required');
     }
 
-    return await this.channelService.updateChannel(channelId, dto);
+    return await this.channelService.updateChannel(serverId, channelId, dto);
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)
@@ -84,13 +97,17 @@ export class ChannelController {
   @Delete(':channelId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
+    @Param('serverId') serverId: string,
     @Param('channelId') channelId: string,
-    @CurrentProfile() profile: any,
   ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
     if (!channelId) {
       throw new BadRequestException('Channel ID is required');
     }
 
-    await this.channelService.deleteChannel(channelId);
+    await this.channelService.deleteChannel(serverId, channelId);
   }
 }

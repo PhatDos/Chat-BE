@@ -6,10 +6,6 @@ export class CreateChannelDto {
   @IsNotEmpty()
   name: string;
 
-  @IsString()
-  @IsNotEmpty()
-  serverId: string;
-
   @IsEnum(ChannelType)
   @IsOptional()
   type: ChannelType;

@@ -6,10 +6,6 @@ export class UpdateChannelDto {
   @IsOptional()
   name: string;
 
-  @IsString()
-  @IsOptional()
-  serverId: string;
-
   @IsEnum(ChannelType)
   @IsOptional()
   type?: ChannelType;
