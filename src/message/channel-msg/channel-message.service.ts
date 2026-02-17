@@ -6,6 +6,25 @@ import { Prisma } from '@prisma/client';
 export class ChannelMessageService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async testQuery(channelId: string) {
+    console.time('DB_QUERY');
+
+    const result = await this.prisma.message.findMany({
+      where: {
+        channelId,
+        deleted: false,
+      },
+      take: 50,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    console.timeEnd('DB_QUERY');
+
+    return result;
+  }
+
   async create(createChannelMessageDto: Prisma.MessageCreateInput) {
     return this.prisma.message.create({
       data: createChannelMessageDto,
@@ -155,48 +174,22 @@ export class ChannelMessageService {
 
     const memberId = member.id;
 
-    const unread: Array<Record<string, any>> =
-      (await this.prisma.message.aggregateRaw({
-        pipeline: [
-          { $match: { deleted: false, memberId: { $ne: memberId } } },
-          {
-            $lookup: {
-              from: 'Channel',
-              localField: 'channelId',
-              foreignField: '_id',
-              as: 'channel',
-            },
-          },
-          { $unwind: '$channel' },
-          { $match: { 'channel.serverId': serverId } },
-          {
-            $lookup: {
-              from: 'ChannelRead',
-              let: { channelId: '$channelId' },
-              pipeline: [
-                {
-                  $match: {
-                    memberId,
-                    $expr: { $eq: ['$channelId', '$$channelId'] },
-                  },
-                },
-              ],
-              as: 'read',
-            },
-          },
-          {
-            $addFields: {
-              lastReadAt: {
-                $ifNull: [{ $first: '$read.lastReadAt' }, new Date(0)],
-              },
-            },
-          },
-          { $match: { $expr: { $gt: ['$createdAt', '$lastReadAt'] } } },
-          { $count: 'totalUnread' },
-        ],
-      })) as any;
+    const result = await this.prisma.$queryRaw<{ total: bigint }[]>`
+    SELECT COUNT(*) AS total
+    FROM "Message" m
+    JOIN "Channel" c
+      ON m."channelId" = c."_id"
+    LEFT JOIN "ChannelRead" cr
+      ON cr."channelId" = m."channelId"
+      AND cr."memberId" = ${memberId}
+    WHERE
+      c."serverId" = ${serverId}
+      AND m."deleted" = false
+      AND m."memberId" <> ${memberId}
+      AND m."createdAt" >
+          COALESCE(cr."lastReadAt", to_timestamp(0))
+  `;
 
-    const totalUnread = (unread && unread[0] && unread[0].totalUnread) || 0;
-    return Number(totalUnread) || 0;
+    return Number(result[0]?.total ?? 0);
   }
 }
