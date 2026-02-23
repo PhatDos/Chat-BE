@@ -9,6 +9,7 @@ import { MemberRole } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import type { Profile } from '~/common/types/profile.type';
 
 @Controller('servers')
 export class ServerController {
@@ -16,13 +17,13 @@ export class ServerController {
 
   @Get('initial')
   @HttpCode(HttpStatus.OK)
-  async getInitialServer(@CurrentProfile() profile: any) {
+  async getInitialServer(@CurrentProfile() profile: Profile) {
     return await this.serverService.getInitialServer(profile.id);
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getMyServers(@CurrentProfile() profile: any, @Query() paginationDto: PaginationDto) {
+  async getMyServers(@CurrentProfile() profile: Profile, @Query() paginationDto: PaginationDto) {
     return await this.serverService.getServersByProfileId(profile.id, paginationDto);
   }
 
@@ -30,7 +31,7 @@ export class ServerController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(ValidationPipe) dto: CreateServerDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     return await this.serverService.createServer(profile.id, dto);
   }
@@ -42,7 +43,7 @@ export class ServerController {
   async update(
     @Param('serverId') serverId: string,
     @Body(ValidationPipe) dto: UpdateServerDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -57,7 +58,7 @@ export class ServerController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -72,7 +73,7 @@ export class ServerController {
   @HttpCode(HttpStatus.OK)
   async updateInviteCode(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -86,7 +87,7 @@ export class ServerController {
   @HttpCode(HttpStatus.OK)
   async leaveServer(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -100,7 +101,7 @@ export class ServerController {
   @HttpCode(HttpStatus.OK)
   async getUnreadByServer(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     return await this.serverService.getUnreadMap(serverId, profile.id);
   }
@@ -109,7 +110,7 @@ export class ServerController {
   @HttpCode(HttpStatus.OK)
   async joinByInviteCode(
     @Param('inviteCode') inviteCode: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!inviteCode) {
       throw new BadRequestException('Invite code is required');

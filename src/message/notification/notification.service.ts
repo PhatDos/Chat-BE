@@ -35,9 +35,9 @@ export class NotificationService {
 
       for (const ch of server.channels) {
         const lastMsg = ch.messages[0];
-        const lastRead = readMap.get(ch.id);
+        const lastRead = readMap.get(ch.id) ?? new Date();
 
-        if (lastMsg && (!lastRead || lastMsg.createdAt > lastRead)) {
+        if (lastMsg && lastMsg.createdAt > lastRead) {
           unreadCount++;
         }
       }

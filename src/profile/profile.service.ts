@@ -11,30 +11,30 @@ export class ProfileService {
   ) {}
 
   async getOrCreateProfile(userId: string) {
-    let profile = await this.prisma.profile.findUnique({
+    const existing = await this.prisma.profile.findUnique({
       where: { userId },
     });
 
-    if (!profile) {
-      const clerkClient = createClerkClient({
-        secretKey: this.configService.get<string>('CLERK_SECRET_KEY')!,
-      });
+    if (existing) return existing;
 
-      const clerkUser = await clerkClient.users.getUser(userId);
+    const clerkClient = createClerkClient({
+      secretKey: this.configService.get<string>('CLERK_SECRET_KEY')!,
+    });
 
-      profile = await this.prisma.profile.create({
-        data: {
-          userId,
-          name:
-            `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() ||
-            clerkUser.username ||
-            'User',
-          email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
-          imageUrl: clerkUser.imageUrl || '',
-        },
-      });
-    }
+    const clerkUser = await clerkClient.users.getUser(userId);
 
-    return profile;
+    return this.prisma.profile.upsert({
+      where: { userId },
+      update: {},
+      create: {
+        userId,
+        name:
+          `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() ||
+          clerkUser.username ||
+          'User',
+        email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
+        imageUrl: clerkUser.imageUrl || '',
+      },
+    });
   }
 }

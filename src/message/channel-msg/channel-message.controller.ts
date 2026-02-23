@@ -15,6 +15,7 @@ import { CreateChannelMessageDto } from './channel-message.dto';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { MessageGateway } from '../message.gateway';
+import type { Profile } from '~/common/types/profile.type';
 
 @Controller('channel-messages')
 export class ChannelMessageController {
@@ -65,7 +66,7 @@ export class ChannelMessageController {
   async markChannelAsRead(
     @Param('channelId') channelId: string,
     @Body() { serverId }: { serverId: string },
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     const channelRead = await this.channelMessageService.markChannelAsRead(
       channelId,

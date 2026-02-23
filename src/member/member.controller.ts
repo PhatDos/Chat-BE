@@ -3,6 +3,7 @@ import { MemberService } from './member.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import { DeleteMemberDto } from './dto/delete-member.dto';
+import type { Profile } from '~/common/types/profile.type';
 
 @Controller('members')
 export class MemberController {
@@ -13,7 +14,7 @@ export class MemberController {
   async deleteMember(
     @Param('memberId') memberId: string,
     @Body(ValidationPipe) dto: DeleteMemberDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!memberId) {
       throw new BadRequestException('Member ID is required');
@@ -31,7 +32,7 @@ export class MemberController {
   async updateMemberRole(
     @Param('memberId') memberId: string,
     @Body(ValidationPipe) dto: UpdateMemberRoleDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!memberId) {
       throw new BadRequestException('Member ID is required');

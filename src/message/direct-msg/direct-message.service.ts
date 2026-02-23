@@ -113,40 +113,28 @@ export class DirectMessageService {
     });
   }
 
-  async getOrCreateConversation(
-    profileAId: string,
-    profileBId: string,
-  ) {
+  async getOrCreateConversation(profileAId: string, profileBId: string) {
     const [profileOneId, profileTwoId] =
       profileAId < profileBId
         ? [profileAId, profileBId]
         : [profileBId, profileAId];
 
-    try {
-      let conversation = await this.prisma.conversation.findUnique({
-        where: {
-          profileOneId_profileTwoId: { profileOneId, profileTwoId },
+    return this.prisma.conversation.upsert({
+      where: {
+        profileOneId_profileTwoId: {
+          profileOneId,
+          profileTwoId,
         },
-        include: {
-          profileOne: true,
-          profileTwo: true,
-        },
-      });
-
-      if (!conversation) {
-        conversation = await this.prisma.conversation.create({
-          data: { profileOneId, profileTwoId },
-          include: {
-            profileOne: true,
-            profileTwo: true,
-          },
-        });
-      }
-
-      return conversation;
-    } catch (error) {
-      console.error('[getOrCreateConversation] error', error);
-      return null;
-    }
+      },
+      update: {}, // không cần update gì
+      create: {
+        profileOneId,
+        profileTwoId,
+      },
+      include: {
+        profileOne: true,
+        profileTwo: true,
+      },
+    });
   }
 }

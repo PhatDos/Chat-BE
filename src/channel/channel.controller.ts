@@ -20,6 +20,7 @@ import { Roles } from '~/common/decorators/roles.decorator';
 import { MemberRole } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
+import type { Profile } from '~/common/types/profile.type';
 
 @Controller('servers/:serverId/channels')
 export class ChannelController {
@@ -63,7 +64,7 @@ export class ChannelController {
   async create(
     @Param('serverId') serverId: string,
     @Body(ValidationPipe) dto: CreateChannelDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');

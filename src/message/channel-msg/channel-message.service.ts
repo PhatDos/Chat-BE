@@ -187,7 +187,7 @@ export class ChannelMessageService {
       AND m."deleted" = false
       AND m."memberId" <> ${memberId}
       AND m."createdAt" >
-          COALESCE(cr."lastReadAt", to_timestamp(0))
+          COALESCE(cr."lastReadAt", NOW())
   `;
 
     return Number(result[0]?.total ?? 0);
