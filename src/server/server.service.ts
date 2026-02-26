@@ -342,7 +342,6 @@ export class ServerService {
         const count = await this.prisma.message.count({
           where: {
             channelId,
-            deleted: false,
             member: { profileId: { not: profileId } },
             createdAt: { gt: lastReadAt },
           },
