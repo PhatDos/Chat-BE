@@ -179,15 +179,14 @@ export class ChannelMessageService {
     FROM "Message" m
     JOIN "Channel" c
       ON m."channelId" = c."_id"
-    LEFT JOIN "ChannelRead" cr
+    JOIN "ChannelRead" cr
       ON cr."channelId" = m."channelId"
       AND cr."memberId" = ${memberId}
     WHERE
       c."serverId" = ${serverId}
       AND m."deleted" = false
       AND m."memberId" <> ${memberId}
-      AND m."createdAt" >
-          COALESCE(cr."lastReadAt", NOW())
+      AND m."createdAt" > cr."lastReadAt"
   `;
 
     return Number(result[0]?.total ?? 0);

@@ -269,7 +269,6 @@ export class ServerService {
   }
 
   async joinServerByInviteCode(inviteCode: string, profileId: string) {
-
     const server = await this.prisma.server.findFirst({
       where: { inviteCode },
       include: { members: true },
@@ -287,19 +286,36 @@ export class ServerService {
       return server;
     }
 
-    const updatedServer = await this.prisma.server.update({
-      where: { id: server.id },
-      data: {
-        members: {
-          create: {
-            profileId,
-            role: MemberRole.GUEST,
-          },
-        },
-      },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      // bulk create member + channelRead
+      const now = new Date();
 
-    return updatedServer;
+      const member = await tx.member.create({
+        data: {
+          serverId: server.id,
+          profileId,
+          role: MemberRole.GUEST,
+        },
+      });
+
+      const channels = await tx.channel.findMany({
+        where: { serverId: server.id },
+        select: { id: true },
+      });
+
+      if (channels.length > 0) {
+        await tx.channelRead.createMany({
+          data: channels.map((channel) => ({
+            memberId: member.id,
+            channelId: channel.id,
+            lastReadAt: now,
+          })),
+          skipDuplicates: true,
+        });
+      }
+
+      return server;
+    });
   }
 
   async getInitialServer(profileId: string) {
