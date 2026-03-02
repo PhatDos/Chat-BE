@@ -175,18 +175,21 @@ export class ChannelMessageService {
     const memberId = member.id;
 
     const result = await this.prisma.$queryRaw<{ total: bigint }[]>`
-    SELECT COUNT(*) AS total
-    FROM "Message" m
-    JOIN "Channel" c
-      ON m."channelId" = c."_id"
-    JOIN "ChannelRead" cr
-      ON cr."channelId" = m."channelId"
-      AND cr."memberId" = ${memberId}
-    WHERE
-      c."serverId" = ${serverId}
-      AND m."memberId" <> ${memberId}
-      AND m."createdAt" > cr."lastReadAt"
-  `;
+      SELECT COUNT(*) AS total
+      FROM "Message" m
+      JOIN "Channel" c
+        ON m."channelId" = c."_id"
+      LEFT JOIN "ChannelRead" cr
+        ON cr."channelId" = m."channelId"
+        AND cr."memberId" = ${memberId}
+      WHERE
+        c."serverId" = ${serverId}
+        AND m."memberId" <> ${memberId}
+        AND (
+          cr."lastReadAt" IS NULL
+          OR m."createdAt" > cr."lastReadAt"
+        )
+    `;
 
     return Number(result[0]?.total ?? 0);
   }

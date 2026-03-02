@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { MemberRole } from '@prisma/client';
+import { MemberRole, Prisma } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
@@ -19,20 +19,16 @@ export class ServerService {
     const skip = paginationDto.skip ?? 0;
     const limit = paginationDto.limit ?? DEFAULT_PAGE_SIZE;
 
-    // 1️⃣ Lấy servers + memberId + channels
+    // 1️⃣ Lấy server list
     const [servers, total] = await Promise.all([
       this.prisma.server.findMany({
         where: {
           members: { some: { profileId } },
         },
-        include: {
-          members: {
-            where: { profileId },
-            select: { id: true }, // memberId
-          },
-          channels: {
-            select: { id: true },
-          },
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
         },
         skip,
         take: limit,
@@ -55,53 +51,43 @@ export class ServerService {
       };
     }
 
-    // 2️⃣ Gom memberIds & channelIds
-    const memberIds = servers.flatMap((s) => s.members.map((m) => m.id));
-    const channelIds = servers.flatMap((s) => s.channels.map((c) => c.id));
+    const serverIds = servers.map((s) => s.id);
 
-    // 3️⃣ Lấy lastReadAt
-    const channelReads = await this.prisma.channelRead.findMany({
-      where: {
-        memberId: { in: memberIds },
-        channelId: { in: channelIds },
-      },
-      select: {
-        memberId: true,
-        channelId: true,
-        lastReadAt: true,
-      },
-    });
+    // 2️⃣ Aggregate unread theo serverId
+    const unread = await this.prisma.$queryRaw<
+      { serverId: string; total: bigint }[]
+          >`
+      SELECT 
+        c."serverId" as "serverId",
+        COUNT(m."_id") as total
+      FROM "Channel" c
+      JOIN "Member" mem
+        ON mem."serverId" = c."serverId"
+      AND mem."profileId" = ${profileId}
+      LEFT JOIN "ChannelRead" cr
+        ON cr."channelId" = c."_id"
+      AND cr."memberId" = mem."_id"
+      JOIN "Message" m
+        ON m."channelId" = c."_id"
+      WHERE
+        c."serverId" IN (${Prisma.join(serverIds)})
+        AND m."memberId" <> mem."_id"
+        AND (
+          cr."lastReadAt" IS NULL
+          OR m."createdAt" > cr."lastReadAt"
+        )
+      GROUP BY c."serverId"
+      `;
 
-    // Map: channelId -> lastReadAt
-    const lastReadMap = new Map<string, Date>();
-    for (const r of channelReads) {
-      lastReadMap.set(r.channelId, r.lastReadAt);
+    const unreadMap = new Map<string, number>();
+    for (const row of unread) {
+      unreadMap.set(row.serverId, Number(row.total));
     }
 
-    // 4️⃣ Count unread per channel (DB làm việc nặng)
-    const unreadByChannel = await this.countUnreadInChannels(
-      channelIds,
-      profileId,
-      lastReadMap,
-    );
-
-    const unreadMap = new Map(
-      unreadByChannel.map((i) => [i.channelId, i.count]),
-    );
-
-    // 5️⃣ Gộp unreadCount theo server
-    const data = servers.map((server) => {
-      const unreadCount = server.channels.reduce((sum, ch) => {
-        return sum + (unreadMap.get(ch.id) ?? 0);
-      }, 0);
-
-      return {
-        id: server.id,
-        name: server.name,
-        imageUrl: server.imageUrl,
-        unreadCount,
-      };
-    });
+    const data = servers.map((server) => ({
+      ...server,
+      unreadCount: unreadMap.get(server.id) ?? 0,
+    }));
 
     return {
       data,
@@ -224,7 +210,6 @@ export class ServerService {
   }
 
   async getUnreadMap(serverId: string, profileId: string) {
-    // Guard đã verify membership
     const member = await this.prisma.member.findUnique({
       where: {
         serverId_profileId: {
@@ -232,37 +217,41 @@ export class ServerService {
           profileId,
         },
       },
+      select: { id: true },
     });
 
     if (!member) {
       throw new NotFoundException('Member not found');
     }
 
-    // Get channels
-    const channels = await this.prisma.channel.findMany({
-      where: { serverId },
-      select: { id: true },
-    });
+    const memberId = member.id;
 
-    // Get read state
-    const reads = await this.prisma.channelRead.findMany({
-      where: { memberId: member.id },
-    });
-
-    const readMap = new Map<string, Date>(
-      reads.map((r) => [r.channelId, r.lastReadAt]),
-    );
-
-    // Count unread
-    const unreadStats = await this.countUnreadInChannels(
-      channels.map((c) => c.id),
-      profileId,
-      readMap,
-    );
+    const unread = await this.prisma.$queryRaw<
+      { channelId: string; count: bigint }[]
+    >`
+    SELECT 
+      m."channelId" as "channelId",
+      COUNT(*) as count
+    FROM "Message" m
+    JOIN "Channel" c
+      ON m."channelId" = c."_id"
+    LEFT JOIN "ChannelRead" cr
+      ON cr."channelId" = m."channelId"
+      AND cr."memberId" = ${memberId}
+    WHERE
+      c."serverId" = ${serverId}
+      AND m."memberId" <> ${memberId}
+      AND (
+        cr."lastReadAt" IS NULL
+        OR m."createdAt" > cr."lastReadAt"
+      )
+    GROUP BY m."channelId"
+  `;
 
     const result: Record<string, number> = {};
-    for (const stat of unreadStats) {
-      result[stat.channelId] = stat.count;
+
+    for (const row of unread) {
+      result[row.channelId] = Number(row.count);
     }
 
     return result;
@@ -328,27 +317,5 @@ export class ServerService {
         },
       },
     });
-  }
-
-  private async countUnreadInChannels(
-    channelIds: string[],
-    profileId: string,
-    lastReadMap: Map<string, Date>,
-  ) {
-    return await Promise.all(
-      channelIds.map(async (channelId) => {
-        const lastReadAt = lastReadMap.get(channelId) ?? new Date();
-
-        const count = await this.prisma.message.count({
-          where: {
-            channelId,
-            member: { profileId: { not: profileId } },
-            createdAt: { gt: lastReadAt },
-          },
-        });
-
-        return { channelId, count };
-      }),
-    );
   }
 }
