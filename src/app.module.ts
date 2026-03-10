@@ -15,6 +15,7 @@ import { MemberModule } from '~/member/member.module';
 
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { ProfileGuard } from '~/common/guards/profile.guard';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProfileGuard } from '~/common/guards/profile.guard';
     ProfileModule,
     ChannelModule,
     MemberModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

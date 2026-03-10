@@ -123,6 +123,19 @@ export class ChannelMessageService {
       throw new Error('User is not a member of this server');
     }
 
+    const channelRead = await this.prisma.channelRead.findUnique({
+      where: {
+        memberId_channelId: {
+          memberId: member.id,
+          channelId,
+        },
+      },
+    });
+
+    if (channelRead && Date.now() - channelRead.lastReadAt.getTime() < 1000) {
+      return channelRead;
+    }
+
     return this.prisma.channelRead.upsert({
       where: {
         memberId_channelId: {
@@ -131,6 +144,7 @@ export class ChannelMessageService {
         },
       },
       update: {
+        formerLastReadAt: channelRead?.lastReadAt,
         lastReadAt: new Date(),
       },
       create: {
