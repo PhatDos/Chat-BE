@@ -11,7 +11,10 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ChannelMessageService } from './channel-message.service';
-import { CreateChannelMessageDto } from './channel-message.dto';
+import {
+  CreateChannelMessageDto,
+  UpdateChannelNotifyDto,
+} from './channel-message.dto';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { MessageGateway } from '../message.gateway';
@@ -97,5 +100,20 @@ export class ChannelMessageController {
       });
 
     return channelRead;
+  }
+
+  @Patch(':channelId/notify')
+  @UseGuards(AuthGuard)
+  async updateChannelNotify(
+    @Param('channelId') channelId: string,
+    @Body() { serverId, isNotify }: UpdateChannelNotifyDto,
+    @CurrentProfile() profile: Profile,
+  ) {
+    return this.channelMessageService.updateChannelNotify(
+      channelId,
+      serverId,
+      profile.id,
+      isNotify,
+    );
   }
 }

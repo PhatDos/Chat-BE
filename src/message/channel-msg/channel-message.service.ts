@@ -155,7 +155,46 @@ export class ChannelMessageService {
     });
   }
 
-  async getMembersInServer(serverId: string) {
+  async updateChannelNotify(
+    channelId: string,
+    serverId: string,
+    profileId: string,
+    isNotify: boolean,
+  ) {
+    const member = await this.prisma.member.findUnique({
+      where: {
+        serverId_profileId: {
+          serverId,
+          profileId,
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!member) {
+      throw new Error('User is not a member of this server');
+    }
+
+    return this.prisma.channelRead.upsert({
+      where: {
+        memberId_channelId: {
+          memberId: member.id,
+          channelId,
+        },
+      },
+      update: {
+        isNotify,
+      },
+      create: {
+        memberId: member.id,
+        channelId,
+        lastReadAt: new Date(),
+        isNotify,
+      },
+    });
+  }
+
+  async getMembersInServer(serverId: string, channelId: string) {
     return this.prisma.member.findMany({
       where: { serverId },
       select: {
@@ -165,6 +204,14 @@ export class ChannelMessageService {
         profile: {
           select: {
             userId: true,
+          },
+        },
+        channelReads: {
+          where: {
+            channelId,
+          },
+          select: {
+            isNotify: true,
           },
         },
       },

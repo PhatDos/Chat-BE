@@ -1,4 +1,4 @@
-import { IsOptional, IsEnum, IsString } from 'class-validator';
+import { IsOptional, IsEnum, IsString, IsBoolean } from 'class-validator';
 import { FileType } from '@prisma/client';
 
 export class CreateChannelMessageDto {
@@ -29,4 +29,12 @@ export class UpdateChannelMessageDto {
   @IsOptional()
   @IsString()
   fileUrl?: string;
+}
+
+export class UpdateChannelNotifyDto {
+  @IsString()
+  serverId!: string;
+
+  @IsBoolean()
+  isNotify!: boolean;
 }
