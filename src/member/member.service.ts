@@ -57,6 +57,14 @@ export class MemberService {
     return updatedServer;
   }
 
+  async findByServerAndProfile(serverId: string, profileId: string) {
+    return this.prisma.member.findUnique({
+      where: {
+        serverId_profileId: { serverId, profileId },
+      },
+    });
+  }
+
   async updateMemberRole(memberId: string, serverId: string, profileId: string, role: MemberRole) {
     // Verify server exists and user is owner
     const server = await this.prisma.server.findUnique({

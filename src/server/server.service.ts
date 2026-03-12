@@ -5,15 +5,19 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { MemberRole, Prisma } from '@prisma/client';
+import { MemberRole, Prisma, type Member } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '~/utils/constants';
+import { ChannelService } from '~/channel/channel.service';
 
 @Injectable()
 export class ServerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private channelService: ChannelService,
+  ) {}
 
   async getServersByProfileId(profileId: string, paginationDto: PaginationDto) {
     const skip = paginationDto.skip ?? 0;
@@ -317,5 +321,49 @@ export class ServerService {
         },
       },
     });
+  }
+
+  async getInitialChannel(serverId: string) {
+    const channels = await this.channelService.getChannelsByServerId(serverId);
+
+    const initialChannel =
+      channels.find((channel) => channel.name === 'general') ?? channels[0];
+
+    if (!initialChannel) {
+      throw new NotFoundException('Initial channel not found');
+    }
+
+    return {
+      channelId: initialChannel.id,
+      channelName: initialChannel.name,
+    };
+  }
+
+  async getServerAccess(serverId: string, member: Member) {
+    const server = await this.prisma.server.findUnique({
+      where: { id: serverId },
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+        profileId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!server) {
+      throw new NotFoundException('Server not found');
+    }
+
+    return {
+      server,
+      member: {
+        id: member.id,
+        role: member.role,
+        profileId: member.profileId,
+        serverId: member.serverId,
+      },
+    };
   }
 }

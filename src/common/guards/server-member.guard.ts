@@ -4,11 +4,11 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { PrismaService } from '~/prisma/prisma.service';
+import { MemberService } from '~/member/member.service';
 
 @Injectable()
 export class ServerMemberGuard implements CanActivate {
-  constructor(private prisma: PrismaService) {}
+  constructor(private memberService: MemberService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -19,14 +19,10 @@ export class ServerMemberGuard implements CanActivate {
       throw new ForbiddenException('Server ID missing');
     }
 
-    const member = await this.prisma.member.findUnique({
-      where: {
-        serverId_profileId: {
-          serverId,
-          profileId: req.profile.id,
-        },
-      },
-    });
+    const member = await this.memberService.findByServerAndProfile(
+      serverId,
+      req.profile.id,
+    );
 
     if (!member) {
       throw new ForbiddenException('Not a member');

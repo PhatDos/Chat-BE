@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus, Query } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
+import { CurrentMember } from '~/common/decorators/current-member.decorator';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { ServerMemberGuard } from '~/common/guards/server-member.guard';
 import { RoleGuard } from '~/common/guards/role.guard';
 import { Roles } from '~/common/decorators/roles.decorator';
-import { MemberRole } from '@prisma/client';
+import { MemberRole, type Member } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
@@ -19,6 +20,31 @@ export class ServerController {
   @HttpCode(HttpStatus.OK)
   async getInitialServer(@CurrentProfile() profile: Profile) {
     return await this.serverService.getInitialServer(profile.id);
+  }
+
+  @UseGuards(ServerMemberGuard)
+  @Get(':serverId/initial-channel')
+  @HttpCode(HttpStatus.OK)
+  async getInitialChannel(@Param('serverId') serverId: string) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.getInitialChannel(serverId);
+  }
+
+  @UseGuards(ServerMemberGuard)
+  @Get(':serverId/me')
+  @HttpCode(HttpStatus.OK)
+  async getServerAccess(
+    @Param('serverId') serverId: string,
+    @CurrentMember() member: Member,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.getServerAccess(serverId, member);
   }
 
   @Get()

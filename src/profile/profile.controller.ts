@@ -1,7 +1,6 @@
 import {
   Controller,
-  Get,
-  UseGuards,
+  Get
 } from '@nestjs/common';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import type { Profile } from '~/common/types/profile.type';
