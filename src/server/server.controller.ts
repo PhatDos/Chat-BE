@@ -144,4 +144,19 @@ export class ServerController {
 
     return await this.serverService.joinServerByInviteCode(inviteCode, profile.id);
   }
+
+  @UseGuards(ServerMemberGuard)
+  @Get(':serverId/sidebar')
+  @HttpCode(HttpStatus.OK)
+  async getSidebarData(
+    @Param('serverId') serverId: string,
+    @CurrentProfile() profile: Profile,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.getServerSidebarData(serverId, profile.id);
+  }
 }
+

@@ -366,4 +366,58 @@ export class ServerService {
       },
     };
   }
+
+  async getServerSidebarData(serverId: string, profileId: string) {
+    const server = await this.prisma.server.findUnique({
+      where: {
+        id: serverId,
+      },
+      include: {
+        channels: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        members: {
+          include: {
+            profile: true,
+          },
+          orderBy: {
+            role: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!server) {
+      throw new NotFoundException('Server not found');
+    }
+
+    const textChannels = server.channels.filter(
+      (channel) => channel.type === 'TEXT',
+    );
+    const audioChannels = server.channels.filter(
+      (channel) => channel.type === 'AUDIO',
+    );
+    const videoChannels = server.channels.filter(
+      (channel) => channel.type === 'VIDEO',
+    );
+    const members = server.members.filter(
+      (member) => member.profileId !== profileId,
+    );
+
+    const role = server.members.find(
+      (member) => member.profileId === profileId,
+    )?.role;
+
+    return {
+      server,
+      textChannels,
+      audioChannels,
+      videoChannels,
+      members,
+      role,
+    };
+  }
 }
+
