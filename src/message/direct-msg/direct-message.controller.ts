@@ -91,6 +91,31 @@ export class DirectMessageController {
     };
   }
 
+  @Get('conversations/initial')
+  async getInitialConversation(@CurrentProfile() profile: Profile) {
+    if (!profile) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    const conversation = await this.directMessageService.getFirstConversation(
+      profile.id,
+    );
+
+    if (!conversation) {
+      return { conversation: null, otherProfile: null };
+    }
+
+    const otherProfile =
+      conversation.profileOneId === profile.id
+        ? conversation.profileTwo
+        : conversation.profileOne;
+
+    return {
+      conversation,
+      otherProfile,
+    };
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.directMessageService.findOne(id);

@@ -91,6 +91,18 @@ export class DirectMessageService {
     });
   }
 
+  async getFirstConversation(profileId: string) {
+    return this.prisma.conversation.findFirst({
+      where: {
+        OR: [{ profileOneId: profileId }, { profileTwoId: profileId }],
+      },
+      include: {
+        profileOne: true,
+        profileTwo: true,
+      },
+    });
+  }
+
   async getConversationsList(profileId: string) {
     return this.prisma.conversation.findMany({
       where: {
