@@ -1,19 +1,55 @@
 import { Controller, Get, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus, Query } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
+import { CurrentMember } from '~/common/decorators/current-member.decorator';
 import { AuthGuard } from '~/common/guards/auth.guard';
+import { ServerMemberGuard } from '~/common/guards/server-member.guard';
+import { RoleGuard } from '~/common/guards/role.guard';
+import { Roles } from '~/common/decorators/roles.decorator';
+import { MemberRole, type Member } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import type { Profile } from '~/common/types/profile.type';
 
 @Controller('servers')
-@UseGuards(AuthGuard)
 export class ServerController {
   constructor(private serverService: ServerService) {}
 
+  @Get('initial')
+  @HttpCode(HttpStatus.OK)
+  async getInitialServer(@CurrentProfile() profile: Profile) {
+    return await this.serverService.getInitialServer(profile.id);
+  }
+
+  @UseGuards(ServerMemberGuard)
+  @Get(':serverId/initial-channel')
+  @HttpCode(HttpStatus.OK)
+  async getInitialChannel(@Param('serverId') serverId: string) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.getInitialChannel(serverId);
+  }
+
+  @UseGuards(ServerMemberGuard)
+  @Get(':serverId/me')
+  @HttpCode(HttpStatus.OK)
+  async getServerAccess(
+    @Param('serverId') serverId: string,
+    @CurrentMember() member: Member,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.getServerAccess(serverId, member);
+  }
+
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getMyServers(@CurrentProfile() profile: any, @Query() paginationDto: PaginationDto) {
+  async getMyServers(@CurrentProfile() profile: Profile, @Query() paginationDto: PaginationDto) {
     return await this.serverService.getServersByProfileId(profile.id, paginationDto);
   }
 
@@ -21,17 +57,19 @@ export class ServerController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(ValidationPipe) dto: CreateServerDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     return await this.serverService.createServer(profile.id, dto);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Patch(':serverId')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('serverId') serverId: string,
     @Body(ValidationPipe) dto: UpdateServerDto,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -40,11 +78,13 @@ export class ServerController {
     return await this.serverService.updateServer(serverId, profile.id, dto);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER)
   @Delete(':serverId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -53,24 +93,27 @@ export class ServerController {
     await this.serverService.deleteServer(serverId, profile.id);
   }
 
+  @UseGuards(ServerMemberGuard, RoleGuard)
+  @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Patch(':serverId/invite-code')
   @HttpCode(HttpStatus.OK)
   async updateInviteCode(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
     }
 
-    return await this.serverService.updateInviteCode(serverId, profile.id);
+    return await this.serverService.updateInviteCode(serverId);
   }
 
+  @UseGuards(ServerMemberGuard)
   @Patch(':serverId/leave')
   @HttpCode(HttpStatus.OK)
   async leaveServer(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
@@ -79,12 +122,41 @@ export class ServerController {
     return await this.serverService.leaveServer(serverId, profile.id);
   }
 
+  @UseGuards(ServerMemberGuard)
   @Get(':serverId/unread')
   @HttpCode(HttpStatus.OK)
   async getUnreadByServer(
     @Param('serverId') serverId: string,
-    @CurrentProfile() profile: any,
+    @CurrentProfile() profile: Profile,
   ) {
     return await this.serverService.getUnreadMap(serverId, profile.id);
   }
+
+  @Post('invite/:inviteCode')
+  @HttpCode(HttpStatus.OK)
+  async joinByInviteCode(
+    @Param('inviteCode') inviteCode: string,
+    @CurrentProfile() profile: Profile,
+  ) {
+    if (!inviteCode) {
+      throw new BadRequestException('Invite code is required');
+    }
+
+    return await this.serverService.joinServerByInviteCode(inviteCode, profile.id);
+  }
+
+  @UseGuards(ServerMemberGuard)
+  @Get(':serverId/sidebar')
+  @HttpCode(HttpStatus.OK)
+  async getSidebarData(
+    @Param('serverId') serverId: string,
+    @CurrentProfile() profile: Profile,
+  ) {
+    if (!serverId) {
+      throw new BadRequestException('Server ID is required');
+    }
+
+    return await this.serverService.getServerSidebarData(serverId, profile.id);
+  }
 }
+

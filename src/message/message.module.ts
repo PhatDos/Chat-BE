@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from '~/prisma/prisma.module';
 
 import { DirectMessageService } from './direct-msg/direct-message.service';
@@ -16,10 +15,7 @@ import { ChannelMessageGateway } from './channel-msg/channel-message.gateway';
 import { AuthGuard } from '~/common/guards/auth.guard';
 
 @Module({
-  imports: [
-    JwtModule.register({ secret: 'temp-secret' }),
-    PrismaModule,
-  ],
+  imports: [PrismaModule],
   controllers: [
     DirectMessageController,
     ChannelMessageController,
@@ -34,6 +30,11 @@ import { AuthGuard } from '~/common/guards/auth.guard';
     NotificationService,
     AuthGuard,
   ],
-  exports: [DirectMessageService, ChannelMessageService, NotificationService],
+  exports: [
+    DirectMessageService,
+    ChannelMessageService,
+    ChannelMessageGateway,
+    NotificationService,
+  ],
 })
 export class MessageModule {}

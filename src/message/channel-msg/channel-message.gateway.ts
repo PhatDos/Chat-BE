@@ -68,6 +68,7 @@ export class ChannelMessageGateway {
 
     const members = await this.channelMessageService.getMembersInServer(
       member.serverId,
+      channelId,
     );
 
     for (const m of members) {
@@ -83,8 +84,13 @@ export class ChannelMessageGateway {
 
       this.server.to(`profile:${m.profileId}`).emit('channel:notification', {
         serverId: member.serverId,
-        channelId,
+        channelId,    // for notification badge
         inc: 1,
+        isNotify: m.channelReads[0]?.isNotify ?? true,
+        senderName: member.profile.name,
+        content,
+        channelName: channel.name,
+        serverName: channel.server.name,
       });
     }
 

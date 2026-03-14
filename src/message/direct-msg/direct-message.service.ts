@@ -26,7 +26,7 @@ export class DirectMessageService {
   }
 
   async getMessages(conversationId: string, cursor?: string) {
-    const LIMIT = 20;
+    const LIMIT = 10;
 
     const messages = await this.prisma.directMessage.findMany({
       where: { conversationId },
@@ -84,6 +84,65 @@ export class DirectMessageService {
   async findConversationById(conversationId: string) {
     return this.prisma.conversation.findUnique({
       where: { id: conversationId },
+      include: {
+        profileOne: true,
+        profileTwo: true,
+      },
+    });
+  }
+
+  async getFirstConversation(profileId: string) {
+    return this.prisma.conversation.findFirst({
+      where: {
+        OR: [{ profileOneId: profileId }, { profileTwoId: profileId }],
+      },
+      include: {
+        profileOne: true,
+        profileTwo: true,
+      },
+    });
+  }
+
+  async getConversationsList(profileId: string) {
+    return this.prisma.conversation.findMany({
+      where: {
+        OR: [{ profileOneId: profileId }, { profileTwoId: profileId }],
+      },
+      include: {
+        profileOne: true,
+        profileTwo: true,
+        directMessages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+  }
+
+  async validateProfile(profileId: string) {
+    return this.prisma.profile.findUnique({
+      where: { id: profileId },
+    });
+  }
+
+  async getOrCreateConversation(profileAId: string, profileBId: string) {
+    const [profileOneId, profileTwoId] =
+      profileAId < profileBId
+        ? [profileAId, profileBId]
+        : [profileBId, profileAId];
+
+    return this.prisma.conversation.upsert({
+      where: {
+        profileOneId_profileTwoId: {
+          profileOneId,
+          profileTwoId,
+        },
+      },
+      update: {}, // không cần update gì
+      create: {
+        profileOneId,
+        profileTwoId,
+      },
       include: {
         profileOne: true,
         profileTwo: true,
