@@ -75,7 +75,7 @@ export class ServerService {
         ON m."channelId" = c."_id"
       WHERE
         c."serverId" IN (${Prisma.join(serverIds)})
-        AND m."memberId" <> mem."_id"
+        AND (m."memberId" IS NULL OR m."memberId" <> mem."_id")
         AND (
           cr."lastReadAt" IS NULL
           OR m."createdAt" > cr."lastReadAt"
@@ -244,7 +244,7 @@ export class ServerService {
       AND cr."memberId" = ${memberId}
     WHERE
       c."serverId" = ${serverId}
-      AND m."memberId" <> ${memberId}
+      AND (m."memberId" IS NULL OR m."memberId" <> ${memberId})
       AND (
         cr."lastReadAt" IS NULL
         OR m."createdAt" > cr."lastReadAt"
