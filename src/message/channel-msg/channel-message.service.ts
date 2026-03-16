@@ -245,7 +245,7 @@ export class ChannelMessageService {
         AND cr."memberId" = ${memberId}
       WHERE
         c."serverId" = ${serverId}
-        AND m."memberId" <> ${memberId}
+        AND (m."memberId" IS NULL OR m."memberId" <> ${memberId})
         AND (
           cr."lastReadAt" IS NULL
           OR m."createdAt" > cr."lastReadAt"

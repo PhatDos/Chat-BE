@@ -86,13 +86,13 @@ model Message {
   content   String
   fileUrl   String?
   fileType  FileType @default(text)
-  memberId  String
+  memberId  String?
   channelId String
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  member  Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member  Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@index([channelId])
