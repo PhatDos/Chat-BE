@@ -64,7 +64,18 @@ export class DirectMessageService {
         content: dto.content ?? undefined,
         fileUrl: dto.fileUrl ?? undefined,
       },
-      include: { sender: true },
+      select: {
+        id: true,
+        content: true,
+        fileUrl: true,
+        fileType: true,
+        senderId: true,
+        conversationId: true,
+        createdAt: true,
+        updatedAt: true,
+        deleted: true,
+        sender: true,
+      },
     });
   }
 

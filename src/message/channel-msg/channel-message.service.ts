@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { moderationQueue } from '~/redis/queue';
 
 @Injectable()
 export class ChannelMessageService {
@@ -26,12 +27,23 @@ export class ChannelMessageService {
   }
 
   async create(createChannelMessageDto: Prisma.MessageCreateInput) {
-    return this.prisma.message.create({
+    const message = await this.prisma.message.create({
       data: createChannelMessageDto,
       include: {
         member: { include: { profile: true } },
       },
     });
+
+    try {
+      await moderationQueue.add('scan-message', {
+        messageId: message.id,
+        content: message.content,
+      });
+    } catch (error) {
+      console.error('Failed to enqueue channel moderation job:', error);
+    }
+
+    return message;
   }
 
   async findOne(id: string) {
@@ -45,7 +57,20 @@ export class ChannelMessageService {
     return this.prisma.message.update({
       where: { id },
       data: updateChannelMessageDto,
-      include: { member: { include: { profile: true } } },
+      select: {
+        id: true,
+        content: true,
+        fileUrl: true,
+        fileType: true,
+        memberId: true,
+        channelId: true,
+        deleted: true,
+        createdAt: true,
+        updatedAt: true,
+        isFlagged: true,
+        flagReason: true,
+        member: { include: { profile: true } },
+      },
     });
   }
 
