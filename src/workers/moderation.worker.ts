@@ -1,32 +1,16 @@
 import 'dotenv/config';
 import { Worker, Job } from 'bullmq';
 import { PrismaClient } from '@prisma/client';
-import type { ModerationJobData } from './src/redis/queue';
-
-const redisUrl = process.env.REDIS_URL;
-
-if (!redisUrl) {
-  throw new Error('REDIS_URL is undefined. Check your .env file.');
-}
-
-const parsedRedisUrl = new URL(redisUrl);
-
-const connection = {
-  host: parsedRedisUrl.hostname,
-  port: Number(parsedRedisUrl.port || 6379),
-  username: parsedRedisUrl.username
-    ? decodeURIComponent(parsedRedisUrl.username)
-    : undefined,
-  password: parsedRedisUrl.password
-    ? decodeURIComponent(parsedRedisUrl.password)
-    : undefined,
-  maxRetriesPerRequest: null,
-};
+import {
+  MODERATION_QUEUE_NAME,
+  moderationConnection,
+  type ModerationJobData,
+} from '../redis/moderation.queue';
 
 const prisma = new PrismaClient();
 
 const worker = new Worker<ModerationJobData>(
-  'moderation',
+  MODERATION_QUEUE_NAME,
   async (job: Job<ModerationJobData>) => {
     const { messageId, content } = job.data;
 
@@ -41,8 +25,7 @@ const worker = new Worker<ModerationJobData>(
       UPDATE "Message"
       SET
         "isFlagged" = ${isToxic},
-        "flagReason" = ${flagReason},
-        "updatedAt" = NOW()
+        "flagReason" = ${flagReason}
       WHERE "_id" = ${messageId}
     `;
 
@@ -59,7 +42,7 @@ const worker = new Worker<ModerationJobData>(
       console.log('DB updated: isFlagged=false');
     }
   },
-  { connection },
+  { connection: moderationConnection },
 );
 
 worker.on('completed', (job) => {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { moderationQueue } from '~/redis/queue';
+import { moderationQueue } from '~/redis/moderation.queue';
 
 @Injectable()
 export class ChannelMessageService {

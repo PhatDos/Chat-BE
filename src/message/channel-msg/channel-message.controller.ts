@@ -27,16 +27,6 @@ export class ChannelMessageController {
     private readonly messageGateway: MessageGateway,
   ) {}
 
-  @Post()
-  create(@Body() body: CreateChannelMessageDto) {
-    return this.channelMessageService.create({
-      content: body.content!,
-      fileUrl: body.fileUrl,
-      member: { connect: { id: body.memberId } },
-      channel: { connect: { id: body.channelId } },
-    });
-  }
-
   // GET MESSAGES WITH PAGINATION
   @Get()
   getMessages(

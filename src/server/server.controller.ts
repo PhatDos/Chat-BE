@@ -10,11 +10,15 @@ import { MemberRole, type Member } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { ChannelRefetchService } from '~/message/channel-refetch.service';
 import type { Profile } from '~/common/types/profile.type';
 
 @Controller('servers')
 export class ServerController {
-  constructor(private serverService: ServerService) {}
+  constructor(
+    private serverService: ServerService,
+    private channelRefetchService: ChannelRefetchService,
+  ) {}
 
   @Get('initial')
   @HttpCode(HttpStatus.OK)
@@ -119,7 +123,11 @@ export class ServerController {
       throw new BadRequestException('Server ID is required');
     }
 
-    return await this.serverService.leaveServer(serverId, profile.id);
+    const updatedServer = await this.serverService.leaveServer(serverId, profile.id);
+
+    await this.channelRefetchService.emitByServer(serverId);
+
+    return updatedServer;
   }
 
   @UseGuards(ServerMemberGuard)
@@ -142,7 +150,14 @@ export class ServerController {
       throw new BadRequestException('Invite code is required');
     }
 
-    return await this.serverService.joinServerByInviteCode(inviteCode, profile.id);
+    const joinedServer = await this.serverService.joinServerByInviteCode(
+      inviteCode,
+      profile.id,
+    );
+
+    await this.channelRefetchService.emitByServer(joinedServer.id);
+
+    return joinedServer;
   }
 
   @UseGuards(ServerMemberGuard)

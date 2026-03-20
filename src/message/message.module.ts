@@ -4,6 +4,7 @@ import { PrismaModule } from '~/prisma/prisma.module';
 import { DirectMessageService } from './direct-msg/direct-message.service';
 import { ChannelMessageService } from './channel-msg/channel-message.service';
 import { NotificationService } from './notification/notification.service';
+import { ChannelRefetchService } from './channel-refetch.service';
 
 import { DirectMessageController } from './direct-msg/direct-message.controller';
 import { ChannelMessageController } from './channel-msg/channel-message.controller';
@@ -24,6 +25,7 @@ import { AuthGuard } from '~/common/guards/auth.guard';
   providers: [
     DirectMessageService,
     ChannelMessageService,
+    ChannelRefetchService,
     MessageGateway,
     DirectMessageGateway,
     ChannelMessageGateway,
@@ -33,6 +35,7 @@ import { AuthGuard } from '~/common/guards/auth.guard';
   exports: [
     DirectMessageService,
     ChannelMessageService,
+    ChannelRefetchService,
     ChannelMessageGateway,
     NotificationService,
   ],
