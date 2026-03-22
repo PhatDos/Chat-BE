@@ -9,22 +9,32 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { ChannelMessageService } from './channel-message.service';
 import {
-  CreateChannelMessageDto,
+  UpdateChannelMessageDto,
   UpdateChannelNotifyDto,
-} from './channel-message.dto';
+} from '../dtos/channel-message.dto';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
-import { MessageGateway } from '../message.gateway';
 import type { Profile } from '~/common/types/profile.type';
+
+import {
+  GetChannelMessagesUseCase,
+  FindOneChannelMessageUseCase,
+  UpdateChannelMessageUseCase,
+  DeleteChannelMessageUseCase,
+  MarkChannelAsReadUseCase,
+  UpdateChannelNotifyUseCase,
+} from '../../application/usecases';
 
 @Controller('channel-messages')
 export class ChannelMessageController {
   constructor(
-    private readonly channelMessageService: ChannelMessageService,
-    private readonly messageGateway: MessageGateway,
+    private readonly getMessagesUseCase: GetChannelMessagesUseCase,
+    private readonly findOneUseCase: FindOneChannelMessageUseCase,
+    private readonly updateUseCase: UpdateChannelMessageUseCase,
+    private readonly deleteUseCase: DeleteChannelMessageUseCase,
+    private readonly markAsReadUseCase: MarkChannelAsReadUseCase,
+    private readonly updateNotifyUseCase: UpdateChannelNotifyUseCase,
   ) {}
 
   // GET MESSAGES WITH PAGINATION
@@ -33,25 +43,25 @@ export class ChannelMessageController {
     @Query('channelId') channelId: string,
     @Query('cursor') cursor?: string,
   ) {
-    return this.channelMessageService.getMessages(channelId, cursor);
+    return this.getMessagesUseCase.execute(channelId, cursor);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.channelMessageService.findOne(id);
+    return this.findOneUseCase.execute(id);
   }
 
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateChannelMessageDto: Prisma.MessageUpdateInput,
+    @Body() updateChannelMessageDto: UpdateChannelMessageDto,
   ) {
-    return this.channelMessageService.update(id, updateChannelMessageDto);
+    return this.updateUseCase.execute(id, updateChannelMessageDto as any);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.channelMessageService.delete(id);
+    return this.deleteUseCase.execute(id);
   }
 
   @Post(':channelId/read')
@@ -61,35 +71,11 @@ export class ChannelMessageController {
     @Body() { serverId }: { serverId: string },
     @CurrentProfile() profile: Profile,
   ) {
-    const channelRead = await this.channelMessageService.markChannelAsRead(
+    return this.markAsReadUseCase.execute(
       channelId,
       serverId,
       profile.id,
     );
-
-    // Listen per channel (chưa dùng)
-    this.messageGateway.server
-      .to(`profile:${profile.id}`)
-      .emit('channel:mark-read', {
-        channelId,
-        serverId,
-        lastReadAt: channelRead.lastReadAt,
-      });
-
-    const totalUnread = await this.channelMessageService.getTotalUnreadForSpecificServer(
-      serverId,
-      profile.id,
-    );
-
-    this.messageGateway.server
-      .to(`profile:${profile.id}`)
-      .emit('server:unread-update', {
-        serverId,
-        // channelId,
-        totalUnread,
-      });
-
-    return channelRead;
   }
 
   @Patch(':channelId/notify')
@@ -99,7 +85,7 @@ export class ChannelMessageController {
     @Body() { serverId, isNotify }: UpdateChannelNotifyDto,
     @CurrentProfile() profile: Profile,
   ) {
-    return this.channelMessageService.updateChannelNotify(
+    return this.updateNotifyUseCase.execute(
       channelId,
       serverId,
       profile.id,

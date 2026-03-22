@@ -1,5 +1,10 @@
 import { IsOptional, IsEnum, IsString, IsBoolean } from 'class-validator';
-import { FileType } from '@prisma/client';
+
+export enum MessageFileType {
+  text = 'text',
+  img = 'img',
+  pdf = 'pdf',
+}
 
 export class CreateChannelMessageDto {
   @IsOptional()
@@ -11,8 +16,8 @@ export class CreateChannelMessageDto {
   fileUrl?: string;
 
   @IsOptional()
-  @IsEnum(FileType)
-  fileType?: FileType;
+  @IsEnum(MessageFileType)
+  fileType?: MessageFileType;
 
   @IsString()
   memberId!: string;
