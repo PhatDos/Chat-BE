@@ -50,7 +50,7 @@ export class MessageFetcherService {
       return [];
     }
 
-    const from = readState?.formerLastReadAt ?? new Date(0);
+    const from = readState?.formerLastReadAt ?? new Date();
     const to = readState?.lastReadAt ?? new Date();
 
     return this.prisma.message.findMany({

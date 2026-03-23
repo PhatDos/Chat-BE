@@ -21,6 +21,7 @@ const worker = new Worker<ModerationJobData>(
 
     const flagReason = isToxic ? 'Detected banned keyword: ngu' : null;
 
+    // Keep field updatedAt unchanged for moderation-only updates.
     const updatedRows = await prisma.$executeRaw`
       UPDATE "Message"
       SET

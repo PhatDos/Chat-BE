@@ -10,7 +10,7 @@ export class GetChannelMessagesUseCase {
   ) {}
 
   async execute(channelId: string, cursor?: string) {
-    const LIMIT = 20;
+    const LIMIT = 18;
     return this.channelMessageRepo.getMessages(channelId, LIMIT, cursor);
   }
 }
