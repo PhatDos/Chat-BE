@@ -54,6 +54,8 @@ export class ChannelMessageHandler {
       await moderationQueue.add('scan-message', {
         messageId: message.id,
         content: message.content,
+        fileType: message.fileType,
+        fileUrl: message.fileUrl,
       });
     } catch (error) {
       console.error('Failed to enqueue channel moderation job:', error);

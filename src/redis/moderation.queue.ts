@@ -23,10 +23,13 @@ export const moderationConnection = {
 
 export const MODERATION_QUEUE_NAME = 'moderation';
 export const MODERATION_JOB_NAME = 'scan-message';
+export const MODERATION_RESULT_CHANNEL = 'moderation:result';
 
 export type ModerationJobData = {
   messageId: string;
   content: string;
+  fileType?: 'text' | 'img' | 'pdf';
+  fileUrl?: string;
 };
 
 export type ModerationJobName = typeof MODERATION_JOB_NAME;

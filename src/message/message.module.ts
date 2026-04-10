@@ -31,6 +31,7 @@ import {
 import { PrismaChannelMessageRepository } from './channel-msg/infrastructure/repositories/prisma-channel-message.repository';
 import { CHANNEL_MESSAGE_REPOSITORY } from './channel-msg/domain/repositories/channel-message.repository.interface';
 import { ChannelMessageHandler } from './channel-msg/application/events/handlers/channel-message.handler';
+import { ChannelModerationRealtimeHandler } from './channel-msg/application/events/handlers/channel-moderation-realtime.handler';
 
 const ChannelMessageUseCases = [
   CreateChannelMessageUseCase,
@@ -60,6 +61,7 @@ const ChannelMessageUseCases = [
       useClass: PrismaChannelMessageRepository,
     },
     ChannelMessageHandler,
+    ChannelModerationRealtimeHandler,
     DirectMessageService,
     ChannelRefetchService,
     MessageGateway,

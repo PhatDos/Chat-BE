@@ -44,6 +44,19 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+## Supabase and PM2 notes
+
+If you are deploying with Supabase pooler (PgBouncer), keep runtime connections small to avoid `MaxClientsInSessionMode` errors.
+
+Use a pooled runtime URL in `.env`:
+
+```bash
+DATABASE_URL="postgresql://<user>:<password>@<project>.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1&pool_timeout=20"
+DIRECT_URL="postgresql://<user>:<password>@<project>.pooler.supabase.com:5432/postgres"
+```
+
+For PM2, avoid scaling API instances above your DB pool capacity. If your pool is small, start with one API instance and one worker process.
+
 ## Run tests
 
 ```bash

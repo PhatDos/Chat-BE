@@ -16,7 +16,7 @@ import {
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
 export class ChannelMessageGateway {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   constructor(
     private readonly createMessageUseCase: CreateChannelMessageUseCase,
