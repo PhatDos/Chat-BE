@@ -8,8 +8,12 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChannelMessageService } from './channel-msg/channel-message.service';
 import { WEBSOCKET_GATEWAY_CONFIG } from './gateway.config';
+
+import {
+  FindChannelUseCase,
+  MarkChannelAsReadUseCase,
+} from './channel-msg/application/usecases';
 
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
 export class MessageGateway
@@ -19,7 +23,8 @@ export class MessageGateway
   server: Server;
 
   constructor(
-    private readonly channelMessageService: ChannelMessageService,
+    private readonly findChannelUseCase: FindChannelUseCase,
+    private readonly markAsReadUseCase: MarkChannelAsReadUseCase,
   ) {}
 
   handleConnection(client: Socket) {
@@ -72,11 +77,11 @@ export class MessageGateway
     const profileId = client.data?.profileId;
     if (!profileId) return;
 
-    this.channelMessageService
-      .findChannel(payload.channelId)
+    this.findChannelUseCase
+      .execute(payload.channelId)
       .then((channel) => {
         if (!channel) return;
-        return this.channelMessageService.markChannelAsRead(
+        return this.markAsReadUseCase.execute(
           payload.channelId,
           channel.serverId,
           profileId,

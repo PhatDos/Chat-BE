@@ -20,11 +20,15 @@ import { Roles } from '~/common/decorators/roles.decorator';
 import { MemberRole } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
+import { ChannelRefetchService } from '~/message/channel-refetch.service';
 import type { Profile } from '~/common/types/profile.type';
 
 @Controller('servers/:serverId/channels')
 export class ChannelController {
-  constructor(private channelService: ChannelService) {}
+  constructor(
+    private channelService: ChannelService,
+    private channelRefetchService: ChannelRefetchService,
+  ) {}
 
   @UseGuards(ServerMemberGuard)
   @Get()
@@ -70,7 +74,15 @@ export class ChannelController {
       throw new BadRequestException('Server ID is required');
     }
 
-    return await this.channelService.createChannel(serverId, profile.id, dto);
+    const createdChannel = await this.channelService.createChannel(
+      serverId,
+      profile.id,
+      dto,
+    );
+
+    await this.channelRefetchService.emitByServer(serverId);
+
+    return createdChannel;
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)
@@ -90,7 +102,15 @@ export class ChannelController {
       throw new BadRequestException('Channel ID is required');
     }
 
-    return await this.channelService.updateChannel(serverId, channelId, dto);
+    const updatedChannel = await this.channelService.updateChannel(
+      serverId,
+      channelId,
+      dto,
+    );
+
+    await this.channelRefetchService.emitByServer(serverId);
+
+    return updatedChannel;
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)
@@ -110,5 +130,9 @@ export class ChannelController {
     }
 
     await this.channelService.deleteChannel(serverId, channelId);
+
+    // Notify users currently reading this channel and other channels in server.
+    this.channelRefetchService.emitByChannel(channelId);
+    await this.channelRefetchService.emitByServer(serverId);
   }
 }

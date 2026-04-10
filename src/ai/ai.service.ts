@@ -46,9 +46,15 @@ export class AiService {
             You are an assistant summarizing Discord conversations.
 
             Summarize:
-            - main topics
-            - decisions
-            - important questions
+				- main topics
+				- decisions
+				- important questions
+
+			IMPORTANT:
+				- Return ONLY ONE paragraph
+				- Do NOT use line breaks
+				- Do NOT use bullet points
+				- Write naturally like a short conversation summary
 
             Conversation:   
             ${formatted}
