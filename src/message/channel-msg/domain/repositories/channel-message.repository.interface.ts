@@ -32,6 +32,12 @@ export interface IChannelMessageRepository {
 
   getChannelRead(memberId: string, channelId: string): Promise<any>;
 
+  markChannelAsReadByIdentity(
+    channelId: string,
+    serverId: string,
+    identity: string,
+  ): Promise<any>;
+
   upsertChannelRead(
     memberId: string,
     channelId: string,

@@ -12,55 +12,58 @@ export class MarkChannelAsReadUseCase {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async execute(channelId: string, serverId: string, profileId: string) {
-    const member = await this.channelMessageRepo.findMemberByProfileId(
-      profileId,
-      serverId,
-    );
+  async execute(
+    channelId: string,
+    serverId: string,
+    profileId: string,
+    traceId?: string,
+  ) {
+    return this.markAsReadInternal(channelId, serverId, profileId, traceId);
+  }
 
-    if (!member) {
+  async executeByUserId(
+    channelId: string,
+    serverId: string,
+    userId: string,
+    traceId?: string,
+  ) {
+    return this.markAsReadInternal(channelId, serverId, userId, traceId);
+  }
+
+  private async markAsReadInternal(
+    channelId: string,
+    serverId: string,
+    identity: string,
+    traceId?: string,
+  ) {
+    const totalStartedAt = Date.now();
+    const queryStartedAt = Date.now();
+
+    const updatedChannelRead =
+      await this.channelMessageRepo.markChannelAsReadByIdentity(
+        channelId,
+        serverId,
+        identity,
+      );
+
+    if (!updatedChannelRead) {
       throw new Error('User is not a member of this server');
     }
 
-    const channelRead = await this.channelMessageRepo.getChannelRead(
-      member.id,
-      channelId,
-    );
 
-    if (channelRead && Date.now() - channelRead.lastReadAt.getTime() < 1000) {
-      this.eventEmitter.emit(
-        'channel.read',
-        new ChannelReadEvent(
-          channelId,
-          serverId,
-          profileId,
-          channelRead.lastReadAt,
-        ),
-      );
-      return channelRead;
-    }
 
-    const updatedChannelRead = await this.channelMessageRepo.upsertChannelRead(
-      member.id,
-      channelId,
-      {
-        formerLastReadAt: channelRead?.lastReadAt,
-        lastReadAt: new Date(),
-      },
-      {
-        lastReadAt: new Date(),
-      },
-    );
-
+    const emitStartedAt = Date.now();
     this.eventEmitter.emit(
       'channel.read',
       new ChannelReadEvent(
         channelId,
         serverId,
-        profileId,
+        updatedChannelRead.profileId,
         updatedChannelRead.lastReadAt,
       ),
     );
+
+
 
     return updatedChannelRead;
   }
