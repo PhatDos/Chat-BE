@@ -13,6 +13,19 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
+    const path = String(req.originalUrl ?? req.url ?? '').split('?')[0];
+    const isReadEndpoint =
+      req.method === 'POST' &&
+      /^\/channel-messages\/[^/]+\/read$/.test(path);
+    const startedAt = Date.now();
+
+    if (isReadEndpoint) {
+      req.__perfRead = req.__perfRead ?? {
+        traceId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        startedAt,
+      };
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
@@ -24,10 +37,13 @@ export class AuthGuard implements CanActivate {
     try {
       const clerkSecretKey =
         this.configService.get<string>('CLERK_SECRET_KEY');
+      const verifyStartedAt = Date.now();
 
       const payload = await verifyToken(token, {
         secretKey: clerkSecretKey!,
       });
+
+
 
       req.userId = payload.sub;
 

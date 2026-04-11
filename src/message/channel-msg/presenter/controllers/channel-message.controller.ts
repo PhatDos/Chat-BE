@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -14,6 +15,7 @@ import {
   UpdateChannelNotifyDto,
 } from '../dtos/channel-message.dto';
 import { AuthGuard } from '~/common/guards/auth.guard';
+import { SkipProfileGuard } from '~/common/decorators/skip-profile-guard.decorator';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import type { Profile } from '~/common/types/profile.type';
 
@@ -65,17 +67,21 @@ export class ChannelMessageController {
   }
 
   @Post(':channelId/read')
-  @UseGuards(AuthGuard)
+  @SkipProfileGuard()
   async markChannelAsRead(
+    @Req() req: any,
     @Param('channelId') channelId: string,
     @Body() { serverId }: { serverId: string },
-    @CurrentProfile() profile: Profile,
   ) {
-    return this.markAsReadUseCase.execute(
+    const userId = req.userId as string;
+
+    const result = await this.markAsReadUseCase.executeByUserId(
       channelId,
       serverId,
-      profile.id,
+      userId,
     );
+
+    return result;
   }
 
   @Patch(':channelId/notify')

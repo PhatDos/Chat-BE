@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { IChannelMessageRepository } from '../../domain/repositories/channel-message.repository.interface';
 import { FileType } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class PrismaChannelMessageRepository
@@ -130,6 +131,59 @@ export class PrismaChannelMessageRepository
         memberId_channelId: { memberId, channelId },
       },
     });
+  }
+
+  async markChannelAsReadByIdentity(
+    channelId: string,
+    serverId: string,
+    identity: string,
+  ) {
+    const newId = randomUUID();
+
+    const rows = await this.prisma.$queryRaw<
+      {
+        id: string;
+        memberId: string;
+        profileId: string;
+        channelId: string;
+        lastReadAt: Date;
+        formerLastReadAt: Date | null;
+        isNotify: boolean;
+      }[]
+    >`
+      WITH target_member AS (
+        SELECT m."_id" AS "memberId", m."profileId" AS "profileId"
+        FROM "Member" m
+        JOIN "Profile" p ON p."_id" = m."profileId"
+        WHERE m."serverId" = ${serverId}
+          AND (p."userId" = ${identity} OR p."_id" = ${identity})
+        LIMIT 1
+      )
+      INSERT INTO "ChannelRead" (
+        "_id",
+        "memberId",
+        "channelId",
+        "lastReadAt",
+        "formerLastReadAt",
+        "isNotify"
+      )
+      SELECT ${newId}, tm."memberId", ${channelId}, NOW(), NULL, TRUE
+      FROM target_member tm
+      ON CONFLICT ("memberId", "channelId")
+      DO UPDATE SET
+        "formerLastReadAt" = "ChannelRead"."lastReadAt",
+        "lastReadAt" = NOW()
+      RETURNING
+        "_id" AS "id",
+        "memberId",
+        (SELECT tm."profileId" FROM target_member tm LIMIT 1) AS "profileId",
+        "channelId",
+        "lastReadAt",
+        "formerLastReadAt",
+        "isNotify"
+    `;
+
+    return rows[0] ?? null;
   }
 
   async upsertChannelRead(
