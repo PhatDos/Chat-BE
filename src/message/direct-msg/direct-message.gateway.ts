@@ -14,7 +14,7 @@ import { WEBSOCKET_GATEWAY_CONFIG } from '../gateway.config';
 
 export class DirectMessageGateway {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   constructor(private readonly directMessageService: DirectMessageService) {}
 

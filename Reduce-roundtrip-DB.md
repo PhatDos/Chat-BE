@@ -101,3 +101,6 @@ For high-frequency endpoints:
 - Avoid fetching data that endpoint does not need.
 - Prefer atomic SQL for write paths that currently require multiple sequential ORM calls.
 - Keep benchmark logs temporary and remove after validation.
+
+
+* When multiple round trips are merged into one, the orchestration is not removed but shifted from the application layer (use case) to the database (infrastructure layer).

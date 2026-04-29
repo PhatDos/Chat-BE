@@ -17,7 +17,7 @@ import {
   CreateDirectMessageDto,
   UpdateDirectMessageDto,
 } from './direct-message.dto';
-import { CurrentProfile } from 'src/common/decorators/current-profile.decorator';
+import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import type { Profile } from '@prisma/client';
 import { AuthGuard } from '~/common/guards/auth.guard';
 

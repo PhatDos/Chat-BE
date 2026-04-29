@@ -50,10 +50,7 @@ export class AiService {
 				- decisions
 				- important questions
 
-			IMPORTANT:
-				- Return ONLY ONE paragraph
-				- Do NOT use line breaks
-				- Do NOT use bullet points
+		
 				- Write naturally like a short conversation summary
 
             Conversation:   

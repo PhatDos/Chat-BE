@@ -50,8 +50,6 @@ export class MarkChannelAsReadUseCase {
       throw new Error('User is not a member of this server');
     }
 
-
-
     const emitStartedAt = Date.now();
     this.eventEmitter.emit(
       'channel.read',
@@ -62,8 +60,6 @@ export class MarkChannelAsReadUseCase {
         updatedChannelRead.lastReadAt,
       ),
     );
-
-
 
     return updatedChannelRead;
   }
