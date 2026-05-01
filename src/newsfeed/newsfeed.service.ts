@@ -12,6 +12,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '~/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -29,6 +30,20 @@ const postBaseSelect = {
   visibility: true,
   createdAt: true,
   likeCount: true,
+  commentCount: true,
+  comments: {
+    where: { deleted: false },
+    orderBy: { createdAt: 'desc' },
+    take: 3,
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      author: {
+        select: authorLiteSelect,
+      },
+    },
+  },
   author: {
     select: authorLiteSelect,
   },
@@ -74,13 +89,20 @@ export class NewsfeedService {
     return parsed;
   }
 
-  async getFollowingIds(profileId: string) {
-    const rows = await this.prisma.follow.findMany({
-      where: { followerId: profileId },
-      select: { followingId: true },
+  private async getFriendIds(profileId: string) {
+    const rows = await this.prisma.friend.findMany({
+      where: {
+        OR: [
+          { userOneId: profileId },
+          { userTwoId: profileId },
+        ],
+      },
+      select: { userOneId: true, userTwoId: true },
     });
 
-    return rows.map((row) => row.followingId);
+    return rows.map((row) =>
+      row.userOneId === profileId ? row.userTwoId : row.userOneId,
+    );
   }
 
   private async mapLikedState(postIds: string[], profileId: string) {
@@ -128,12 +150,19 @@ export class NewsfeedService {
 
     const cursorDate = this.parseCursor(cursor);
 
-    const visibilityCondition: Prisma.PostWhereInput =
-      currentProfileId === targetUserId
-        ? {}
-        : {
-            visibility: PostVisibility.PUBLIC,
-          };
+    const isSelf = currentProfileId === targetUserId;
+
+    let visibilityCondition: Prisma.PostWhereInput = {};
+
+    if (!isSelf) {
+      // if viewer is friend of target, include FRIENDS and PUBLIC
+      const friendIds = await this.getFriendIds(currentProfileId);
+      const isFriend = friendIds.includes(targetUserId);
+
+      visibilityCondition = isFriend
+        ? { visibility: { in: [PostVisibility.PUBLIC, PostVisibility.FRIENDS] } }
+        : { visibility: PostVisibility.PUBLIC };
+    }
 
     const posts = await this.prisma.post.findMany({
       where: {
@@ -169,7 +198,7 @@ export class NewsfeedService {
 
     const cursorDate = this.parseCursor(cursor);
     const take = Math.min(limit, DEFAULT_PAGE_SIZE);
-    const followingIds = await this.getFollowingIds(profileId);
+    const friendIds = await this.getFriendIds(profileId);
 
     const posts = await this.prisma.post.findMany({
       where: {
@@ -177,8 +206,8 @@ export class NewsfeedService {
         OR: [
           { authorId: profileId },
           {
-            authorId: { in: followingIds.length ? followingIds : [''] },
-            visibility: { in: [PostVisibility.FRIENDS, PostVisibility.PUBLIC] },
+            authorId: { in: friendIds.length ? friendIds : [''] },
+            visibility: PostVisibility.FRIENDS,
           },
           { visibility: PostVisibility.PUBLIC },
         ],
@@ -191,7 +220,7 @@ export class NewsfeedService {
 
     const likedPostIds = await this.mapLikedState(
       posts.map((post) => post.id),
-      profileId,
+      profileId, 
     );
 
     return {
@@ -228,16 +257,14 @@ export class NewsfeedService {
     }
 
     if (post.visibility === PostVisibility.FRIENDS) {
-      const follow = await this.prisma.follow.findUnique({
-        where: {
-          followerId_followingId: {
-            followerId: profileId,
-            followingId: post.authorId,
-          },
-        },
+      const [userOneId, userTwoId] =
+        profileId < post.authorId ? [profileId, post.authorId] : [post.authorId, profileId];
+
+      const friend = await this.prisma.friend.findUnique({
+        where: { userOneId_userTwoId: { userOneId, userTwoId } },
       });
 
-      if (follow) {
+      if (friend) {
         return;
       }
     }
@@ -249,177 +276,144 @@ export class NewsfeedService {
     await this.getCurrentUser(profileId);
     await this.ensureCanInteractWithPost(postId, profileId);
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const existingLike = await tx.like.findUnique({
-        where: {
-          userId_postId: {
+    try {
+      await this.prisma.$transaction([
+        this.prisma.like.create({
+          data: {
             userId: profileId,
             postId,
           },
-        },
-      });
-
-      if (existingLike) {
+        }),
+        this.prisma.post.update({
+          where: { id: postId },
+          data: {
+            likeCount: { increment: 1 },
+          },
+        }),
+      ]);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         return { liked: true };
       }
+      throw error;
+    }
 
-      await tx.like.create({
-        data: {
-          userId: profileId,
-          postId,
-        },
-      });
+    return { liked: true };
+  }
 
-      await tx.post.update({
-        where: { id: postId },
-        data: {
-          likeCount: {
-            increment: 1,
-          },
-        },
-      });
+  async deletePost(profileId: string, postId: string) {
+    await this.getCurrentUser(profileId);
 
-      return { liked: true };
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true, deleted: true },
     });
 
-    return result;
+    if (!post || post.deleted) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (post.authorId !== profileId) {
+      throw new ForbiddenException('You cannot delete this post');
+    }
+
+    await this.prisma.post.update({
+      where: { id: postId },
+      data: { deleted: true },
+    });
+
+    return { success: true };
   }
 
   async unlikePost(profileId: string, postId: string) {
     await this.getCurrentUser(profileId);
     await this.ensureCanInteractWithPost(postId, profileId);
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const existingLike = await tx.like.findUnique({
-        where: {
-          userId_postId: {
-            userId: profileId,
-            postId,
+    try {
+      await this.prisma.$transaction([
+        this.prisma.like.delete({
+          where: {
+            userId_postId: {
+              userId: profileId,
+              postId,
+            },
           },
-        },
-      });
-
-      if (!existingLike) {
+        }),
+        this.prisma.post.update({
+          where: { id: postId },
+          data: {
+            likeCount: { decrement: 1 },
+          },
+        }),
+      ]);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
         return { liked: false };
       }
-
-      await tx.like.delete({
-        where: {
-          userId_postId: {
-            userId: profileId,
-            postId,
-          },
-        },
-      });
-
-      await tx.post.update({
-        where: { id: postId },
-        data: {
-          likeCount: {
-            decrement: 1,
-          },
-        },
-      });
-
-      return { liked: false };
-    });
-
-    return result;
-  }
-
-  async followUser(profileId: string, targetProfileId: string) {
-    await this.getCurrentUser(profileId);
-    await this.getCurrentUser(targetProfileId);
-
-    if (profileId === targetProfileId) {
-      throw new BadRequestException('Cannot follow yourself');
+      throw error;
     }
 
-    await this.prisma.follow.upsert({
-      where: {
-        followerId_followingId: {
-          followerId: profileId,
-          followingId: targetProfileId,
-        },
-      },
-      update: {},
-      create: {
-        followerId: profileId,
-        followingId: targetProfileId,
-      },
-    });
-
-    return { following: true };
+    return { liked: false };
   }
-
-  async unfollowUser(profileId: string, targetProfileId: string) {
+  
+  async getComments(profileId: string, postId: string, cursor?: string, limit = 20) {
     await this.getCurrentUser(profileId);
-
-    if (profileId === targetProfileId) {
-      throw new BadRequestException('Cannot unfollow yourself');
-    }
-
-    await this.prisma.follow.deleteMany({
-      where: {
-        followerId: profileId,
-        followingId: targetProfileId,
-      },
-    });
-
-    return { following: false };
-  }
-
-  async getMyFollowing(profileId: string) {
-    await this.getCurrentUser(profileId);
-
-    const following = await this.prisma.follow.findMany({
-      where: { followerId: profileId },
-      orderBy: { createdAt: 'desc' },
-      select: { following: { select: profileLiteSelect } },
-    });
-
-    return following.map((item) => item.following);
-  }
-
-  async getFollowers(
-    currentProfileId: string,
-    targetProfileId: string,
-    cursor?: string,
-    limit = DEFAULT_PAGE_SIZE,
-  ) {
-    await this.getCurrentUser(currentProfileId);
-    await this.getCurrentUser(targetProfileId);
+    await this.ensureCanInteractWithPost(postId, profileId);
 
     const cursorDate = this.parseCursor(cursor);
-    const take = Math.min(limit, DEFAULT_PAGE_SIZE);
+    const take = Math.min(limit, 50);
 
-    const followers = await this.prisma.follow.findMany({
+    const comments = await this.prisma.comment.findMany({
       where: {
-        followingId: targetProfileId,
+        postId,
+        deleted: false,
         ...(cursorDate ? { createdAt: { lt: cursorDate } } : {}),
       },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      orderBy: { createdAt: 'desc' },
       take,
       select: {
+        id: true,
+        content: true,
         createdAt: true,
-        follower: {
-          select: profileLiteSelect,
+        author: {
+          select: authorLiteSelect,
         },
       },
     });
 
-    const currentFollowingIds = new Set(await this.getFollowingIds(currentProfileId));
-
     return {
-      items: followers.map((item) => ({
-        ...item.follower,
-        isFollowingBack: currentFollowingIds.has(item.follower.id),
-        followedAt: item.createdAt,
-      })),
+      items: comments,
       nextCursor:
-        followers.length === take
-          ? followers[followers.length - 1].createdAt.toISOString()
-          : null,
+        comments.length === take ? comments[comments.length - 1].createdAt.toISOString() : null,
     };
+  }
+
+  async createComment(profileId: string, postId: string, dto: CreateCommentDto) {
+    await this.getCurrentUser(profileId);
+    await this.ensureCanInteractWithPost(postId, profileId);
+
+    const [comment] = await this.prisma.$transaction([
+      this.prisma.comment.create({
+        data: {
+          content: dto.content.trim(),
+          authorId: profileId,
+          postId,
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          author: {
+            select: authorLiteSelect,
+          },
+        },
+      }),
+      this.prisma.post.update({
+        where: { id: postId },
+        data: { commentCount: { increment: 1 } },
+      }),
+    ]);
+
+    return comment;
   }
 }

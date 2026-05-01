@@ -44,15 +44,11 @@ export class AiService {
 
 		const prompt = `
             You are an assistant summarizing Discord conversations.
-
             Summarize:
 				- main topics
 				- decisions
 				- important questions
-
-		
 				- Write naturally like a short conversation summary
-
             Conversation:   
             ${formatted}
             `;

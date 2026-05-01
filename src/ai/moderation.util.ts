@@ -17,8 +17,6 @@ export function getModerationPrompt(): string {
     'Examples of flagged content:',
     '- "fucking stupid idiot"',
     '- "thằng ngu"',
-    '- "óc chó"',
-    'There is ZERO tolerance for insults or profanity.',
     'Always return JSON only.',
     'Format:',
     '{ "flagged": boolean, "reason": string }',

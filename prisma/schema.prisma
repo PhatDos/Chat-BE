@@ -8,10 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-//////////////////////////////////////////////////
-// PROFILE
-//////////////////////////////////////////////////
-
 model Profile {
   id        String   @id @default(uuid()) @map("_id")
   userId    String   @unique
@@ -21,25 +17,17 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  //////////////////////////////////////////////////
-  // 🔥 NEWSFEED
-  //////////////////////////////////////////////////
-
+  // NEWSFEED
   posts     Post[]
   likes     Like[]
 
-  followers Follow[] @relation("Following") // người follow mình
-  following Follow[] @relation("Follower")  // mình follow ai
 
   friendOne Friend[] @relation("FriendOne")
   friendTwo Friend[] @relation("FriendTwo")
 
   comments  Comment[]
 
-  //////////////////////////////////////////////////
-  // DISCORD
-  //////////////////////////////////////////////////
-
+  // Chat
   server   Server[]
   channels Channel[]
   members  Member[]
@@ -51,7 +39,7 @@ model Profile {
 }
 
 //////////////////////////////////////////////////
-// DISCORD
+// Chat
 //////////////////////////////////////////////////
 
 model Server {
@@ -199,7 +187,7 @@ model ChannelRead {
 }
 
 //////////////////////////////////////////////////
-// 🔥 NEWSFEED
+// NEWSFEED
 //////////////////////////////////////////////////
 
 model Post {
@@ -261,20 +249,6 @@ model Like {
   @@index([userId])
 }
 
-model Follow {
-  id          String @id @default(uuid())
-  followerId  String
-  followingId String
-
-  follower  Profile @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
-  following Profile @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
-}
 
 model Friend {
   id        String @id @default(uuid())
@@ -292,10 +266,7 @@ model Friend {
   @@index([userTwoId])
 }
 
-//////////////////////////////////////////////////
 // ENUM
-//////////////////////////////////////////////////
-
 enum MemberRole {
   SERVEROWNER
   VICESERVEROWNER

@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { NewsfeedService } from './newsfeed.service';
-import { PostsController } from './posts.controller';
-import { FeedController } from './feed.controller';
-import { FollowController } from './follow.controller';
+import { NewsfeedController } from './newsfeed.controller';
 
 @Module({
   providers: [NewsfeedService],
-  controllers: [PostsController, FeedController, FollowController],
+  controllers: [NewsfeedController],
 })
 export class NewsfeedModule {}
