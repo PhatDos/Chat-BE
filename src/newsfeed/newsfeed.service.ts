@@ -257,6 +257,7 @@ export class NewsfeedService {
         authorId: true,
         visibility: true,
         deleted: true,
+        likeCount: true,
       },
     });
 
@@ -292,8 +293,10 @@ export class NewsfeedService {
     await this.getCurrentUser(profileId);
     const post = await this.ensureCanInteractWithPost(postId, profileId);
 
+    let updatedLikeCount: number | null = null;
+
     try {
-      await this.prisma.$transaction([
+      const [, updatedPost] = await this.prisma.$transaction([
         this.prisma.like.create({
           data: {
             userId: profileId,
@@ -305,24 +308,28 @@ export class NewsfeedService {
           data: {
             likeCount: { increment: 1 },
           },
+          select: { likeCount: true },
         }),
       ]);
+      updatedLikeCount = updatedPost.likeCount;
+      console.log('POST_LIKED likeCount:', updatedLikeCount);
+      this.eventEmitter.emit('newsfeed.event', {
+        type: 'POST_LIKED',
+        postId,
+        authorId: post.authorId,
+        visibility: post.visibility,
+        actionUserId: profileId,
+        likeCount: updatedLikeCount,
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        return { liked: true };
+        const current = await this.prisma.post.findUnique({ where: { id: postId }, select: { likeCount: true } });
+        return { liked: true, likeCount: current?.likeCount ?? post.likeCount };
       }
       throw error;
     }
 
-    this.eventEmitter.emit('newsfeed.event', {
-      type: 'POST_LIKED',
-      postId,
-      authorId: post.authorId,
-      visibility: post.visibility,
-      actionUserId: profileId,
-    });
-
-    return { liked: true };
+    return { liked: true, likeCount: updatedLikeCount ?? post.likeCount + 1 };
   }
 
   async deletePost(profileId: string, postId: string) {
@@ -353,8 +360,10 @@ export class NewsfeedService {
     await this.getCurrentUser(profileId);
     const post = await this.ensureCanInteractWithPost(postId, profileId);
 
+    let updatedLikeCount: number | null = null;
+
     try {
-      await this.prisma.$transaction([
+      const [, updatedPost] = await this.prisma.$transaction([
         this.prisma.like.delete({
           where: {
             userId_postId: {
@@ -368,24 +377,28 @@ export class NewsfeedService {
           data: {
             likeCount: { decrement: 1 },
           },
+          select: { likeCount: true },
         }),
       ]);
+      updatedLikeCount = updatedPost.likeCount;
+      console.log('POST_UNLIKED likeCount:', updatedLikeCount);
+      this.eventEmitter.emit('newsfeed.event', {
+        type: 'POST_UNLIKED',
+        postId,
+        authorId: post.authorId,
+        visibility: post.visibility,
+        actionUserId: profileId,
+        likeCount: updatedLikeCount,
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        return { liked: false };
+        const current = await this.prisma.post.findUnique({ where: { id: postId }, select: { likeCount: true } });
+        return { liked: false, likeCount: current?.likeCount ?? post.likeCount };
       }
       throw error;
     }
 
-    this.eventEmitter.emit('newsfeed.event', {
-      type: 'POST_UNLIKED',
-      postId,
-      authorId: post.authorId,
-      visibility: post.visibility,
-      actionUserId: profileId,
-    });
-
-    return { liked: false };
+    return { liked: false, likeCount: updatedLikeCount ?? Math.max(0, post.likeCount - 1) };
   }
   
   async getComments(profileId: string, postId: string, cursor?: string, limit = 20) {
@@ -473,7 +486,16 @@ export class NewsfeedService {
         return null;
       }),
       filter((payload) => payload !== null),
-      map((payload) => ({ data: payload })),
+      map((payload) => {
+        if (payload.type === 'POST_LIKED' || payload.type === 'POST_UNLIKED') {
+          console.log(`🔔 SSE Sending ${payload.type} to ${profileId}:`, {
+            postId: payload.postId,
+            likeCount: payload.likeCount,
+            actionUserId: payload.actionUserId,
+          });
+        }
+        return { data: payload };
+      }),
     );
   }
 }
