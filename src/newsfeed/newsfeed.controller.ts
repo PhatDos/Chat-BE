@@ -8,8 +8,10 @@ import {
   Param,
   Post,
   Query,
+  Sse,
   ValidationPipe,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { NewsfeedService } from './newsfeed.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import type { Profile } from '~/common/types/profile.type';
@@ -32,6 +34,11 @@ export class NewsfeedController {
       query.cursor,
       query.limit,
     );
+  }
+
+  @Sse('posts/events')
+  subscribeToEvents(@CurrentProfile() profile: Profile): Observable<any> {
+    return this.newsfeedService.subscribeToEvents(profile.id);
   }
 
   @Post('posts')

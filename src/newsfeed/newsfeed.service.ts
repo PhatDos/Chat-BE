@@ -13,6 +13,9 @@ import {
 import { PrismaService } from '~/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable, fromEvent } from 'rxjs';
+import { filter, map, mergeMap } from 'rxjs/operators';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -24,6 +27,7 @@ const authorLiteSelect = {
 
 const postBaseSelect = {
   id: true,
+  authorId: true,
   content: true,
   fileUrl: true,
   fileType: true,
@@ -58,7 +62,10 @@ const profileLiteSelect = {
 
 @Injectable()
 export class NewsfeedService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   private async getCurrentUser(profileId: string) {
     const user = await this.prisma.profile.findUnique({
@@ -137,6 +144,15 @@ export class NewsfeedService {
         visibility: dto.visibility ?? PostVisibility.PUBLIC,
       },
       select: postBaseSelect,
+    });
+
+    this.eventEmitter.emit('newsfeed.event', {
+      type: 'POST_CREATED',
+      postId: post.id,
+      authorId: post.authorId,
+      visibility: post.visibility,
+      actionUserId: profileId,
+      post,
     });
 
     return {
@@ -249,11 +265,11 @@ export class NewsfeedService {
     }
 
     if (post.authorId === profileId) {
-      return;
+      return post;
     }
 
     if (post.visibility === PostVisibility.PUBLIC) {
-      return;
+      return post;
     }
 
     if (post.visibility === PostVisibility.FRIENDS) {
@@ -265,7 +281,7 @@ export class NewsfeedService {
       });
 
       if (friend) {
-        return;
+        return post;
       }
     }
 
@@ -274,7 +290,7 @@ export class NewsfeedService {
 
   async likePost(profileId: string, postId: string) {
     await this.getCurrentUser(profileId);
-    await this.ensureCanInteractWithPost(postId, profileId);
+    const post = await this.ensureCanInteractWithPost(postId, profileId);
 
     try {
       await this.prisma.$transaction([
@@ -297,6 +313,14 @@ export class NewsfeedService {
       }
       throw error;
     }
+
+    this.eventEmitter.emit('newsfeed.event', {
+      type: 'POST_LIKED',
+      postId,
+      authorId: post.authorId,
+      visibility: post.visibility,
+      actionUserId: profileId,
+    });
 
     return { liked: true };
   }
@@ -327,7 +351,7 @@ export class NewsfeedService {
 
   async unlikePost(profileId: string, postId: string) {
     await this.getCurrentUser(profileId);
-    await this.ensureCanInteractWithPost(postId, profileId);
+    const post = await this.ensureCanInteractWithPost(postId, profileId);
 
     try {
       await this.prisma.$transaction([
@@ -352,6 +376,14 @@ export class NewsfeedService {
       }
       throw error;
     }
+
+    this.eventEmitter.emit('newsfeed.event', {
+      type: 'POST_UNLIKED',
+      postId,
+      authorId: post.authorId,
+      visibility: post.visibility,
+      actionUserId: profileId,
+    });
 
     return { liked: false };
   }
@@ -390,7 +422,7 @@ export class NewsfeedService {
 
   async createComment(profileId: string, postId: string, dto: CreateCommentDto) {
     await this.getCurrentUser(profileId);
-    await this.ensureCanInteractWithPost(postId, profileId);
+    const post = await this.ensureCanInteractWithPost(postId, profileId);
 
     const [comment] = await this.prisma.$transaction([
       this.prisma.comment.create({
@@ -414,6 +446,34 @@ export class NewsfeedService {
       }),
     ]);
 
+    this.eventEmitter.emit('newsfeed.event', {
+      type: 'COMMENT_ADDED',
+      postId,
+      authorId: post.authorId,
+      visibility: post.visibility,
+      actionUserId: profileId,
+      comment,
+    });
+
     return comment;
+  }
+
+  subscribeToEvents(profileId: string): Observable<any> {
+    return fromEvent(this.eventEmitter, 'newsfeed.event').pipe(
+      mergeMap(async (payload: any) => {
+        if (payload.visibility === PostVisibility.PUBLIC) return payload;
+        if (payload.authorId === profileId) return payload;
+        
+        if (payload.visibility === PostVisibility.FRIENDS) {
+          const friendIds = await this.getFriendIds(profileId);
+          if (friendIds.includes(payload.authorId)) {
+            return payload;
+          }
+        }
+        return null;
+      }),
+      filter((payload) => payload !== null),
+      map((payload) => ({ data: payload })),
+    );
   }
 }
