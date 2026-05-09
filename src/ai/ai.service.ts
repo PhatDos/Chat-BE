@@ -1,6 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 
+type SummaryMessage = {
+	content?: string | null;
+	member?: {
+		profile?: {
+			name?: string | null;
+		} | null;
+	} | null;
+};
+
 @Injectable()
 export class AiService {
 	private ai: GoogleGenAI | null = null;
@@ -23,7 +32,7 @@ export class AiService {
 		return this.ai;
 	}
 
-	async summarizeMessages(messages: any[]) {
+	async summarizeMessages(messages: SummaryMessage[]) {
 		let safeMessages = messages;
 
 		if (safeMessages.length > this.MAX_MESSAGES) {
@@ -32,13 +41,13 @@ export class AiService {
 
 		const formatted = safeMessages
 			.map((m) => {
-				const name = m?.member?.profile?.name ?? 'Unknown';
+				const author = m?.member?.profile?.name ?? 'Unknown';
 				const content = String(m?.content ?? '').slice(
 					0,
 					this.MAX_CONTENT_LENGTH,
 				);
 
-				return `${name}: ${content}`;
+				return `${author}: ${content}`;
 			})
 			.join('\n');
 

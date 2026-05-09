@@ -28,7 +28,7 @@ export class GeminiModerationService {
 
   private async runModeration(parts: Array<Record<string, unknown>>): Promise<ModerationResult> {
     const response = await this.client.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts }],
       config: {
         temperature: 0,
@@ -52,9 +52,6 @@ export class GeminiModerationService {
     };
   }
 
-  /**
-   * Moderate text content using Gemini API
-   */
   async moderateText(content: string): Promise<ModerationResult> {
     try {
       const normalized = normalizeModerationText(content);
@@ -76,9 +73,6 @@ export class GeminiModerationService {
     }
   }
 
-  /**
-   * Moderate image content using Gemini's vision capabilities
-   */
   async moderateImage(imageUrl: string): Promise<ModerationResult> {
     try {
       const buffer = await this.download(imageUrl);
@@ -104,9 +98,6 @@ export class GeminiModerationService {
     }
   }
 
-  /**
-   * Moderate PDF/document content (checks for suspicious text patterns)
-   */
   async moderatePdf(pdfUrl: string, pdfText?: string): Promise<ModerationResult> {
     try {
       const buffer = await this.download(pdfUrl);
