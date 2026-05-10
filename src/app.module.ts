@@ -15,6 +15,7 @@ import { ChannelModule } from '~/channel/channel.module';
 import { MemberModule } from '~/member/member.module';
 import { NewsfeedModule } from '~/newsfeed/newsfeed.module';
 import { FriendshipModule } from '~/friendship/friendship.module';
+import { UsersModule } from '~/users/users.module';
 
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { ProfileGuard } from '~/common/guards/profile.guard';
@@ -28,6 +29,7 @@ import { AiModule } from './ai/ai.module';
     MessageModule,
     ServerModule,
     ProfileModule,
+    UsersModule,
     ChannelModule,
     MemberModule,
     NewsfeedModule,
