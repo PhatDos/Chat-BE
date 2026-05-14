@@ -10,6 +10,7 @@ import { MemberRole, type Member } from '@prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import type { InitialServerResponseDto } from './dto/initial-server-response.dto';
 import { ChannelRefetchService } from '~/message/channel-refetch.service';
 import type { Profile } from '~/common/types/profile.type';
 
@@ -22,19 +23,8 @@ export class ServerController {
 
   @Get('initial')
   @HttpCode(HttpStatus.OK)
-  async getInitialServer(@CurrentProfile() profile: Profile) {
+  async getInitialServer(@CurrentProfile() profile: Profile): Promise<InitialServerResponseDto | null> {
     return await this.serverService.getInitialServer(profile.id);
-  }
-
-  @UseGuards(ServerMemberGuard)
-  @Get(':serverId/initial-channel')
-  @HttpCode(HttpStatus.OK)
-  async getInitialChannel(@Param('serverId') serverId: string) {
-    if (!serverId) {
-      throw new BadRequestException('Server ID is required');
-    }
-
-    return await this.serverService.getInitialChannel(serverId);
   }
 
   @UseGuards(ServerMemberGuard)

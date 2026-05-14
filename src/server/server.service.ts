@@ -11,6 +11,7 @@ import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '~/utils/constants';
 import { ChannelService } from '~/channel/channel.service';
+import type { InitialServerResponseDto } from './dto/initial-server-response.dto';
 
 @Injectable()
 export class ServerService {
@@ -103,22 +104,45 @@ export class ServerService {
   }
 
   async createServer(profileId: string, dto: CreateServerDto) {
-    const server = await this.prisma.server.create({
-      data: {
-        profileId,
-        name: dto.name,
-        imageUrl: dto.imageUrl,
-        inviteCode: uuidv4(),
-        channels: {
-          create: [{ name: 'general', profileId }],
+    // Create server, its general channel and owner member in a single transaction
+    const created = await this.prisma.$transaction(async (tx) => {
+      const server = await tx.server.create({
+        data: {
+          profileId,
+          name: dto.name,
+          imageUrl: dto.imageUrl,
+          inviteCode: uuidv4(),
         },
-        members: {
-          create: [{ profileId, role: MemberRole.SERVEROWNER }],
+      });
+
+      const channel = await tx.channel.create({
+        data: {
+          name: 'general',
+          profileId,
+          serverId: server.id,
         },
-      },
+      });
+
+      await tx.server.update({
+        where: { id: server.id },
+        data: { generalChannelId: channel.id },
+      });
+
+      await tx.member.create({
+        data: {
+          serverId: server.id,
+          profileId,
+          role: MemberRole.SERVEROWNER,
+        },
+      });
+
+      return tx.server.findUnique({
+        where: { id: server.id },
+        include: { channels: true, members: true, generalChannel: true },
+      });
     });
 
-    return server;
+    return created;
   }
 
   async updateServer(
@@ -311,8 +335,9 @@ export class ServerService {
     });
   }
 
-  async getInitialServer(profileId: string) {
-    return await this.prisma.server.findFirst({
+  async getInitialServer(profileId: string): Promise<InitialServerResponseDto | null> {
+    // include `generalChannel` so FE can directly use `generalChannelId`/data
+    const server = await this.prisma.server.findFirst({
       where: {
         members: {
           some: {
@@ -320,22 +345,21 @@ export class ServerService {
           },
         },
       },
+      include: { generalChannel: true },
     });
-  }
 
-  async getInitialChannel(serverId: string) {
-    const channels = await this.channelService.getChannelsByServerId(serverId);
-
-    const initialChannel =
-      channels.find((channel) => channel.name === 'general') ?? channels[0];
-
-    if (!initialChannel) {
-      throw new NotFoundException('Initial channel not found');
+    if (!server) {
+      return null;
     }
 
     return {
-      channelId: initialChannel.id,
-      channelName: initialChannel.name,
+      server,
+      initialChannel: server.generalChannel
+        ? {
+            channelId: server.generalChannel.id,
+            channelName: server.generalChannel.name,
+          }
+        : null,
     };
   }
 
@@ -373,6 +397,7 @@ export class ServerService {
         id: serverId,
       },
       include: {
+        generalChannel: true,
         channels: {
           orderBy: {
             createdAt: 'asc',
