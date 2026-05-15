@@ -41,6 +41,10 @@ model Profile {
   conversationsReceived  Conversation[] @relation("ProfileTwo")
   directMessages         DirectMessage[]
   conversationReads      ConversationRead[]
+
+  // Friend requests
+  sentRequests     FriendRequest[] @relation("SentRequests")
+  receivedRequests FriendRequest[] @relation("ReceivedRequests")
 }
 
 //////////////////////////////////////////////////
@@ -277,6 +281,25 @@ model Friend {
   @@index([userTwoId])
 }
 
+model FriendRequest {
+  id         String              @id @default(uuid())
+  senderId   String
+  receiverId String
+  pairKey    String
+  status     FriendRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  sender   Profile @relation("SentRequests",     fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver Profile @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([pairKey])
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([receiverId, status])
+}
+
 // ENUM
 enum MemberRole {
   SERVEROWNER
@@ -300,6 +323,12 @@ enum PostVisibility {
   PUBLIC
   FRIENDS
   PRIVATE
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum RelationshipStatus {
