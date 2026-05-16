@@ -1,10 +1,48 @@
 import { Injectable, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable, fromEvent } from 'rxjs';
+import { filter, map, mergeMap } from 'rxjs/operators';
 import { PrismaService } from '~/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { FriendRequestListStatus } from './dto/list-friend-requests.query.dto';
+
+export type FriendRequestListItem = {
+  id: string;
+  fromProfileId: string;
+  toProfileId: string;
+  status: FriendRequestListStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type FriendRequestListResult = {
+  items: FriendRequestListItem[];
+  count: number;
+  skip: number;
+  limit: number;
+};
+
+export type FriendRequestEventType =
+  | 'FRIEND_REQUEST_CREATED'
+  | 'FRIEND_REQUEST_ACCEPTED'
+  | 'FRIEND_REQUEST_REJECTED'
+  | 'FRIEND_REQUEST_CANCELLED'
+  | 'FRIEND_REMOVED';
+
+export type FriendRequestEventPayload = {
+  type: FriendRequestEventType;
+  audienceProfileId: string;
+  actorProfileId: string;
+  request?: FriendRequestListItem;
+  friendId?: string;
+};
 
 @Injectable()
 export class FriendshipService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   private sortIds(a: string, b: string): [string, string] {
     return a < b ? [a, b] : [b, a];
@@ -13,6 +51,28 @@ export class FriendshipService {
   private getPairKey(a: string, b: string): string {
     const [first, second] = this.sortIds(a, b);
     return `${first}:${second}`;
+  }
+
+  private toFriendRequestListItem(request: {
+    id: string;
+    senderId: string;
+    receiverId: string;
+    status: FriendRequestListStatus | string;
+    createdAt: Date;
+    updatedAt: Date;
+  }): FriendRequestListItem {
+    return {
+      id: request.id,
+      fromProfileId: request.senderId,
+      toProfileId: request.receiverId,
+      status: request.status as FriendRequestListStatus,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
+    };
+  }
+
+  private emitFriendRequestEvent(payload: FriendRequestEventPayload) {
+    this.eventEmitter.emit('friendship.event', payload);
   }
 
   /* Friend request flow */
@@ -48,9 +108,18 @@ export class FriendshipService {
     const pairKey = this.getPairKey(senderId, receiverId);
 
     try {
-      return await this.prisma.friendRequest.create({
+      const request = await this.prisma.friendRequest.create({
         data: { senderId, receiverId, pairKey, status: 'PENDING' },
       });
+
+      this.emitFriendRequestEvent({
+        type: 'FRIEND_REQUEST_CREATED',
+        audienceProfileId: receiverId,
+        actorProfileId: senderId,
+        request: this.toFriendRequestListItem(request),
+      });
+
+      return request;
     } catch (e) {
       // Handles concurrent inserts violating pair uniqueness.
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
@@ -71,10 +140,20 @@ export class FriendshipService {
 
     // create friend record and delete request in transaction
     const [a, b] = this.sortIds(req.senderId, req.receiverId);
-    return this.prisma.$transaction([
+    const result = await this.prisma.$transaction([
       this.prisma.friend.create({ data: { userOneId: a, userTwoId: b } }),
       this.prisma.friendRequest.delete({ where: { id: requestId } }),
     ]);
+
+    this.emitFriendRequestEvent({
+      type: 'FRIEND_REQUEST_ACCEPTED',
+      audienceProfileId: req.senderId,
+      actorProfileId: receiverId,
+      request: this.toFriendRequestListItem(req),
+      friendId: result[0].id,
+    });
+
+    return result;
   }
 
   async rejectFriendRequest(requestId: string, receiverId: string) {
@@ -82,7 +161,16 @@ export class FriendshipService {
     if (!req) throw new NotFoundException('Friend request not found');
     if (req.receiverId !== receiverId) throw new ForbiddenException();
 
-    return this.prisma.friendRequest.delete({ where: { id: requestId } });
+    const deleted = await this.prisma.friendRequest.delete({ where: { id: requestId } });
+
+    this.emitFriendRequestEvent({
+      type: 'FRIEND_REQUEST_REJECTED',
+      audienceProfileId: req.senderId,
+      actorProfileId: receiverId,
+      request: this.toFriendRequestListItem(deleted),
+    });
+
+    return deleted;
   }
 
   async cancelFriendRequest(requestId: string, senderId: string) {
@@ -90,23 +178,74 @@ export class FriendshipService {
     if (!req) throw new NotFoundException('Friend request not found');
     if (req.senderId !== senderId) throw new ForbiddenException();
 
-    return this.prisma.friendRequest.delete({ where: { id: requestId } });
+    const deleted = await this.prisma.friendRequest.delete({ where: { id: requestId } });
+
+    this.emitFriendRequestEvent({
+      type: 'FRIEND_REQUEST_CANCELLED',
+      audienceProfileId: req.receiverId,
+      actorProfileId: senderId,
+      request: this.toFriendRequestListItem(deleted),
+    });
+
+    return deleted;
   }
 
   async listReceivedRequests(profileId: string) {
-    return this.prisma.friendRequest.findMany({
-      where: { receiverId: profileId, status: 'PENDING' },
-      include: { sender: { select: { id: true, name: true, imageUrl: true } } },
-      orderBy: { createdAt: 'desc' },
+    return this.listFriendRequests({
+      currentProfileId: profileId,
+      direction: 'received',
     });
   }
 
   async listSentRequests(profileId: string) {
-    return this.prisma.friendRequest.findMany({
-      where: { senderId: profileId },
-      include: { receiver: { select: { id: true, name: true, imageUrl: true } } },
-      orderBy: { createdAt: 'desc' },
+    return this.listFriendRequests({
+      currentProfileId: profileId,
+      direction: 'sent',
     });
+  }
+
+  async listFriendRequests(options: {
+    currentProfileId: string;
+    direction: 'received' | 'sent';
+    skip?: number;
+    limit?: number;
+    status?: FriendRequestListStatus;
+  }): Promise<FriendRequestListResult> {
+    const { currentProfileId, direction, skip = 0, limit = 20, status } = options;
+
+    const where = {
+      ...(direction === 'received' ? { receiverId: currentProfileId } : { senderId: currentProfileId }),
+      ...(status ? { status } : {}),
+    };
+
+    const [count, requests] = await this.prisma.$transaction([
+      this.prisma.friendRequest.count({ where }),
+      this.prisma.friendRequest.findMany({
+        where,
+        select: {
+          id: true,
+          senderId: true,
+          receiverId: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    const items: FriendRequestListItem[] = requests.map((request) => ({
+      id: request.id,
+      fromProfileId: request.senderId,
+      toProfileId: request.receiverId,
+      status: request.status as FriendRequestListStatus,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
+    }));
+
+    return { items, count, skip, limit };
   }
 
   async addFriend(initiatorId: string, targetId: string) {
@@ -135,10 +274,17 @@ export class FriendshipService {
     const [userOneId, userTwoId] = this.sortIds(initiatorId, targetId);
 
     try {
-      await this.prisma.friend.delete({
+      const friend = await this.prisma.friend.delete({
         where: {
           userOneId_userTwoId: { userOneId, userTwoId },
         },
+      });
+
+      this.emitFriendRequestEvent({
+        type: 'FRIEND_REMOVED',
+        audienceProfileId: targetId,
+        actorProfileId: initiatorId,
+        friendId: friend.id,
       });
 
       return { success: true };
@@ -170,11 +316,59 @@ export class FriendshipService {
 
     const isFriend = await this.isFriend(viewerId, targetId);
 
+    // Check for pending friend requests
+    let pendingRequest: { id: string; direction: 'sent' | 'received' } | null = null;
+    const request = await this.prisma.friendRequest.findFirst({
+      where: {
+        OR: [
+          { senderId: viewerId, receiverId: targetId },
+          { senderId: targetId, receiverId: viewerId },
+        ],
+        status: 'PENDING',
+      },
+      select: { id: true, senderId: true },
+    });
+
+    if (request) {
+      pendingRequest = {
+        id: request.id,
+        direction: request.senderId === viewerId ? 'sent' : 'received',
+      };
+    }
+
+    // Determine status for UI button state
+    let status: 'FRIENDS' | 'PENDING_SENT' | 'PENDING_RECEIVED' | 'NOT_FRIENDS';
+    if (isFriend) {
+      status = 'FRIENDS';
+    } else if (pendingRequest?.direction === 'sent') {
+      status = 'PENDING_SENT';
+    } else if (pendingRequest?.direction === 'received') {
+      status = 'PENDING_RECEIVED';
+    } else {
+      status = 'NOT_FRIENDS';
+    }
+
     return {
       id: profile.id,
       name: profile.name,
       imageUrl: profile.imageUrl,
       isFriend,
+      pendingRequest,
+      status,
     };
+  }
+
+  subscribeToEvents(profileId: string): Observable<any> {
+    return fromEvent<FriendRequestEventPayload>(this.eventEmitter, 'friendship.event').pipe(
+      mergeMap(async (payload: FriendRequestEventPayload) => {
+        if (payload.audienceProfileId === profileId) {
+          return payload;
+        }
+
+        return null;
+      }),
+      filter((payload) => payload !== null),
+      map((payload) => ({ data: payload })),
+    );
   }
 }

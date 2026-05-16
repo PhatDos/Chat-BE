@@ -296,6 +296,7 @@ model FriendRequest {
   @@unique([pairKey])
   @@unique([senderId, receiverId])
   @@index([senderId])
+  @@index([senderId, status])
   @@index([receiverId])
   @@index([receiverId, status])
 }
