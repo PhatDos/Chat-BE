@@ -6,13 +6,23 @@ import { PrismaService } from '~/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { FriendRequestListStatus } from './dto/list-friend-requests.query.dto';
 
-export type FriendRequestListItem = {
+type FriendProfileLite = {
+  id: string;
+  name: string;
+  imageUrl: string;
+};
+
+export type FriendRequestBaseItem = {
   id: string;
   fromProfileId: string;
   toProfileId: string;
   status: FriendRequestListStatus;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type FriendRequestListItem = FriendRequestBaseItem & {
+  actorProfile: FriendProfileLite;
 };
 
 export type FriendRequestListResult = {
@@ -33,7 +43,8 @@ export type FriendRequestEventPayload = {
   type: FriendRequestEventType;
   audienceProfileId: string;
   actorProfileId: string;
-  request?: FriendRequestListItem;
+  actorProfile: FriendProfileLite;
+  request?: FriendRequestBaseItem;
   friendId?: string;
 };
 
@@ -53,14 +64,14 @@ export class FriendshipService {
     return `${first}:${second}`;
   }
 
-  private toFriendRequestListItem(request: {
+  private toFriendRequestBaseItem(request: {
     id: string;
     senderId: string;
     receiverId: string;
     status: FriendRequestListStatus | string;
     createdAt: Date;
     updatedAt: Date;
-  }): FriendRequestListItem {
+  }): FriendRequestBaseItem {
     return {
       id: request.id,
       fromProfileId: request.senderId,
@@ -71,7 +82,25 @@ export class FriendshipService {
     };
   }
 
+  private async getProfileLite(profileId: string): Promise<FriendProfileLite> {
+    const profile = await this.prisma.profile.findUnique({
+      where: { id: profileId },
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+
+    return profile;
+  }
+
   private emitFriendRequestEvent(payload: FriendRequestEventPayload) {
+    console.log('[friendship.event] emit', payload);
     this.eventEmitter.emit('friendship.event', payload);
   }
 
@@ -111,12 +140,14 @@ export class FriendshipService {
       const request = await this.prisma.friendRequest.create({
         data: { senderId, receiverId, pairKey, status: 'PENDING' },
       });
+      const actorProfile = await this.getProfileLite(senderId);
 
       this.emitFriendRequestEvent({
         type: 'FRIEND_REQUEST_CREATED',
         audienceProfileId: receiverId,
         actorProfileId: senderId,
-        request: this.toFriendRequestListItem(request),
+        actorProfile,
+        request: this.toFriendRequestBaseItem(request),
       });
 
       return request;
@@ -144,12 +175,14 @@ export class FriendshipService {
       this.prisma.friend.create({ data: { userOneId: a, userTwoId: b } }),
       this.prisma.friendRequest.delete({ where: { id: requestId } }),
     ]);
+    const actorProfile = await this.getProfileLite(receiverId);
 
     this.emitFriendRequestEvent({
       type: 'FRIEND_REQUEST_ACCEPTED',
       audienceProfileId: req.senderId,
       actorProfileId: receiverId,
-      request: this.toFriendRequestListItem(req),
+      actorProfile,
+      request: this.toFriendRequestBaseItem(req),
       friendId: result[0].id,
     });
 
@@ -162,12 +195,14 @@ export class FriendshipService {
     if (req.receiverId !== receiverId) throw new ForbiddenException();
 
     const deleted = await this.prisma.friendRequest.delete({ where: { id: requestId } });
+    const actorProfile = await this.getProfileLite(receiverId);
 
     this.emitFriendRequestEvent({
       type: 'FRIEND_REQUEST_REJECTED',
       audienceProfileId: req.senderId,
       actorProfileId: receiverId,
-      request: this.toFriendRequestListItem(deleted),
+      actorProfile,
+      request: this.toFriendRequestBaseItem(deleted),
     });
 
     return deleted;
@@ -179,12 +214,14 @@ export class FriendshipService {
     if (req.senderId !== senderId) throw new ForbiddenException();
 
     const deleted = await this.prisma.friendRequest.delete({ where: { id: requestId } });
+    const actorProfile = await this.getProfileLite(senderId);
 
     this.emitFriendRequestEvent({
       type: 'FRIEND_REQUEST_CANCELLED',
       audienceProfileId: req.receiverId,
       actorProfileId: senderId,
-      request: this.toFriendRequestListItem(deleted),
+      actorProfile,
+      request: this.toFriendRequestBaseItem(deleted),
     });
 
     return deleted;
@@ -229,6 +266,20 @@ export class FriendshipService {
           status: true,
           createdAt: true,
           updatedAt: true,
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -243,6 +294,7 @@ export class FriendshipService {
       status: request.status as FriendRequestListStatus,
       createdAt: request.createdAt,
       updatedAt: request.updatedAt,
+      actorProfile: direction === 'received' ? request.sender : request.receiver,
     }));
 
     return { items, count, skip, limit };
@@ -279,11 +331,13 @@ export class FriendshipService {
           userOneId_userTwoId: { userOneId, userTwoId },
         },
       });
+      const actorProfile = await this.getProfileLite(initiatorId);
 
       this.emitFriendRequestEvent({
         type: 'FRIEND_REMOVED',
         audienceProfileId: targetId,
         actorProfileId: initiatorId,
+        actorProfile,
         friendId: friend.id,
       });
 
@@ -361,9 +415,19 @@ export class FriendshipService {
   subscribeToEvents(profileId: string): Observable<any> {
     return fromEvent<FriendRequestEventPayload>(this.eventEmitter, 'friendship.event').pipe(
       mergeMap(async (payload: FriendRequestEventPayload) => {
+        console.log('[friendship.event] raw sse payload', payload);
+
+        if (!payload) {
+          console.log('[friendship.event] skipped empty payload for', profileId);
+          return null;
+        }
+
         if (payload.audienceProfileId === profileId) {
+          console.log('[friendship.event] deliver to', profileId, payload);
           return payload;
         }
+
+        console.log('[friendship.event] skip for', profileId, 'audience:', payload.audienceProfileId);
 
         return null;
       }),
