@@ -1,8 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ProfileService } from '~/profile/profile.service';
 import { SKIP_PROFILE_GUARD_KEY } from '~/common/decorators/skip-profile-guard.decorator';
@@ -27,14 +23,11 @@ export class ProfileGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const path = String(req.originalUrl ?? req.url ?? '').split('?')[0];
     const isReadEndpoint =
-      req.method === 'POST' &&
-      /^\/channel-messages\/[^/]+\/read$/.test(path);
+      req.method === 'POST' && /^\/channel-messages\/[^/]+\/read$/.test(path);
     const startedAt = Date.now();
 
     const profile = await this.profileService.getOrCreateProfile(req.userId);
     req.profile = profile;
-
-
 
     return true;
   }

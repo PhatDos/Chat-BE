@@ -1,7 +1,4 @@
-import {
-  Controller,
-  Get
-} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import type { Profile } from '~/common/types/profile.type';
 
@@ -12,5 +9,3 @@ export class ProfileController {
     return profile;
   }
 }
-
-

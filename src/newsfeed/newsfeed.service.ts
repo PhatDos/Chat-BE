@@ -99,10 +99,7 @@ export class NewsfeedService {
   private async getFriendIds(profileId: string) {
     const rows = await this.prisma.friend.findMany({
       where: {
-        OR: [
-          { userOneId: profileId },
-          { userTwoId: profileId },
-        ],
+        OR: [{ userOneId: profileId }, { userTwoId: profileId }],
       },
       select: { userOneId: true, userTwoId: true },
     });
@@ -161,7 +158,11 @@ export class NewsfeedService {
     };
   }
 
-  async getUserPosts(currentProfileId: string, targetUserId: string, cursor?: string) {
+  async getUserPosts(
+    currentProfileId: string,
+    targetUserId: string,
+    cursor?: string,
+  ) {
     await this.getCurrentUser(currentProfileId);
 
     const cursorDate = this.parseCursor(cursor);
@@ -176,7 +177,9 @@ export class NewsfeedService {
       const isFriend = friendIds.includes(targetUserId);
 
       visibilityCondition = isFriend
-        ? { visibility: { in: [PostVisibility.PUBLIC, PostVisibility.FRIENDS] } }
+        ? {
+            visibility: { in: [PostVisibility.PUBLIC, PostVisibility.FRIENDS] },
+          }
         : { visibility: PostVisibility.PUBLIC };
     }
 
@@ -236,7 +239,7 @@ export class NewsfeedService {
 
     const likedPostIds = await this.mapLikedState(
       posts.map((post) => post.id),
-      profileId, 
+      profileId,
     );
 
     return {
@@ -245,7 +248,9 @@ export class NewsfeedService {
         isLiked: likedPostIds.has(post.id),
       })),
       nextCursor:
-        posts.length === take ? posts[posts.length - 1].createdAt.toISOString() : null,
+        posts.length === take
+          ? posts[posts.length - 1].createdAt.toISOString()
+          : null,
     };
   }
 
@@ -275,7 +280,9 @@ export class NewsfeedService {
 
     if (post.visibility === PostVisibility.FRIENDS) {
       const [userOneId, userTwoId] =
-        profileId < post.authorId ? [profileId, post.authorId] : [post.authorId, profileId];
+        profileId < post.authorId
+          ? [profileId, post.authorId]
+          : [post.authorId, profileId];
 
       const friend = await this.prisma.friend.findUnique({
         where: { userOneId_userTwoId: { userOneId, userTwoId } },
@@ -322,8 +329,14 @@ export class NewsfeedService {
         likeCount: updatedLikeCount,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        const current = await this.prisma.post.findUnique({ where: { id: postId }, select: { likeCount: true } });
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const current = await this.prisma.post.findUnique({
+          where: { id: postId },
+          select: { likeCount: true },
+        });
         return { liked: true, likeCount: current?.likeCount ?? post.likeCount };
       }
       throw error;
@@ -391,17 +404,34 @@ export class NewsfeedService {
         likeCount: updatedLikeCount,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        const current = await this.prisma.post.findUnique({ where: { id: postId }, select: { likeCount: true } });
-        return { liked: false, likeCount: current?.likeCount ?? post.likeCount };
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        const current = await this.prisma.post.findUnique({
+          where: { id: postId },
+          select: { likeCount: true },
+        });
+        return {
+          liked: false,
+          likeCount: current?.likeCount ?? post.likeCount,
+        };
       }
       throw error;
     }
 
-    return { liked: false, likeCount: updatedLikeCount ?? Math.max(0, post.likeCount - 1) };
+    return {
+      liked: false,
+      likeCount: updatedLikeCount ?? Math.max(0, post.likeCount - 1),
+    };
   }
-  
-  async getComments(profileId: string, postId: string, cursor?: string, limit = 20) {
+
+  async getComments(
+    profileId: string,
+    postId: string,
+    cursor?: string,
+    limit = 20,
+  ) {
     await this.getCurrentUser(profileId);
     await this.ensureCanInteractWithPost(postId, profileId);
 
@@ -429,11 +459,17 @@ export class NewsfeedService {
     return {
       items: comments,
       nextCursor:
-        comments.length === take ? comments[comments.length - 1].createdAt.toISOString() : null,
+        comments.length === take
+          ? comments[comments.length - 1].createdAt.toISOString()
+          : null,
     };
   }
 
-  async createComment(profileId: string, postId: string, dto: CreateCommentDto) {
+  async createComment(
+    profileId: string,
+    postId: string,
+    dto: CreateCommentDto,
+  ) {
     await this.getCurrentUser(profileId);
     const post = await this.ensureCanInteractWithPost(postId, profileId);
 
@@ -476,7 +512,7 @@ export class NewsfeedService {
       mergeMap(async (payload: any) => {
         if (payload.visibility === PostVisibility.PUBLIC) return payload;
         if (payload.authorId === profileId) return payload;
-        
+
         if (payload.visibility === PostVisibility.FRIENDS) {
           const friendIds = await this.getFriendIds(profileId);
           if (friendIds.includes(payload.authorId)) {

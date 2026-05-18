@@ -57,24 +57,37 @@ export class NewsfeedController {
     @Param('id') userId: string,
     @Query(ValidationPipe) query: CursorQueryDto,
   ) {
-    return await this.newsfeedService.getUserPosts(profile.id, userId, query.cursor);
+    return await this.newsfeedService.getUserPosts(
+      profile.id,
+      userId,
+      query.cursor,
+    );
   }
 
   @Post('posts/:id/like')
   @HttpCode(HttpStatus.OK)
-  async likePost(@CurrentProfile() profile: Profile, @Param('id') postId: string) {
+  async likePost(
+    @CurrentProfile() profile: Profile,
+    @Param('id') postId: string,
+  ) {
     return await this.newsfeedService.likePost(profile.id, postId);
   }
 
   @Delete('posts/:id/like')
   @HttpCode(HttpStatus.OK)
-  async unlikePost(@CurrentProfile() profile: Profile, @Param('id') postId: string) {
+  async unlikePost(
+    @CurrentProfile() profile: Profile,
+    @Param('id') postId: string,
+  ) {
     return await this.newsfeedService.unlikePost(profile.id, postId);
   }
 
   @Delete('posts/:id')
   @HttpCode(HttpStatus.OK)
-  async deletePost(@CurrentProfile() profile: Profile, @Param('id') postId: string) {
+  async deletePost(
+    @CurrentProfile() profile: Profile,
+    @Param('id') postId: string,
+  ) {
     return await this.newsfeedService.deletePost(profile.id, postId);
   }
 
@@ -85,7 +98,12 @@ export class NewsfeedController {
     @Param('id') postId: string,
     @Query(ValidationPipe) query: CursorQueryDto,
   ) {
-    return await this.newsfeedService.getComments(profile.id, postId, query.cursor, query.limit);
+    return await this.newsfeedService.getComments(
+      profile.id,
+      postId,
+      query.cursor,
+      query.limit,
+    );
   }
 
   @Post('posts/:id/comments')

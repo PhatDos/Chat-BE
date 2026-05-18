@@ -11,7 +11,6 @@ import { FileType } from '@prisma/client';
 import { WEBSOCKET_GATEWAY_CONFIG } from '../gateway.config';
 
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)
-
 export class DirectMessageGateway {
   @WebSocketServer()
   server!: Server;

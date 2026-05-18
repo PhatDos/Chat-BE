@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  UseGuards,
+  BadRequestException,
+  Body,
+  HttpCode,
+  ValidationPipe,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { CurrentMember } from '~/common/decorators/current-member.decorator';
@@ -23,7 +37,9 @@ export class ServerController {
 
   @Get('initial')
   @HttpCode(HttpStatus.OK)
-  async getInitialServer(@CurrentProfile() profile: Profile): Promise<InitialServerResponseDto | null> {
+  async getInitialServer(
+    @CurrentProfile() profile: Profile,
+  ): Promise<InitialServerResponseDto | null> {
     return await this.serverService.getInitialServer(profile.id);
   }
 
@@ -43,8 +59,14 @@ export class ServerController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getMyServers(@CurrentProfile() profile: Profile, @Query() paginationDto: PaginationDto) {
-    return await this.serverService.getServersByProfileId(profile.id, paginationDto);
+  async getMyServers(
+    @CurrentProfile() profile: Profile,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return await this.serverService.getServersByProfileId(
+      profile.id,
+      paginationDto,
+    );
   }
 
   @Post()
@@ -113,7 +135,10 @@ export class ServerController {
       throw new BadRequestException('Server ID is required');
     }
 
-    const updatedServer = await this.serverService.leaveServer(serverId, profile.id);
+    const updatedServer = await this.serverService.leaveServer(
+      serverId,
+      profile.id,
+    );
 
     await this.channelRefetchService.emitByServer(serverId);
 
@@ -164,4 +189,3 @@ export class ServerController {
     return await this.serverService.getServerSidebarData(serverId, profile.id);
   }
 }
-

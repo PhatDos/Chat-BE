@@ -61,7 +61,7 @@ export class ServerService {
     // 2️⃣ Aggregate unread theo serverId
     const unread = await this.prisma.$queryRaw<
       { serverId: string; total: bigint }[]
-          >`
+    >`
       SELECT 
         c."serverId" as "serverId",
         COUNT(m."_id") as total
@@ -335,7 +335,9 @@ export class ServerService {
     });
   }
 
-  async getInitialServer(profileId: string): Promise<InitialServerResponseDto | null> {
+  async getInitialServer(
+    profileId: string,
+  ): Promise<InitialServerResponseDto | null> {
     // include `generalChannel` so FE can directly use `generalChannelId`/data
     const server = await this.prisma.server.findFirst({
       where: {
@@ -445,4 +447,3 @@ export class ServerService {
     };
   }
 }
-

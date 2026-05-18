@@ -2,56 +2,56 @@ import { Injectable } from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 
 type SummaryMessage = {
-	content?: string | null;
-	member?: {
-		profile?: {
-			name?: string | null;
-		} | null;
-	} | null;
+  content?: string | null;
+  member?: {
+    profile?: {
+      name?: string | null;
+    } | null;
+  } | null;
 };
 
 @Injectable()
 export class AiService {
-	private ai: GoogleGenAI | null = null;
-	private readonly MAX_MESSAGES = 200;
-	private readonly MAX_CONTENT_LENGTH = 2000;
+  private ai: GoogleGenAI | null = null;
+  private readonly MAX_MESSAGES = 200;
+  private readonly MAX_CONTENT_LENGTH = 2000;
 
-	private getClient() {
-		if (this.ai) {
-			return this.ai;
-		}
+  private getClient() {
+    if (this.ai) {
+      return this.ai;
+    }
 
-		const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
 
-		if (!apiKey) {
-			throw new Error('GEMINI_API_KEY missing');
-		}
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY missing');
+    }
 
-		this.ai = new GoogleGenAI({ apiKey });
+    this.ai = new GoogleGenAI({ apiKey });
 
-		return this.ai;
-	}
+    return this.ai;
+  }
 
-	async summarizeMessages(messages: SummaryMessage[]) {
-		let safeMessages = messages;
+  async summarizeMessages(messages: SummaryMessage[]) {
+    let safeMessages = messages;
 
-		if (safeMessages.length > this.MAX_MESSAGES) {
-			safeMessages = safeMessages.slice(-this.MAX_MESSAGES);
-		}
+    if (safeMessages.length > this.MAX_MESSAGES) {
+      safeMessages = safeMessages.slice(-this.MAX_MESSAGES);
+    }
 
-		const formatted = safeMessages
-			.map((m) => {
-				const author = m?.member?.profile?.name ?? 'Unknown';
-				const content = String(m?.content ?? '').slice(
-					0,
-					this.MAX_CONTENT_LENGTH,
-				);
+    const formatted = safeMessages
+      .map((m) => {
+        const author = m?.member?.profile?.name ?? 'Unknown';
+        const content = String(m?.content ?? '').slice(
+          0,
+          this.MAX_CONTENT_LENGTH,
+        );
 
-				return `${author}: ${content}`;
-			})
-			.join('\n');
+        return `${author}: ${content}`;
+      })
+      .join('\n');
 
-		const prompt = `
+    const prompt = `
             You are an assistant summarizing Discord conversations.
             Summarize:
 				- main topics
@@ -62,13 +62,13 @@ export class AiService {
             ${formatted}
             `;
 
-		const ai = this.getClient();
+    const ai = this.getClient();
 
-		const response = await ai.models.generateContent({
-			model: 'gemini-2.5-flash',
-			contents: prompt,
-		});
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
 
-		return response.text ?? '';
-	}
+    return response.text ?? '';
+  }
 }

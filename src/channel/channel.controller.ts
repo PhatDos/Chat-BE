@@ -33,9 +33,7 @@ export class ChannelController {
   @UseGuards(ServerMemberGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getChannelsByServer(
-    @Param('serverId') serverId: string,
-  ) {
+  async getChannelsByServer(@Param('serverId') serverId: string) {
     if (!serverId) {
       throw new BadRequestException('Server ID is required');
     }

@@ -45,7 +45,8 @@ function sleep(ms: number): Promise<void> {
 }
 
 function isRetryableGeminiError(error: unknown): boolean {
-  const status = (error as { status?: number; code?: number } | undefined)?.status ??
+  const status =
+    (error as { status?: number; code?: number } | undefined)?.status ??
     (error as { status?: number; code?: number } | undefined)?.code;
 
   return status === 429 || status === 500 || status === 503;
@@ -67,7 +68,9 @@ async function moderateWithGemini(
   }
 
   const runScan = async () => {
-    const parts: Array<Record<string, unknown>> = [{ text: getModerationPrompt() }];
+    const parts: Array<Record<string, unknown>> = [
+      { text: getModerationPrompt() },
+    ];
 
     if (fileType === 'text' || !fileType) {
       parts.push({ text: normalizeModerationText(content) });
@@ -89,7 +92,7 @@ async function moderateWithGemini(
           data: file.buffer.toString('base64'),
           mimeType:
             fileType === 'img'
-              ? file.mimeType ?? 'image/png'
+              ? (file.mimeType ?? 'image/png')
               : 'application/pdf',
         },
       });
@@ -159,7 +162,9 @@ async function moderateWithGemini(
   }
 }
 
-async function download(url: string): Promise<{ buffer: Buffer; mimeType?: string }> {
+async function download(
+  url: string,
+): Promise<{ buffer: Buffer; mimeType?: string }> {
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -188,7 +193,11 @@ const worker = new Worker<ModerationJobData>(
     }
 
     // Call Gemini API for moderation
-    const { isFlagged, reason } = await moderateWithGemini(content, fileType, fileUrl);
+    const { isFlagged, reason } = await moderateWithGemini(
+      content,
+      fileType,
+      fileUrl,
+    );
 
     // Keep field updatedAt unchanged for moderation-only updates.
     const updatedRows = await prisma.$executeRaw`

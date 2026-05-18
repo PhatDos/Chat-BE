@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { MemberRole } from '@prisma/client';
 
@@ -65,7 +70,12 @@ export class MemberService {
     });
   }
 
-  async updateMemberRole(memberId: string, serverId: string, profileId: string, role: MemberRole) {
+  async updateMemberRole(
+    memberId: string,
+    serverId: string,
+    profileId: string,
+    role: MemberRole,
+  ) {
     // Verify server exists and user is owner
     const server = await this.prisma.server.findUnique({
       where: { id: serverId },

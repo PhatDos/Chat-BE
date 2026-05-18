@@ -56,7 +56,9 @@ export class ChannelService {
     });
 
     if (existingChannel) {
-      throw new ForbiddenException('Channel name already exists in this server');
+      throw new ForbiddenException(
+        'Channel name already exists in this server',
+      );
     }
 
     const channel = await this.prisma.channel.create({

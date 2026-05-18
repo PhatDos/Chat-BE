@@ -23,8 +23,14 @@ export class FriendshipController {
   // send friend request
   @Post('profiles/:profileId/friend')
   @HttpCode(HttpStatus.CREATED)
-  async sendFriendRequest(@CurrentProfile() profile: Profile, @Param('profileId') targetId: string) {
-    const data = await this.friendshipService.sendFriendRequest(profile.id, targetId);
+  async sendFriendRequest(
+    @CurrentProfile() profile: Profile,
+    @Param('profileId') targetId: string,
+  ) {
+    const data = await this.friendshipService.sendFriendRequest(
+      profile.id,
+      targetId,
+    );
     return ApiResponse.ok(data, 'Friend request sent', HttpStatus.CREATED);
   }
 
@@ -35,15 +41,32 @@ export class FriendshipController {
     @CurrentProfile() profile: Profile,
     @Param('profileId') targetId: string,
   ) {
-    const data = await this.friendshipService.getFriendshipInfo(profile.id, targetId);
+    const data = await this.friendshipService.getFriendshipInfo(
+      profile.id,
+      targetId,
+    );
     return ApiResponse.ok(data, 'Friendship info retrieved', HttpStatus.OK);
+  }
+
+  // friend list for current user
+  @Get('friends')
+  @HttpCode(HttpStatus.OK)
+  async getFriendList(@CurrentProfile() profile: Profile) {
+    const data = await this.friendshipService.getFriendList(profile.id);
+    return ApiResponse.ok(data, 'Friends retrieved', HttpStatus.OK);
   }
 
   // remove friend
   @Delete('profiles/:profileId/friend')
   @HttpCode(HttpStatus.OK)
-  async removeFriend(@CurrentProfile() profile: Profile, @Param('profileId') targetId: string) {
-    const data = await this.friendshipService.removeFriend(profile.id, targetId);
+  async removeFriend(
+    @CurrentProfile() profile: Profile,
+    @Param('profileId') targetId: string,
+  ) {
+    const data = await this.friendshipService.removeFriend(
+      profile.id,
+      targetId,
+    );
     return ApiResponse.ok(data, 'Friend removed', HttpStatus.OK);
   }
 
@@ -61,7 +84,11 @@ export class FriendshipController {
       limit: query.limit,
       status: query.status,
     });
-    return ApiResponse.ok(result, 'Received friend requests retrieved', HttpStatus.OK);
+    return ApiResponse.ok(
+      result,
+      'Received friend requests retrieved',
+      HttpStatus.OK,
+    );
   }
 
   // list sent requests
@@ -89,24 +116,42 @@ export class FriendshipController {
   // accept request
   @Post('friend-requests/:id/accept')
   @HttpCode(HttpStatus.OK)
-  async acceptRequest(@CurrentProfile() profile: Profile, @Param('id') requestId: string) {
-    const data = await this.friendshipService.acceptFriendRequest(requestId, profile.id);
+  async acceptRequest(
+    @CurrentProfile() profile: Profile,
+    @Param('id') requestId: string,
+  ) {
+    const data = await this.friendshipService.acceptFriendRequest(
+      requestId,
+      profile.id,
+    );
     return ApiResponse.ok(data, 'Friend request accepted', HttpStatus.OK);
   }
 
   // reject request
   @Post('friend-requests/:id/reject')
   @HttpCode(HttpStatus.OK)
-  async rejectRequest(@CurrentProfile() profile: Profile, @Param('id') requestId: string) {
-    const data = await this.friendshipService.rejectFriendRequest(requestId, profile.id);
+  async rejectRequest(
+    @CurrentProfile() profile: Profile,
+    @Param('id') requestId: string,
+  ) {
+    const data = await this.friendshipService.rejectFriendRequest(
+      requestId,
+      profile.id,
+    );
     return ApiResponse.ok(data, 'Friend request rejected', HttpStatus.OK);
   }
 
   // cancel (sender)
   @Delete('friend-requests/:id')
   @HttpCode(HttpStatus.OK)
-  async cancelRequest(@CurrentProfile() profile: Profile, @Param('id') requestId: string) {
-    const data = await this.friendshipService.cancelFriendRequest(requestId, profile.id);
+  async cancelRequest(
+    @CurrentProfile() profile: Profile,
+    @Param('id') requestId: string,
+  ) {
+    const data = await this.friendshipService.cancelFriendRequest(
+      requestId,
+      profile.id,
+    );
     return ApiResponse.ok(data, 'Friend request cancelled', HttpStatus.OK);
   }
 }

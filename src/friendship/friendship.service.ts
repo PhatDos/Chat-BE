@@ -1,4 +1,10 @@
-import { Injectable, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Observable, fromEvent } from 'rxjs';
 import { filter, map, mergeMap } from 'rxjs/operators';
@@ -10,6 +16,19 @@ type FriendProfileLite = {
   id: string;
   name: string;
   imageUrl: string;
+};
+
+export type FriendListItem = {
+  id: string;
+  profileId: string;
+  name: string;
+  imageUrl: string;
+  createdAt: Date;
+};
+
+export type FriendListResult = {
+  items: FriendListItem[];
+  count: number;
 };
 
 export type FriendRequestBaseItem = {
@@ -153,11 +172,17 @@ export class FriendshipService {
       return request;
     } catch (e) {
       // Handles concurrent inserts violating pair uniqueness.
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
         throw new ConflictException('Pending request already exists');
       }
       // Foreign key constraint failed (sender/receiver profile does not exist).
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2003'
+      ) {
         throw new NotFoundException('Target profile not found');
       }
       throw e;
@@ -165,7 +190,9 @@ export class FriendshipService {
   }
 
   async acceptFriendRequest(requestId: string, receiverId: string) {
-    const req = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
+    const req = await this.prisma.friendRequest.findUnique({
+      where: { id: requestId },
+    });
     if (!req) throw new NotFoundException('Friend request not found');
     if (req.receiverId !== receiverId) throw new ForbiddenException();
 
@@ -190,11 +217,15 @@ export class FriendshipService {
   }
 
   async rejectFriendRequest(requestId: string, receiverId: string) {
-    const req = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
+    const req = await this.prisma.friendRequest.findUnique({
+      where: { id: requestId },
+    });
     if (!req) throw new NotFoundException('Friend request not found');
     if (req.receiverId !== receiverId) throw new ForbiddenException();
 
-    const deleted = await this.prisma.friendRequest.delete({ where: { id: requestId } });
+    const deleted = await this.prisma.friendRequest.delete({
+      where: { id: requestId },
+    });
     const actorProfile = await this.getProfileLite(receiverId);
 
     this.emitFriendRequestEvent({
@@ -209,11 +240,15 @@ export class FriendshipService {
   }
 
   async cancelFriendRequest(requestId: string, senderId: string) {
-    const req = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
+    const req = await this.prisma.friendRequest.findUnique({
+      where: { id: requestId },
+    });
     if (!req) throw new NotFoundException('Friend request not found');
     if (req.senderId !== senderId) throw new ForbiddenException();
 
-    const deleted = await this.prisma.friendRequest.delete({ where: { id: requestId } });
+    const deleted = await this.prisma.friendRequest.delete({
+      where: { id: requestId },
+    });
     const actorProfile = await this.getProfileLite(senderId);
 
     this.emitFriendRequestEvent({
@@ -248,10 +283,18 @@ export class FriendshipService {
     limit?: number;
     status?: FriendRequestListStatus;
   }): Promise<FriendRequestListResult> {
-    const { currentProfileId, direction, skip = 0, limit = 20, status } = options;
+    const {
+      currentProfileId,
+      direction,
+      skip = 0,
+      limit = 20,
+      status,
+    } = options;
 
     const where = {
-      ...(direction === 'received' ? { receiverId: currentProfileId } : { senderId: currentProfileId }),
+      ...(direction === 'received'
+        ? { receiverId: currentProfileId }
+        : { senderId: currentProfileId }),
       ...(status ? { status } : {}),
     };
 
@@ -294,7 +337,8 @@ export class FriendshipService {
       status: request.status as FriendRequestListStatus,
       createdAt: request.createdAt,
       updatedAt: request.updatedAt,
-      actorProfile: direction === 'received' ? request.sender : request.receiver,
+      actorProfile:
+        direction === 'received' ? request.sender : request.receiver,
     }));
 
     return { items, count, skip, limit };
@@ -314,7 +358,10 @@ export class FriendshipService {
 
       return friend;
     } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
         // unique constraint failed — already friends
         throw new ConflictException('Friendship already exists');
       }
@@ -343,7 +390,10 @@ export class FriendshipService {
 
       return { success: true };
     } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2025'
+      ) {
         throw new NotFoundException('Friendship not found');
       }
       throw e;
@@ -371,7 +421,8 @@ export class FriendshipService {
     const isFriend = await this.isFriend(viewerId, targetId);
 
     // Check for pending friend requests
-    let pendingRequest: { id: string; direction: 'sent' | 'received' } | null = null;
+    let pendingRequest: { id: string; direction: 'sent' | 'received' } | null =
+      null;
     const request = await this.prisma.friendRequest.findFirst({
       where: {
         OR: [
@@ -413,12 +464,18 @@ export class FriendshipService {
   }
 
   subscribeToEvents(profileId: string): Observable<any> {
-    return fromEvent<FriendRequestEventPayload>(this.eventEmitter, 'friendship.event').pipe(
+    return fromEvent<FriendRequestEventPayload>(
+      this.eventEmitter,
+      'friendship.event',
+    ).pipe(
       mergeMap(async (payload: FriendRequestEventPayload) => {
         console.log('[friendship.event] raw sse payload', payload);
 
         if (!payload) {
-          console.log('[friendship.event] skipped empty payload for', profileId);
+          console.log(
+            '[friendship.event] skipped empty payload for',
+            profileId,
+          );
           return null;
         }
 
@@ -427,12 +484,89 @@ export class FriendshipService {
           return payload;
         }
 
-        console.log('[friendship.event] skip for', profileId, 'audience:', payload.audienceProfileId);
+        console.log(
+          '[friendship.event] skip for',
+          profileId,
+          'audience:',
+          payload.audienceProfileId,
+        );
 
         return null;
       }),
       filter((payload) => payload !== null),
       map((payload) => ({ data: payload })),
     );
+  }
+
+  /**
+   * Get all friends of a profile
+   * Used by presence service to broadcast online/offline events
+   */
+  async getFriendsOf(profileId: string): Promise<string[]> {
+    const friends = await this.prisma.friend.findMany({
+      where: {
+        OR: [{ userOneId: profileId }, { userTwoId: profileId }],
+      },
+      select: {
+        userOneId: true,
+        userTwoId: true,
+      },
+    });
+
+    return friends.map((friend) =>
+      friend.userOneId === profileId ? friend.userTwoId : friend.userOneId,
+    );
+  }
+
+  /**
+   * Get friend list with profile details for the current user.
+   */
+  async getFriendList(profileId: string): Promise<FriendListResult> {
+    const where = {
+      OR: [{ userOneId: profileId }, { userTwoId: profileId }],
+    };
+
+    const [count, friends] = await this.prisma.$transaction([
+      this.prisma.friend.count({ where }),
+      this.prisma.friend.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          createdAt: true,
+          userOneId: true,
+          userTwoId: true,
+          userOne: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+            },
+          },
+          userTwo: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const items: FriendListItem[] = friends.map((friend) => {
+      const targetProfile =
+        friend.userOneId === profileId ? friend.userTwo : friend.userOne;
+
+      return {
+        id: friend.id,
+        profileId: targetProfile.id,
+        name: targetProfile.name,
+        imageUrl: targetProfile.imageUrl,
+        createdAt: friend.createdAt,
+      };
+    });
+
+    return { items, count };
   }
 }

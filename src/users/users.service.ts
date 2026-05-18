@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PresenceService } from '~/presence/presence.service';
 import { PrismaService } from '~/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly presenceService: PresenceService,
+  ) {}
 
   async getPublicProfile(id: string) {
     const profile = await this.prisma.profile.findUnique({
@@ -16,13 +20,15 @@ export class UsersService {
         relationshipStatus: true,
         joinDate: true,
         location: true,
-        isOnline: true,
       },
     });
 
     if (!profile) throw new NotFoundException('User not found');
 
-    return profile;
+    return {
+      ...profile,
+      isOnline: await this.presenceService.isOnline(profile.id),
+    };
   }
 
   async isFriend(currentProfileId: string, targetProfileId: string) {
