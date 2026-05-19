@@ -23,6 +23,7 @@ export type FriendListItem = {
   profileId: string;
   name: string;
   imageUrl: string;
+  isOnline: boolean;
   createdAt: Date;
 };
 
@@ -541,6 +542,7 @@ export class FriendshipService {
               id: true,
               name: true,
               imageUrl: true,
+              isOnline: true,
             },
           },
           userTwo: {
@@ -548,6 +550,7 @@ export class FriendshipService {
               id: true,
               name: true,
               imageUrl: true,
+              isOnline: true,
             },
           },
         },
@@ -563,6 +566,7 @@ export class FriendshipService {
         profileId: targetProfile.id,
         name: targetProfile.name,
         imageUrl: targetProfile.imageUrl,
+        isOnline: targetProfile.isOnline,
         createdAt: friend.createdAt,
       };
     });

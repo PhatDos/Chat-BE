@@ -21,6 +21,8 @@ import { UsersModule } from '~/users/users.module';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { ProfileGuard } from '~/common/guards/profile.guard';
 import { AiModule } from './ai/ai.module';
+import { LectureModule } from '~/lecture/lecture.module';
+import { AiGenerationModule } from '~/ai-generation/ai-generation.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { AiModule } from './ai/ai.module';
     NewsfeedModule,
     FriendshipModule,
     AiModule,
+    LectureModule,
+    AiGenerationModule,
   ],
   controllers: [AppController],
   providers: [

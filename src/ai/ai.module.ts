@@ -6,6 +6,6 @@ import { MessageFetcherService } from './message-fetcher.service';
 @Module({
   providers: [AiService, MessageFetcherService],
   controllers: [AiController],
-  exports: [MessageFetcherService],
+  exports: [AiService, MessageFetcherService],
 })
 export class AiModule {}
