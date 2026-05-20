@@ -29,6 +29,8 @@ export class LectureService {
         createLectureDto.fileType,
       );
 
+      console.log(extractedContent.slice(0, 500));
+
       if (!extractedContent || extractedContent.trim().length === 0) {
         throw new BadRequestException('Could not extract content from file');
       }

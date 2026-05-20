@@ -1,6 +1,8 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { LectureFileType } from '@prisma/client';
 import axios from 'axios';
+import { PDFParse } from 'pdf-parse';
+import mammoth from 'mammoth';
 
 // FileExtractionService class
 @Injectable()
@@ -40,7 +42,14 @@ export class FileExtractionService {
   private async extractFromTxt(fileUrl: string): Promise<string> {
     try {
       const response = await axios.get(fileUrl);
-      return response.data;
+
+      const text = typeof response.data === 'string' ? response.data : String(response.data);
+
+      if (!text || text.trim().length < 100) {
+        throw new BadRequestException('Document contains insufficient text');
+      }
+
+      return text;
     } catch (error) {
       throw new BadRequestException(`Failed to extract TXT file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -51,10 +60,27 @@ export class FileExtractionService {
    * Note: For production, consider using pdf-parse or pdfjs-dist
    */
   private async extractFromPdf(fileUrl: string): Promise<string> {
-    // TODO: Implement PDF extraction
-    // For now, return placeholder
-    this.logger.warn('PDF extraction not yet implemented, returning placeholder');
-    return 'PDF content extraction coming soon. Please upload TXT file for now.';
+    try {
+      const response = await axios.get(fileUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const parser = new PDFParse({
+        data: response.data,
+      });
+      const pdfData = await parser.getText();
+      const text = pdfData.text;
+
+      if (!text || text.trim().length < 100) {
+        throw new BadRequestException('Document contains insufficient text');
+      }
+
+      return text;
+    } catch (error) {
+      this.logger.error(error instanceof Error ? error.message : 'Unknown error');
+
+      throw new BadRequestException('Failed to extract PDF');
+    }
   }
 
   /**
@@ -62,9 +88,27 @@ export class FileExtractionService {
    * Note: For production, consider using mammoth.js or similar
    */
   private async extractFromDocx(fileUrl: string): Promise<string> {
-    // TODO: Implement DOCX extraction
-    this.logger.warn('DOCX extraction not yet implemented, returning placeholder');
-    return 'DOCX content extraction coming soon. Please upload TXT file for now.';
+    try {
+      const response = await axios.get(fileUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const result = await mammoth.extractRawText({
+        buffer: response.data,
+      });
+
+      const text = result.value;
+
+      if (!text || text.trim().length < 100) {
+        throw new BadRequestException('Document contains insufficient text');
+      }
+
+      return text;
+    } catch (error) {
+      this.logger.error(error instanceof Error ? error.message : 'Unknown error');
+
+      throw new BadRequestException('Failed to extract DOCX');
+    }
   }
 
   /**
