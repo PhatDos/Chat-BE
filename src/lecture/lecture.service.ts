@@ -46,6 +46,11 @@ export class LectureService {
           memberId: createLectureDto.memberId,
         },
         include: {
+          member: {
+            include: {
+              profile: true,
+            },
+          },
           summaries: true,
           flashcards: true,
           quizzes: true,
@@ -57,8 +62,8 @@ export class LectureService {
         lecture,
         message: 'Lecture created successfully',
       };
-    } catch (error) {
-      this.logger.error(`Error creating lecture: ${error.message}`);
+    } catch (error: any) {
+      this.logger.error(`Error creating lecture: ${this.getErrorMessage(error)}`);
       throw error;
     }
   }
@@ -70,6 +75,11 @@ export class LectureService {
     const lecture = await this.prisma.lecture.findUnique({
       where: { id: lectureId },
       include: {
+        member: {
+          include: {
+            profile: true,
+          },
+        },
         summaries: true,
         flashcards: true,
         quizzes: {
@@ -95,10 +105,15 @@ export class LectureService {
   /**
    * Get all lectures by channel
    */
-  async getLecturesByChannel(channelId: string) {
+  async getLecturesByChannel(serverId: string, channelId: string) {
     const lectures = await this.prisma.lecture.findMany({
       where: { channelId },
       include: {
+        member: {
+          include: {
+            profile: true,
+          },
+        },
         summaries: true,
         flashcards: true,
         quizzes: true,
@@ -140,8 +155,8 @@ export class LectureService {
         summary,
         message: 'Summary generated successfully',
       };
-    } catch (error) {
-      this.logger.error(`Error generating summary: ${error.message}`);
+    } catch (error: any) {
+      this.logger.error(`Error generating summary: ${this.getErrorMessage(error)}`);
       throw error;
     }
   }
@@ -182,8 +197,8 @@ export class LectureService {
         flashcards,
         message: `Generated ${flashcards.length} flashcards`,
       };
-    } catch (error) {
-      this.logger.error(`Error generating flashcards: ${error.message}`);
+    } catch (error: any) {
+      this.logger.error(`Error generating flashcards: ${this.getErrorMessage(error)}`);
       throw error;
     }
   }
@@ -254,8 +269,8 @@ export class LectureService {
         quiz: fullQuiz,
         message: `Generated quiz with ${quizData.questions.length} questions`,
       };
-    } catch (error) {
-      this.logger.error(`Error generating quiz: ${error.message}`);
+    } catch (error: any) {
+      this.logger.error(`Error generating quiz: ${this.getErrorMessage(error)}`);
       throw error;
     }
   }
@@ -342,5 +357,9 @@ export class LectureService {
       correctCount,
       totalQuestions: quiz.questions.length,
     };
+  }
+
+  private getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Unknown error';
   }
 }

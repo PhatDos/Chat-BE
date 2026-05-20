@@ -41,11 +41,14 @@ export class LectureController {
     return await this.lectureService.getLectureById(lectureId);
   }
 
-  @Get('channel/:channelId')
+  @Get('channel/:serverId/:channelId')
   @UseGuards(ServerMemberGuard)
   @HttpCode(HttpStatus.OK)
-  async getLecturesByChannel(@Param('channelId') channelId: string) {
-    return await this.lectureService.getLecturesByChannel(channelId);
+  async getLecturesByChannel(
+    @Param('serverId') serverId: string,
+    @Param('channelId') channelId: string,
+  ) {
+    return await this.lectureService.getLecturesByChannel(serverId, channelId);
   }
 
   @Post(':lectureId/generate/summary')
