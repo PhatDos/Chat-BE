@@ -2,6 +2,8 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
+  Delete,
   Param,
   Body,
   UseGuards,
@@ -41,6 +43,12 @@ export class LectureController {
     return await this.lectureService.getLectureById(lectureId);
   }
 
+  @Get(':lectureId/files')
+  @HttpCode(HttpStatus.OK)
+  async getLectureFiles(@Param('lectureId') lectureId: string) {
+    return await this.lectureService.getLectureFiles(lectureId);
+  }
+
   @Get('channel/:serverId/:channelId')
   @UseGuards(ServerMemberGuard)
   @HttpCode(HttpStatus.OK)
@@ -71,6 +79,16 @@ export class LectureController {
     return await this.lectureService.generateFlashcards(lectureId, dto);
   }
 
+  @Post(':lectureId/generate/assessment')
+  @HttpCode(HttpStatus.CREATED)
+  async generateAssessment(
+    @Param('lectureId') lectureId: string,
+    @Body(ValidationPipe) dto: GenerateQuizDto,
+    @CurrentProfile() profile: Profile,
+  ) {
+    return await this.lectureService.generateAssessment(lectureId, dto);
+  }
+
   @Post(':lectureId/generate/quiz')
   @HttpCode(HttpStatus.CREATED)
   async generateQuiz(
@@ -78,7 +96,70 @@ export class LectureController {
     @Body(ValidationPipe) dto: GenerateQuizDto,
     @CurrentProfile() profile: Profile,
   ) {
-    return await this.lectureService.generateQuiz(lectureId, dto);
+    return await this.generateAssessment(lectureId, dto, profile);
+  }
+
+  @Patch('assessment/:assessmentId')
+  @HttpCode(HttpStatus.OK)
+  async updateAssessment(
+    @Param('assessmentId') assessmentId: string,
+    @Body(ValidationPipe) body: any,
+  ) {
+    return await this.lectureService.updateAssessment(assessmentId, body);
+  }
+
+  @Patch('assessment/:assessmentId/publish')
+  @HttpCode(HttpStatus.OK)
+  async publishAssessment(@Param('assessmentId') assessmentId: string) {
+    return await this.lectureService.publishAssessment(assessmentId);
+  }
+
+  @Patch('assessment/:assessmentId/close')
+  @HttpCode(HttpStatus.OK)
+  async closeAssessment(@Param('assessmentId') assessmentId: string) {
+    return await this.lectureService.closeAssessment(assessmentId);
+  }
+
+  @Patch('assessment/:assessmentId/archive')
+  @HttpCode(HttpStatus.OK)
+  async archiveAssessment(@Param('assessmentId') assessmentId: string) {
+    return await this.lectureService.archiveAssessment(assessmentId);
+  }
+
+  @Post('assessment/:assessmentId/questions')
+  @HttpCode(HttpStatus.CREATED)
+  async addAssessmentQuestion(@Param('assessmentId') assessmentId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.addAssessmentQuestion(assessmentId, body);
+  }
+
+  @Patch('assessment/questions/:questionId')
+  @HttpCode(HttpStatus.OK)
+  async updateAssessmentQuestion(@Param('questionId') questionId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.updateAssessmentQuestion(questionId, body);
+  }
+
+  @Delete('assessment/questions/:questionId')
+  @HttpCode(HttpStatus.OK)
+  async deleteAssessmentQuestion(@Param('questionId') questionId: string) {
+    return await this.lectureService.deleteAssessmentQuestion(questionId);
+  }
+
+  @Post('assessment/questions/:questionId/options')
+  @HttpCode(HttpStatus.CREATED)
+  async addAssessmentOption(@Param('questionId') questionId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.addAssessmentOption(questionId, body);
+  }
+
+  @Patch('assessment/options/:optionId')
+  @HttpCode(HttpStatus.OK)
+  async updateAssessmentOption(@Param('optionId') optionId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.updateAssessmentOption(optionId, body);
+  }
+
+  @Delete('assessment/options/:optionId')
+  @HttpCode(HttpStatus.OK)
+  async deleteAssessmentOption(@Param('optionId') optionId: string) {
+    return await this.lectureService.deleteAssessmentOption(optionId);
   }
 
   @Get(':lectureId/flashcards')
@@ -87,10 +168,73 @@ export class LectureController {
     return await this.lectureService.getFlashcardsByLecture(lectureId);
   }
 
+  @Get(':lectureId/assessments')
+  @HttpCode(HttpStatus.OK)
+  async getAssessments(@Param('lectureId') lectureId: string) {
+    return await this.lectureService.getAssessmentsByLecture(lectureId);
+  }
+
   @Get(':lectureId/quizzes')
   @HttpCode(HttpStatus.OK)
   async getQuizzes(@Param('lectureId') lectureId: string) {
-    return await this.lectureService.getQuizzesByLecture(lectureId);
+    return await this.getAssessments(lectureId);
+  }
+
+  @Get('assessment/:assessmentId')
+  @HttpCode(HttpStatus.OK)
+  async getAssessmentById(@Param('assessmentId') assessmentId: string) {
+    return await this.lectureService.getAssessmentById(assessmentId);
+  }
+
+  @Get(':lectureId/assessment/:assessmentId/review')
+  @HttpCode(HttpStatus.OK)
+  async getAssessmentReview(@Param('assessmentId') assessmentId: string) {
+    return await this.lectureService.getAssessmentReview(assessmentId);
+  }
+
+  @Get('channel/:channelId/leaderboard')
+  @HttpCode(HttpStatus.OK)
+  async getAssessmentLeaderboard(@Param('channelId') channelId: string) {
+    return await this.lectureService.getAssessmentLeaderboard(channelId);
+  }
+
+  @Get('assessment/:assessmentId/leaderboard')
+  @HttpCode(HttpStatus.OK)
+  async getAssessmentLeaderboardByAssessment(@Param('assessmentId') assessmentId: string) {
+    const assessment = await this.lectureService.getAssessmentById(assessmentId);
+    return await this.lectureService.getAssessmentLeaderboard(assessment.channelId, assessmentId);
+  }
+
+  @Get('assessment/:assessmentId/reveal')
+  @HttpCode(HttpStatus.OK)
+  async revealAssessment(@Param('assessmentId') assessmentId: string) {
+    return await this.lectureService.getAssessmentById(assessmentId);
+  }
+
+  @Patch('assessment/attempts/:attemptId/grade')
+  @HttpCode(HttpStatus.OK)
+  async gradeAssessmentAttempt(@Param('attemptId') attemptId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.gradeAssessmentAttempt(attemptId, body);
+  }
+
+  @Post('assessment/:assessmentId/attempt')
+  @HttpCode(HttpStatus.CREATED)
+  async submitAssessmentAttempt(
+    @Param('assessmentId') assessmentId: string,
+    @Body('memberId') memberId: string,
+    @Body('answers') answers: Record<string, string>,
+    @CurrentProfile() profile: Profile,
+  ) {
+    if (!memberId || !answers) {
+      throw new BadRequestException('Member ID and answers are required');
+    }
+    return await this.lectureService.submitAssessmentAttempt(assessmentId, memberId, answers);
+  }
+
+  @Get('assessment/attempts/:attemptId')
+  @HttpCode(HttpStatus.OK)
+  async getAssessmentAttemptById(@Param('attemptId') attemptId: string) {
+    return await this.lectureService.getAssessmentAttemptById(attemptId);
   }
 
   @Post('quiz/:quizId/attempt')
@@ -101,9 +245,6 @@ export class LectureController {
     @Body('answers') answers: Record<string, string>,
     @CurrentProfile() profile: Profile,
   ) {
-    if (!memberId || !answers) {
-      throw new BadRequestException('Member ID and answers are required');
-    }
-    return await this.lectureService.submitQuizAttempt(quizId, memberId, answers);
+    return await this.submitAssessmentAttempt(quizId, memberId, answers, profile);
   }
 }
