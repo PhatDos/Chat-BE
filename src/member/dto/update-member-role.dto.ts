@@ -1,5 +1,5 @@
 import { IsEnum, IsString } from 'class-validator';
-import { MemberRole } from '@prisma/client';
+import { MemberRole } from '~/generated/prisma';
 
 export class UpdateMemberRoleDto {
   @IsString()

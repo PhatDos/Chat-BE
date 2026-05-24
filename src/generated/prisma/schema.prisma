@@ -1,44 +1,43 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "binary"
-  output   = "../src/generated/prisma"
+  output     = "../src/generated/prisma"
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 model Profile {
-  id        String   @id @default(uuid()) @map("_id")
-  userId    String   @unique
-  name      String
-  imageUrl  String
-  email     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  bio       String?
-  joinDate  DateTime?
-  location  String?
+  id                 String              @id @default(uuid()) @map("_id")
+  userId             String              @unique
+  name               String
+  imageUrl           String
+  email              String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  bio                String?
+  joinDate           DateTime?
+  location           String?
   relationshipStatus RelationshipStatus?
-  isOnline  Boolean  @default(false)
+  isOnline           Boolean             @default(false)
 
   // NEWSFEED
-  posts     Post[]
-  likes     Like[]
-
+  posts Post[]
+  likes Like[]
 
   friendOne Friend[] @relation("FriendOne")
   friendTwo Friend[] @relation("FriendTwo")
 
-  comments  Comment[]
+  comments Comment[]
 
   // Chat
   server   Server[]
   channels Channel[]
   members  Member[]
 
-  conversationsInitiated Conversation[] @relation("ProfileOne")
-  conversationsReceived  Conversation[] @relation("ProfileTwo")
+  conversationsInitiated Conversation[]     @relation("ProfileOne")
+  conversationsReceived  Conversation[]     @relation("ProfileTwo")
   directMessages         DirectMessage[]
   conversationReads      ConversationRead[]
 
@@ -61,7 +60,7 @@ model Server {
   updatedAt  DateTime @updatedAt
 
   // optional pointer to the server's general channel for fast lookup
-  generalChannelId String? @unique
+  generalChannelId String?  @unique
   generalChannel   Channel? @relation("ServerGeneralChannel", fields: [generalChannelId], references: [id])
 
   profile  Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -82,12 +81,12 @@ model Member {
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   server  Server  @relation(fields: [serverId], references: [id], onDelete: Cascade)
 
-  messages     Message[]
-  channelReads ChannelRead[] @relation("MemberChannelReads")
-  lectures     Lecture[]
-  createdAssessments Assessment[] @relation("CreatedAssessments")
-  attempts AssessmentAttempt[] @relation("StudentAttempts")
-  gradedAttempts AssessmentAttempt[] @relation("GradedAttempts")
+  messages           Message[]
+  channelReads       ChannelRead[]       @relation("MemberChannelReads")
+  lectures           Lecture[]
+  createdAssessments Assessment[]        @relation("CreatedAssessments")
+  attempts           AssessmentAttempt[] @relation("StudentAttempts")
+  gradedAttempts     AssessmentAttempt[] @relation("GradedAttempts")
 
   @@unique([serverId, profileId])
   @@index([profileId])
@@ -103,14 +102,14 @@ model Channel {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
-  profile  Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  server   Server        @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  profile          Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  server           Server        @relation(fields: [serverId], references: [id], onDelete: Cascade)
   // back relation for server.generalChannel
-  generalForServer Server? @relation("ServerGeneralChannel")
-  messages Message[]
-  reads    ChannelRead[] @relation("ChannelReads")
-  lectures Lecture[]
-  assessments Assessment[]
+  generalForServer Server?       @relation("ServerGeneralChannel")
+  messages         Message[]
+  reads            ChannelRead[] @relation("ChannelReads")
+  lectures         Lecture[]
+  assessments      Assessment[]
 
   @@index([profileId])
   @@index([serverId])
@@ -127,7 +126,7 @@ model Message {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  isFlagged Boolean @default(false)
+  isFlagged  Boolean @default(false)
   flagReason String?
 
   member  Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
@@ -198,9 +197,9 @@ model ChannelRead {
   channelId String
   channel   Channel @relation("ChannelReads", fields: [channelId], references: [id], onDelete: Cascade)
 
-  lastReadAt DateTime @default(now())
+  lastReadAt       DateTime  @default(now())
   formerLastReadAt DateTime?
-  isNotify Boolean @default(true)
+  isNotify         Boolean   @default(true)
 
   @@unique([memberId, channelId])
   @@index([channelId])
@@ -212,13 +211,13 @@ model ChannelRead {
 //////////////////////////////////////////////////
 
 model Post {
-  id        String   @id @default(uuid()) @map("_id")
-  content   String
-  fileUrl   String?
-  fileType  FileType @default(text)
+  id       String   @id @default(uuid()) @map("_id")
+  content  String
+  fileUrl  String?
+  fileType FileType @default(text)
 
-  authorId  String
-  author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  author   Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   visibility PostVisibility @default(PUBLIC)
 
@@ -238,14 +237,14 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(uuid()) @map("_id")
-  content   String
+  id      String @id @default(uuid()) @map("_id")
+  content String
 
-  authorId  String
-  author    Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  author   Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   postId String
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -270,9 +269,8 @@ model Like {
   @@index([userId])
 }
 
-
 model Friend {
-  id        String @id @default(uuid())
+  id String @id @default(uuid())
 
   userOneId String
   userTwoId String
@@ -296,7 +294,7 @@ model FriendRequest {
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
 
-  sender   Profile @relation("SentRequests",     fields: [senderId],   references: [id], onDelete: Cascade)
+  sender   Profile @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
   receiver Profile @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([pairKey])
@@ -351,24 +349,24 @@ enum RelationshipStatus {
 model Lecture {
   id String @id @default(uuid()) @map("_id")
 
-  title String
-  fileUrl String
+  title    String
+  fileUrl  String
   fileType LectureFileType
 
   extractedContent String?
 
   channelId String
-  memberId String
+  memberId  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member  Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
-  summary Summary?
+  summary      Summary?
   flashcardSet FlashcardSet?
-  assessment Assessment?
+  assessment   Assessment?
 
   @@index([channelId, createdAt])
   @@index([memberId])
@@ -387,8 +385,8 @@ model Summary {
 
   lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
-  @@index([lectureId])
   @@unique([lectureId])
+  @@index([lectureId])
 }
 
 model Flashcard {
@@ -399,7 +397,7 @@ model Flashcard {
   order Int
 
   frontText String
-  backText String
+  backText  String
 
   createdAt DateTime @default(now())
 
@@ -409,7 +407,7 @@ model Flashcard {
 }
 
 model FlashcardSet {
-  id String @id @default(uuid()) @map("_id")
+  id        String @id @default(uuid()) @map("_id")
   lectureId String @unique
 
   createdAt DateTime @default(now())
@@ -429,7 +427,7 @@ model Assessment {
 
   createdById String
 
-  title String
+  title       String
   description String?
 
   type AssessmentType
@@ -439,13 +437,13 @@ model Assessment {
   status AssessmentStatus @default(DRAFT)
 
   totalQuestions Int
-  totalPoints Float @default(0)
+  totalPoints    Float @default(0)
 
   durationMinutes Int?
 
   allowLateSubmission Boolean @default(false)
 
-  expiresAt DateTime?
+  expiresAt   DateTime?
   publishedAt DateTime?
 
   createdAt DateTime @default(now())
@@ -458,10 +456,10 @@ model Assessment {
   createdBy Member @relation("CreatedAssessments", fields: [createdById], references: [id], onDelete: Cascade)
 
   questions AssessmentQuestion[]
-  attempts AssessmentAttempt[]
+  attempts  AssessmentAttempt[]
 
-  @@index([lectureId])
   @@unique([lectureId])
+  @@index([lectureId])
   @@index([channelId])
   @@index([createdById])
   @@index([channelId, status, expiresAt])
@@ -490,8 +488,8 @@ model AssessmentQuestion {
   options AssessmentOption[]
   answers AssessmentAnswer[]
 
-  @@index([assessmentId])
   @@unique([assessmentId, order])
+  @@index([assessmentId])
 }
 
 model AssessmentOption {
@@ -514,9 +512,9 @@ model AssessmentAttempt {
   id String @id @default(uuid()) @map("_id")
 
   assessmentId String
-  memberId String
+  memberId     String
 
-  startedAt DateTime @default(now())
+  startedAt   DateTime  @default(now())
   submittedAt DateTime?
 
   status AttemptStatus @default(IN_PROGRESS)
@@ -541,21 +539,21 @@ model AssessmentAttempt {
   updatedAt DateTime @updatedAt
 
   assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  member Member @relation("StudentAttempts", fields: [memberId], references: [id], onDelete: Cascade)
-  gradedBy Member? @relation("GradedAttempts", fields: [gradedById], references: [id], onDelete: SetNull)
+  member     Member     @relation("StudentAttempts", fields: [memberId], references: [id], onDelete: Cascade)
+  gradedBy   Member?    @relation("GradedAttempts", fields: [gradedById], references: [id], onDelete: SetNull)
 
   answers AssessmentAnswer[]
 
+  @@unique([assessmentId, memberId])
   @@index([assessmentId])
   @@index([memberId])
-  @@unique([assessmentId, memberId])
   @@index([assessmentId, finalScore])
 }
 
 model AssessmentAnswer {
   id String @id @default(uuid()) @map("_id")
 
-  attemptId String
+  attemptId  String
   questionId String
 
   selectedOptionId String?
@@ -564,7 +562,7 @@ model AssessmentAnswer {
 
   isCorrect Boolean?
 
-  autoPoints Float?
+  autoPoints            Float?
   teacherAdjustedPoints Float?
 
   finalPoints Float?

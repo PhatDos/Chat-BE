@@ -22,7 +22,8 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node", "jest"],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "@prisma/client": ["./src/generated/prisma"]
     }
   }
 }

@@ -17,7 +17,7 @@ import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { ServerMemberGuard } from '~/common/guards/server-member.guard';
 import { RoleGuard } from '~/common/guards/role.guard';
 import { Roles } from '~/common/decorators/roles.decorator';
-import { MemberRole } from '@prisma/client';
+import { MemberRole } from '~/generated/prisma';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 import { ChannelRefetchService } from '~/message/channel-refetch.service';

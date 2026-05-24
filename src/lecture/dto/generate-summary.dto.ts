@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional } from 'class-validator';
-import { SummaryTone } from '@prisma/client';
+import { SummaryTone } from '~/generated/prisma';
 
 export class GenerateSummaryDto {
   @IsEnum(SummaryTone)

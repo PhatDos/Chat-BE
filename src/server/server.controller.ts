@@ -20,7 +20,7 @@ import { AuthGuard } from '~/common/guards/auth.guard';
 import { ServerMemberGuard } from '~/common/guards/server-member.guard';
 import { RoleGuard } from '~/common/guards/role.guard';
 import { Roles } from '~/common/decorators/roles.decorator';
-import { MemberRole, type Member } from '@prisma/client';
+import { MemberRole, type Member } from '~/generated/prisma';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';

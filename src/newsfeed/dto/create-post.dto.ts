@@ -1,4 +1,4 @@
-import { FileType, PostVisibility } from '@prisma/client';
+import { FileType, PostVisibility } from '~/generated/prisma';
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreatePostDto {

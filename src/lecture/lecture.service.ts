@@ -1,5 +1,5 @@
 import { Injectable, Logger, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '~/generated/prisma';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '~/prisma/prisma.service';
 import { AiGenerationService } from '~/ai-generation/ai-generation.service';
@@ -8,7 +8,7 @@ import { CreateLectureDto } from './dto/create-lecture.dto';
 import { GenerateSummaryDto } from './dto/generate-summary.dto';
 import { GenerateFlashcardsDto } from './dto/generate-flashcards.dto';
 import { GenerateQuizDto } from './dto/generate-quiz.dto';
-import { SummaryTone } from '@prisma/client';
+import { SummaryTone } from '~/generated/prisma';
 
 @Injectable()
 export class LectureService {
@@ -19,6 +19,47 @@ export class LectureService {
     private aiGeneration: AiGenerationService,
     private fileExtraction: FileExtractionService,
   ) {}
+
+  private calculateScorePercent(score: number, totalPoints: number) {
+    return totalPoints === 0 ? 0 : (score / totalPoints) * 100;
+  }
+
+  private async getMemberById(memberId: string) {
+    const member = await this.prisma.member.findUnique({
+      where: { id: memberId },
+      select: { id: true, serverId: true, profileId: true },
+    });
+
+    return member;
+  }
+
+  private async getMemberByProfileId(serverId: string, profileId: string) {
+    const member = await this.prisma.member.findUnique({
+      where: {
+        serverId_profileId: {
+          serverId,
+          profileId,
+        },
+      },
+      select: { id: true, serverId: true, profileId: true },
+    });
+
+    return member;
+  }
+
+  private async getMemberByUserId(serverId: string, userId: string) {
+    const member = await this.prisma.member.findFirst({
+      where: {
+        serverId,
+        profile: {
+          userId,
+        },
+      },
+      select: { id: true, serverId: true, profileId: true },
+    });
+
+    return member;
+  }
 
   /**
    * Create a new lecture with extracted content
@@ -897,6 +938,7 @@ export class LectureService {
 
     const teacherAdjustment = data.teacherAdjustment ?? 0;
     const finalScore = (refreshed?.autoScore ?? attempt.autoScore) + teacherAdjustment;
+    const scorePercent = this.calculateScorePercent(finalScore, attempt.assessment.totalPoints ?? 0);
 
     return this.prisma.assessmentAttempt.update({
       where: { id: attemptId },
@@ -907,6 +949,7 @@ export class LectureService {
         gradedAt: new Date(),
         status: data.status ?? 'GRADED',
         finalScore,
+        scorePercent,
       },
       include: {
         answers: true,
@@ -918,27 +961,138 @@ export class LectureService {
     });
   }
 
-  async getAssessmentLeaderboard(channelId: string, assessmentId?: string) {
-    const assessments = await this.prisma.assessment.findMany({
-      where: {
-        channelId,
-        ...(assessmentId ? { id: assessmentId } : {}),
+  async getAssessmentLeaderboard(
+    channelId: string,
+    profileId: string,
+    profileUserId?: string,
+  ) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+      select: {
+        id: true,
+        name: true,
+        serverId: true,
+        server: {
+          select: {
+            members: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
       },
-      select: { id: true },
+    });
+
+    if (!channel) {
+      throw new NotFoundException('Channel not found');
+    }
+
+    const effectiveServerId = channel.serverId;
+    let member = await this.getMemberByProfileId(effectiveServerId, profileId);
+
+    if (!member && profileUserId) {
+      member = await this.getMemberByUserId(effectiveServerId, profileUserId);
+    }
+
+    if (!member) {
+      throw new ForbiddenException('Not a member of this channel');
+    }
+
+    const assessments = await this.prisma.assessment.findMany({
+      where: { channelId },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+      },
+      orderBy: [{ createdAt: 'asc' }, { title: 'asc' }],
     });
 
     const assessmentIds = assessments.map((assessment) => assessment.id);
 
-    return this.prisma.assessmentAttempt.findMany({
+    if (assessmentIds.length === 0) {
+      return {
+        channelId: channel.id,
+        channelName: channel.name,
+        assessments: [],
+        entries: [],
+      };
+    }
+
+    const attempts = await this.prisma.assessmentAttempt.findMany({
       where: { assessmentId: { in: assessmentIds } },
-      orderBy: [{ finalScore: 'desc' }, { createdAt: 'asc' }],
-      include: {
-        assessment: true,
-        member: {
-          include: { profile: true },
-        },
+      select: {
+        assessmentId: true,
+        memberId: true,
+        scorePercent: true,
+        finalScore: true,
+        submittedAt: true,
+        createdAt: true,
       },
     });
+
+    const attemptMap = new Map(
+      attempts.map((attempt) => [`${attempt.memberId}:${attempt.assessmentId}`, attempt]),
+    );
+
+    const leaderboardEntries = channel.server.members.map((member) => {
+      const assignmentScores = assessments.map((assessment) => {
+        const attempt = attemptMap.get(`${member.id}:${assessment.id}`);
+
+        return {
+          assessmentId: assessment.id,
+          scorePercent: attempt?.scorePercent ?? null,
+          finalScore: attempt?.finalScore ?? null,
+          submittedAt: attempt?.submittedAt ?? null,
+        };
+      });
+
+      const totalScore = assignmentScores.reduce((sum, score) => sum + (score.scorePercent ?? 0), 0);
+
+      const lastActivityAt = assignmentScores.reduce<string | null>((latest, score) => {
+        const timestamp = score.submittedAt?.toISOString() ?? null;
+
+        if (!timestamp) {
+          return latest;
+        }
+
+        if (!latest || timestamp > latest) {
+          return timestamp;
+        }
+
+        return latest;
+      }, null);
+
+      return {
+        memberId: member.id,
+        member,
+        assignmentScores,
+        totalScore,
+        lastActivityAt,
+      };
+    });
+
+    leaderboardEntries.sort((firstEntry, secondEntry) => {
+      if (secondEntry.totalScore !== firstEntry.totalScore) {
+        return secondEntry.totalScore - firstEntry.totalScore;
+      }
+
+      if (firstEntry.lastActivityAt && secondEntry.lastActivityAt && firstEntry.lastActivityAt !== secondEntry.lastActivityAt) {
+        return secondEntry.lastActivityAt.localeCompare(firstEntry.lastActivityAt);
+      }
+
+      return (firstEntry.member.profile?.name ?? firstEntry.memberId).localeCompare(
+        secondEntry.member.profile?.name ?? secondEntry.memberId,
+      );
+    });
+
+    return {
+      channelId: channel.id,
+      channelName: channel.name,
+      assessments,
+      entries: leaderboardEntries,
+    };
   }
 
   async getAssessmentById(assessmentId: string) {
@@ -1094,7 +1248,7 @@ export class LectureService {
       };
     });
 
-    const score = totalPoints > 0 ? (autoPoints / totalPoints) * 100 : 0;
+    const scorePercent = this.calculateScorePercent(autoPoints, totalPoints);
 
     // Save attempt
     let attempt;
@@ -1107,6 +1261,7 @@ export class LectureService {
           submittedAt: new Date(),
           autoScore: autoPoints,
           finalScore: autoPoints,
+          scorePercent,
           answers: {
             create: answerRows,
           },
@@ -1135,7 +1290,8 @@ export class LectureService {
     return {
       success: true,
       attempt,
-      score,
+      score: scorePercent,
+      scorePercent,
       finalScore: autoPoints,
       correctCount,
       totalQuestions: assessment.questions.length,

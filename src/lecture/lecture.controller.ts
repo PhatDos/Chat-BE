@@ -49,16 +49,6 @@ export class LectureController {
     return await this.lectureService.getLectureFiles(lectureId);
   }
 
-  @Get('channel/:serverId/:channelId')
-  @UseGuards(ServerMemberGuard)
-  @HttpCode(HttpStatus.OK)
-  async getLecturesByChannel(
-    @Param('serverId') serverId: string,
-    @Param('channelId') channelId: string,
-  ) {
-    return await this.lectureService.getLecturesByChannel(serverId, channelId);
-  }
-
   @Post(':lectureId/generate/summary')
   @HttpCode(HttpStatus.CREATED)
   async generateSummary(
@@ -198,15 +188,34 @@ export class LectureController {
 
   @Get('channel/:channelId/leaderboard')
   @HttpCode(HttpStatus.OK)
-  async getAssessmentLeaderboard(@Param('channelId') channelId: string) {
-    return await this.lectureService.getAssessmentLeaderboard(channelId);
+  async getAssessmentLeaderboard(
+    @Param('channelId') channelId: string,
+    @CurrentProfile() profile: Profile,
+  ) {
+    console.log({ path: `/lectures/channel/${channelId}/leaderboard` });
+
+    return await this.lectureService.getAssessmentLeaderboard(channelId, profile.id, profile.userId);
+  }
+
+  @Get('channel/:serverId/:channelId')
+  @UseGuards(ServerMemberGuard)
+  @HttpCode(HttpStatus.OK)
+  async getLecturesByChannel(
+    @Param('serverId') serverId: string,
+    @Param('channelId') channelId: string,
+  ) {
+    return await this.lectureService.getLecturesByChannel(serverId, channelId);
   }
 
   @Get('assessment/:assessmentId/leaderboard')
   @HttpCode(HttpStatus.OK)
-  async getAssessmentLeaderboardByAssessment(@Param('assessmentId') assessmentId: string) {
+  async getAssessmentLeaderboardByAssessment(
+    @Param('assessmentId') assessmentId: string,
+    @CurrentProfile() profile: Profile,
+  ) {
     const assessment = await this.lectureService.getAssessmentById(assessmentId);
-    return await this.lectureService.getAssessmentLeaderboard(assessment.channelId, assessmentId);
+
+    return await this.lectureService.getAssessmentLeaderboard(assessment.channelId, profile.id, profile.userId);
   }
 
   @Get('assessment/:assessmentId/reveal')

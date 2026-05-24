@@ -24,7 +24,6 @@ export class ProfileGuard implements CanActivate {
     const path = String(req.originalUrl ?? req.url ?? '').split('?')[0];
     const isReadEndpoint =
       req.method === 'POST' && /^\/channel-messages\/[^/]+\/read$/.test(path);
-    const startedAt = Date.now();
 
     const profile = await this.profileService.getOrCreateProfile(req.userId);
     req.profile = profile;

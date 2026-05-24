@@ -9,7 +9,7 @@ import {
   PostVisibility,
   Prisma,
   Profile as PrismaProfile,
-} from '@prisma/client';
+} from '~/generated/prisma';
 import { PrismaService } from '~/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';

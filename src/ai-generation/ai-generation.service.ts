@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AiService } from '../ai/ai.service';
-import { SummaryTone } from '@prisma/client';
+import { SummaryTone } from '~/generated/prisma';
 
 interface Flashcard {
   front_text: string;
