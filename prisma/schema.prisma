@@ -442,7 +442,6 @@ model Assessment {
   totalPoints Float @default(0)
 
   durationMinutes Int?
-  allowReview Boolean @default(true)
 
   allowLateSubmission Boolean @default(false)
 

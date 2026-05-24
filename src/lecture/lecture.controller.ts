@@ -99,6 +99,16 @@ export class LectureController {
     return await this.generateAssessment(lectureId, dto, profile);
   }
 
+  @Post(':lectureId/assessment')
+  @HttpCode(HttpStatus.CREATED)
+  async createAssessment(
+    @Param('lectureId') lectureId: string,
+    @Body(ValidationPipe) body: any,
+    @CurrentProfile() profile: Profile,
+  ) {
+    return await this.lectureService.createAssessment(lectureId, body);
+  }
+
   @Patch('assessment/:assessmentId')
   @HttpCode(HttpStatus.OK)
   async updateAssessment(
@@ -142,12 +152,6 @@ export class LectureController {
   @HttpCode(HttpStatus.OK)
   async deleteAssessmentQuestion(@Param('questionId') questionId: string) {
     return await this.lectureService.deleteAssessmentQuestion(questionId);
-  }
-
-  @Post('assessment/questions/:questionId/options')
-  @HttpCode(HttpStatus.CREATED)
-  async addAssessmentOption(@Param('questionId') questionId: string, @Body(ValidationPipe) body: any) {
-    return await this.lectureService.addAssessmentOption(questionId, body);
   }
 
   @Patch('assessment/options/:optionId')

@@ -1,5 +1,6 @@
-import { Injectable, Logger, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '~/prisma/prisma.service';
 import { AiGenerationService } from '~/ai-generation/ai-generation.service';
 import { FileExtractionService } from '~/ai-generation/file-extraction.service';
@@ -312,89 +313,141 @@ export class LectureService {
         dto.questionCount || 5,
       );
 
-      const totalPoints = assessmentData.questions.length;
-
-      // Save assessment
-      let assessment;
-      try {
-        assessment = await this.prisma.assessment.create({
-          data: {
-            lectureId,
-            channelId: lecture.channelId,
-            createdById: lecture.memberId,
-            title: `${lecture.title} Assessment`,
-            description: `AI generated assessment from ${lecture.title}`,
-            type: 'QUIZ',
-            generatedByAI: true,
-            status: 'DRAFT',
-            totalQuestions: assessmentData.questions.length,
-            totalPoints,
-            allowReview: true,
-            allowLateSubmission: false,
-          },
-        });
-      } catch (error: any) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-          throw new BadRequestException('Assessment already exists for this lecture');
-        }
-        throw error;
-      }
-
-      // Save questions and options
-      for (const [index, q] of assessmentData.questions.entries()) {
-        const question = await this.prisma.assessmentQuestion.create({
-          data: {
-            assessmentId: assessment.id,
-            order: index + 1,
-            questionText: q.question_text,
-            type: 'MULTIPLE_CHOICE',
-            points: 1,
-            explanation: q.explanation || null,
-          },
-        });
-
-        await Promise.all(
-          q.options.map((opt, optionIndex) =>
-            this.prisma.assessmentOption.create({
-              data: {
-                questionId: question.id,
-                order: optionIndex + 1,
-                optionText: opt.option_text,
-                isCorrect: opt.is_correct,
-              },
-            }),
-          ),
-        );
-      }
-
-      // Return with full data
-      const fullAssessment = await this.prisma.assessment.findUnique({
-        where: { id: assessment.id },
-        include: {
-          questions: {
-            include: {
-              options: true,
-              answers: true,
-            },
-          },
-          attempts: {
-            include: {
-              answers: true,
-            },
-          },
-        },
-      });
+      const draftId = `draft-${randomUUID()}`;
+      const draftAssessment = {
+        id: draftId,
+        lectureId,
+        channelId: lecture.channelId,
+        createdById: lecture.memberId,
+        title: `${lecture.title} Assessment`,
+        description: `AI generated assessment from ${lecture.title}`,
+        type: 'QUIZ' as const,
+        generatedByAI: true,
+        status: 'DRAFT' as const,
+        totalQuestions: assessmentData.questions.length,
+        totalPoints: assessmentData.questions.length,
+        durationMinutes: null,
+        allowLateSubmission: false,
+        expiresAt: null,
+        publishedAt: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        questions: assessmentData.questions.map((q, index) => ({
+          id: `${draftId}-question-${index + 1}`,
+          assessmentId: draftId,
+          order: index + 1,
+          questionText: q.question_text,
+          type: 'MULTIPLE_CHOICE' as const,
+          points: 1,
+          explanation: q.explanation || null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          options: q.options.map((opt, optionIndex) => ({
+            id: `${draftId}-question-${index + 1}-option-${optionIndex + 1}`,
+            questionId: `${draftId}-question-${index + 1}`,
+            order: optionIndex + 1,
+            optionText: opt.option_text,
+            isCorrect: opt.is_correct,
+          })),
+          answers: [],
+        })),
+        attempts: [],
+      };
 
       return {
         success: true,
-        assessment: fullAssessment,
-        quiz: fullAssessment,
-        message: `Generated assessment with ${assessmentData.questions.length} questions`,
+        assessment: draftAssessment,
+        quiz: draftAssessment,
+        message: `Generated assessment preview with ${assessmentData.questions.length} questions`,
       };
     } catch (error: any) {
       this.logger.error(`Error generating assessment: ${this.getErrorMessage(error)}`);
       throw error;
     }
+  }
+
+  async createAssessment(
+    lectureId: string,
+    data: {
+      title: string;
+      description?: string | null;
+      type?: 'QUIZ' | 'ASSIGNMENT';
+      status?: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
+      durationMinutes?: number | null;
+      allowLateSubmission?: boolean;
+      expiresAt?: string | null;
+      generatedByAI?: boolean;
+      questions: Array<{
+        questionText: string;
+        type?: 'MULTIPLE_CHOICE' | 'MULTI_SELECT' | 'TRUE_FALSE' | 'ESSAY';
+        points?: number;
+        explanation?: string | null;
+        order?: number;
+        options?: Array<{
+          optionText: string;
+          isCorrect?: boolean;
+          order?: number;
+        }>;
+      }>;
+    },
+  ) {
+    const lecture = await this.getLectureById(lectureId);
+
+    if (lecture.assessment) {
+      throw new BadRequestException('Assessment already exists for this lecture');
+    }
+
+    const totalQuestions = data.questions.length;
+    const totalPoints = data.questions.reduce((sum, question) => sum + (question.points ?? 1), 0);
+
+    const assessment = await this.prisma.$transaction(async (tx) => {
+      const createdAssessment = await tx.assessment.create({
+        data: {
+          lectureId,
+          channelId: lecture.channelId,
+          createdById: lecture.memberId,
+          title: data.title,
+          description: data.description ?? null,
+          type: data.type ?? 'QUIZ',
+          generatedByAI: data.generatedByAI ?? false,
+          status: data.status ?? 'PUBLISHED',
+          totalQuestions,
+          totalPoints,
+          durationMinutes: data.durationMinutes ?? null,
+          allowLateSubmission: data.allowLateSubmission ?? false,
+          expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+          publishedAt: new Date(),
+        },
+      });
+
+      for (const [index, questionData] of data.questions.entries()) {
+        const createdQuestion = await tx.assessmentQuestion.create({
+          data: {
+            assessmentId: createdAssessment.id,
+            order: questionData.order ?? index + 1,
+            questionText: questionData.questionText,
+            type: questionData.type ?? 'MULTIPLE_CHOICE',
+            points: questionData.points ?? 1,
+            explanation: questionData.explanation ?? null,
+          },
+        });
+
+        if (questionData.options?.length) {
+          await tx.assessmentOption.createMany({
+            data: questionData.options.map((option, optionIndex) => ({
+              questionId: createdQuestion.id,
+              order: option.order ?? optionIndex + 1,
+              optionText: option.optionText,
+              isCorrect: option.isCorrect ?? false,
+            })),
+          });
+        }
+      }
+
+      return createdAssessment;
+    });
+
+    return this.getAssessmentById(assessment.id);
   }
 
   /**
@@ -445,7 +498,6 @@ export class LectureService {
       type?: 'QUIZ' | 'ASSIGNMENT';
       totalPoints?: number;
       durationMinutes?: number | null;
-      allowReview?: boolean;
       allowLateSubmission?: boolean;
       expiresAt?: string | null;
       status?: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
@@ -459,7 +511,6 @@ export class LectureService {
         ...(data.type !== undefined ? { type: data.type } : {}),
         ...(data.totalPoints !== undefined ? { totalPoints: data.totalPoints } : {}),
         ...(data.durationMinutes !== undefined ? { durationMinutes: data.durationMinutes } : {}),
-        ...(data.allowReview !== undefined ? { allowReview: data.allowReview } : {}),
         ...(data.allowLateSubmission !== undefined ? { allowLateSubmission: data.allowLateSubmission } : {}),
         ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt ? new Date(data.expiresAt) : null } : {}),
         ...(data.status !== undefined ? { status: data.status } : {}),
@@ -913,6 +964,11 @@ export class LectureService {
 
     if (!assessment) {
       throw new NotFoundException('Assessment not found');
+    }
+
+    // Block submissions after expiry
+    if (assessment.expiresAt && new Date() > assessment.expiresAt) {
+      throw new ForbiddenException('Assessment has expired');
     }
 
     return assessment;
