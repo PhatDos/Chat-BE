@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { Member } from '~/generated/prisma';
+import type { Member } from '~/generated/prisma/client';
 
 export const CurrentMember = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): Member => {

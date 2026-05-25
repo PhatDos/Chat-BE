@@ -7,7 +7,7 @@ import {
 import { BadRequestException } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { DirectMessageService } from './direct-message.service';
-import { FileType } from '~/generated/prisma';
+import { FileType } from '~/generated/prisma/client';
 import { WEBSOCKET_GATEWAY_CONFIG } from '../gateway.config';
 
 @WebSocketGateway(WEBSOCKET_GATEWAY_CONFIG)

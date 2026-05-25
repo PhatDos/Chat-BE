@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { Worker, Job } from 'bullmq';
-// import { PrismaClient } from '~/generated/prisma';
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from '../generated/prisma/client';
 import { GoogleGenAI } from '@google/genai';
 import Redis from 'ioredis';
 import { createPrismaClientOptions } from '~/prisma/prisma-client';

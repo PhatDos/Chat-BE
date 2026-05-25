@@ -1,5 +1,5 @@
 import { Injectable, Logger, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { Prisma } from '~/generated/prisma';
+import { Prisma } from '~/generated/prisma/client';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '~/prisma/prisma.service';
 import { AiGenerationService } from '~/ai-generation/ai-generation.service';
@@ -8,7 +8,7 @@ import { CreateLectureDto } from './dto/create-lecture.dto';
 import { GenerateSummaryDto } from './dto/generate-summary.dto';
 import { GenerateFlashcardsDto } from './dto/generate-flashcards.dto';
 import { GenerateQuizDto } from './dto/generate-quiz.dto';
-import { SummaryTone } from '~/generated/prisma';
+import { SummaryTone } from '~/generated/prisma/client';
 
 @Injectable()
 export class LectureService {

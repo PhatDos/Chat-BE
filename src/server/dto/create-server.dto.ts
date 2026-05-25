@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ServerVisibility } from '~/generated/prisma';
+import { ServerVisibility } from '~/generated/prisma/client';
 
 export class CreateServerDto {
   @IsString()

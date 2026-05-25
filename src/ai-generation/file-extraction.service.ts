@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { LectureFileType } from '~/generated/prisma';
+import { LectureFileType } from '~/generated/prisma/client';
 import axios from 'axios';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';

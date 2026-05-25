@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AiService } from '../ai/ai.service';
-import { SummaryTone } from '~/generated/prisma';
+import { SummaryTone } from '~/generated/prisma/client';
 
 interface Flashcard {
   front_text: string;
@@ -61,7 +61,8 @@ ${text.substring(0, 12000)}`;
 
       return result;
     } catch (error) {
-      this.logger.error(`Error generating summary: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error generating summary: ${message}`);
       throw error;
     }
   }
@@ -108,7 +109,8 @@ ${text.substring(0, 10000)}`;
       const parsed = JSON.parse(jsonMatch[0]);
       return parsed;
     } catch (error) {
-      this.logger.error(`Error generating flashcards: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error generating flashcards: ${message}`);
       throw error;
     }
   }
@@ -166,7 +168,8 @@ ${text.substring(0, 10000)}`;
       const parsed = JSON.parse(jsonMatch[0]);
       return parsed;
     } catch (error) {
-      this.logger.error(`Error generating quiz: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error generating quiz: ${message}`);
       throw error;
     }
   }

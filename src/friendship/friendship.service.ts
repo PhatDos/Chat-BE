@@ -9,7 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Observable, fromEvent } from 'rxjs';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { PrismaService } from '~/prisma/prisma.service';
-import { Prisma } from '~/generated/prisma';
+import { Prisma } from '~/generated/prisma/client';
 import { FriendRequestListStatus } from './dto/list-friend-requests.query.dto';
 
 type FriendProfileLite = {

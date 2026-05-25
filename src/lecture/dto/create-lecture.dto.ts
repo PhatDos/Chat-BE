@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
-import { LectureFileType } from '~/generated/prisma';
+import { LectureFileType } from '~/generated/prisma/client';
 
 export class CreateLectureDto {
   @IsString()
