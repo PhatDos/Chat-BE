@@ -57,6 +57,8 @@ model Server {
   imageUrl   String
   inviteCode String   @unique
   profileId  String
+  visibility ServerVisibility @default(PRIVATE)
+  memberCount Int @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -342,6 +344,11 @@ enum RelationshipStatus {
   SINGLE
   MARRIED
   DATING
+}
+
+enum ServerVisibility {
+  PUBLIC
+  PRIVATE
 }
 
 //////////////////////////////////////////////////

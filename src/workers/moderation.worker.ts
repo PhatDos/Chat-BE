@@ -3,6 +3,7 @@ import { Worker, Job } from 'bullmq';
 import { PrismaClient } from '~/generated/prisma';
 import { GoogleGenAI } from '@google/genai';
 import Redis from 'ioredis';
+import { createPrismaClientOptions } from '~/prisma/prisma-client';
 import {
   MODERATION_QUEUE_NAME,
   MODERATION_RESULT_CHANNEL,
@@ -23,10 +24,10 @@ const globalForPrisma = globalThis as unknown as {
 
 const prisma =
   globalForPrisma.moderationWorkerPrisma ??
-  new PrismaClient({
+  new PrismaClient(createPrismaClientOptions({
     // Keep DB pool intentionally small when running with PgBouncer/Supabase poolers.
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
-  });
+  }));
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.moderationWorkerPrisma = prisma;

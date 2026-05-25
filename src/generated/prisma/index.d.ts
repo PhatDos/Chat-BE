@@ -187,6 +187,14 @@ export const RelationshipStatus: {
 export type RelationshipStatus = (typeof RelationshipStatus)[keyof typeof RelationshipStatus]
 
 
+export const ServerVisibility: {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE'
+};
+
+export type ServerVisibility = (typeof ServerVisibility)[keyof typeof ServerVisibility]
+
+
 export const LectureFileType: {
   PDF: 'PDF',
   DOCX: 'DOCX',
@@ -271,6 +279,10 @@ export const FriendRequestStatus: typeof $Enums.FriendRequestStatus
 export type RelationshipStatus = $Enums.RelationshipStatus
 
 export const RelationshipStatus: typeof $Enums.RelationshipStatus
+
+export type ServerVisibility = $Enums.ServerVisibility
+
+export const ServerVisibility: typeof $Enums.ServerVisibility
 
 export type LectureFileType = $Enums.LectureFileType
 
@@ -5089,8 +5101,18 @@ export namespace Prisma {
 
   export type AggregateServer = {
     _count: ServerCountAggregateOutputType | null
+    _avg: ServerAvgAggregateOutputType | null
+    _sum: ServerSumAggregateOutputType | null
     _min: ServerMinAggregateOutputType | null
     _max: ServerMaxAggregateOutputType | null
+  }
+
+  export type ServerAvgAggregateOutputType = {
+    memberCount: number | null
+  }
+
+  export type ServerSumAggregateOutputType = {
+    memberCount: number | null
   }
 
   export type ServerMinAggregateOutputType = {
@@ -5099,6 +5121,8 @@ export namespace Prisma {
     imageUrl: string | null
     inviteCode: string | null
     profileId: string | null
+    visibility: $Enums.ServerVisibility | null
+    memberCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
     generalChannelId: string | null
@@ -5110,6 +5134,8 @@ export namespace Prisma {
     imageUrl: string | null
     inviteCode: string | null
     profileId: string | null
+    visibility: $Enums.ServerVisibility | null
+    memberCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
     generalChannelId: string | null
@@ -5121,6 +5147,8 @@ export namespace Prisma {
     imageUrl: number
     inviteCode: number
     profileId: number
+    visibility: number
+    memberCount: number
     createdAt: number
     updatedAt: number
     generalChannelId: number
@@ -5128,12 +5156,22 @@ export namespace Prisma {
   }
 
 
+  export type ServerAvgAggregateInputType = {
+    memberCount?: true
+  }
+
+  export type ServerSumAggregateInputType = {
+    memberCount?: true
+  }
+
   export type ServerMinAggregateInputType = {
     id?: true
     name?: true
     imageUrl?: true
     inviteCode?: true
     profileId?: true
+    visibility?: true
+    memberCount?: true
     createdAt?: true
     updatedAt?: true
     generalChannelId?: true
@@ -5145,6 +5183,8 @@ export namespace Prisma {
     imageUrl?: true
     inviteCode?: true
     profileId?: true
+    visibility?: true
+    memberCount?: true
     createdAt?: true
     updatedAt?: true
     generalChannelId?: true
@@ -5156,6 +5196,8 @@ export namespace Prisma {
     imageUrl?: true
     inviteCode?: true
     profileId?: true
+    visibility?: true
+    memberCount?: true
     createdAt?: true
     updatedAt?: true
     generalChannelId?: true
@@ -5200,6 +5242,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ServerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ServerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ServerMinAggregateInputType
@@ -5230,6 +5284,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ServerCountAggregateInputType | true
+    _avg?: ServerAvgAggregateInputType
+    _sum?: ServerSumAggregateInputType
     _min?: ServerMinAggregateInputType
     _max?: ServerMaxAggregateInputType
   }
@@ -5240,10 +5296,14 @@ export namespace Prisma {
     imageUrl: string
     inviteCode: string
     profileId: string
+    visibility: $Enums.ServerVisibility
+    memberCount: number
     createdAt: Date
     updatedAt: Date
     generalChannelId: string | null
     _count: ServerCountAggregateOutputType | null
+    _avg: ServerAvgAggregateOutputType | null
+    _sum: ServerSumAggregateOutputType | null
     _min: ServerMinAggregateOutputType | null
     _max: ServerMaxAggregateOutputType | null
   }
@@ -5268,6 +5328,8 @@ export namespace Prisma {
     imageUrl?: boolean
     inviteCode?: boolean
     profileId?: boolean
+    visibility?: boolean
+    memberCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     generalChannelId?: boolean
@@ -5284,6 +5346,8 @@ export namespace Prisma {
     imageUrl?: boolean
     inviteCode?: boolean
     profileId?: boolean
+    visibility?: boolean
+    memberCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     generalChannelId?: boolean
@@ -5297,6 +5361,8 @@ export namespace Prisma {
     imageUrl?: boolean
     inviteCode?: boolean
     profileId?: boolean
+    visibility?: boolean
+    memberCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     generalChannelId?: boolean
@@ -5310,12 +5376,14 @@ export namespace Prisma {
     imageUrl?: boolean
     inviteCode?: boolean
     profileId?: boolean
+    visibility?: boolean
+    memberCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     generalChannelId?: boolean
   }
 
-  export type ServerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "imageUrl" | "inviteCode" | "profileId" | "createdAt" | "updatedAt" | "generalChannelId", ExtArgs["result"]["server"]>
+  export type ServerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "imageUrl" | "inviteCode" | "profileId" | "visibility" | "memberCount" | "createdAt" | "updatedAt" | "generalChannelId", ExtArgs["result"]["server"]>
   export type ServerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     generalChannel?: boolean | Server$generalChannelArgs<ExtArgs>
     profile?: boolean | ProfileDefaultArgs<ExtArgs>
@@ -5346,6 +5414,8 @@ export namespace Prisma {
       imageUrl: string
       inviteCode: string
       profileId: string
+      visibility: $Enums.ServerVisibility
+      memberCount: number
       createdAt: Date
       updatedAt: Date
       generalChannelId: string | null
@@ -5781,6 +5851,8 @@ export namespace Prisma {
     readonly imageUrl: FieldRef<"Server", 'String'>
     readonly inviteCode: FieldRef<"Server", 'String'>
     readonly profileId: FieldRef<"Server", 'String'>
+    readonly visibility: FieldRef<"Server", 'ServerVisibility'>
+    readonly memberCount: FieldRef<"Server", 'Int'>
     readonly createdAt: FieldRef<"Server", 'DateTime'>
     readonly updatedAt: FieldRef<"Server", 'DateTime'>
     readonly generalChannelId: FieldRef<"Server", 'String'>
@@ -30380,6 +30452,8 @@ export namespace Prisma {
     imageUrl: 'imageUrl',
     inviteCode: 'inviteCode',
     profileId: 'profileId',
+    visibility: 'visibility',
+    memberCount: 'memberCount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     generalChannelId: 'generalChannelId'
@@ -30771,6 +30845,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ServerVisibility'
+   */
+  export type EnumServerVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerVisibility'>
+    
+
+
+  /**
+   * Reference to a field of type 'ServerVisibility[]'
+   */
+  export type ListEnumServerVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerVisibility[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'MemberRole'
    */
   export type EnumMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MemberRole'>
@@ -30823,20 +30925,6 @@ export namespace Prisma {
    * Reference to a field of type 'PostVisibility[]'
    */
   export type ListEnumPostVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostVisibility[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -31107,6 +31195,8 @@ export namespace Prisma {
     imageUrl?: StringFilter<"Server"> | string
     inviteCode?: StringFilter<"Server"> | string
     profileId?: StringFilter<"Server"> | string
+    visibility?: EnumServerVisibilityFilter<"Server"> | $Enums.ServerVisibility
+    memberCount?: IntFilter<"Server"> | number
     createdAt?: DateTimeFilter<"Server"> | Date | string
     updatedAt?: DateTimeFilter<"Server"> | Date | string
     generalChannelId?: StringNullableFilter<"Server"> | string | null
@@ -31122,6 +31212,8 @@ export namespace Prisma {
     imageUrl?: SortOrder
     inviteCode?: SortOrder
     profileId?: SortOrder
+    visibility?: SortOrder
+    memberCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     generalChannelId?: SortOrderInput | SortOrder
@@ -31141,6 +31233,8 @@ export namespace Prisma {
     name?: StringFilter<"Server"> | string
     imageUrl?: StringFilter<"Server"> | string
     profileId?: StringFilter<"Server"> | string
+    visibility?: EnumServerVisibilityFilter<"Server"> | $Enums.ServerVisibility
+    memberCount?: IntFilter<"Server"> | number
     createdAt?: DateTimeFilter<"Server"> | Date | string
     updatedAt?: DateTimeFilter<"Server"> | Date | string
     generalChannel?: XOR<ChannelNullableScalarRelationFilter, ChannelWhereInput> | null
@@ -31155,12 +31249,16 @@ export namespace Prisma {
     imageUrl?: SortOrder
     inviteCode?: SortOrder
     profileId?: SortOrder
+    visibility?: SortOrder
+    memberCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     generalChannelId?: SortOrderInput | SortOrder
     _count?: ServerCountOrderByAggregateInput
+    _avg?: ServerAvgOrderByAggregateInput
     _max?: ServerMaxOrderByAggregateInput
     _min?: ServerMinOrderByAggregateInput
+    _sum?: ServerSumOrderByAggregateInput
   }
 
   export type ServerScalarWhereWithAggregatesInput = {
@@ -31172,6 +31270,8 @@ export namespace Prisma {
     imageUrl?: StringWithAggregatesFilter<"Server"> | string
     inviteCode?: StringWithAggregatesFilter<"Server"> | string
     profileId?: StringWithAggregatesFilter<"Server"> | string
+    visibility?: EnumServerVisibilityWithAggregatesFilter<"Server"> | $Enums.ServerVisibility
+    memberCount?: IntWithAggregatesFilter<"Server"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Server"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Server"> | Date | string
     generalChannelId?: StringNullableWithAggregatesFilter<"Server"> | string | null
@@ -32925,6 +33025,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannel?: ChannelCreateNestedOneWithoutGeneralForServerInput
@@ -32939,6 +33041,8 @@ export namespace Prisma {
     imageUrl: string
     inviteCode: string
     profileId: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannelId?: string | null
@@ -32951,6 +33055,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannel?: ChannelUpdateOneWithoutGeneralForServerNestedInput
@@ -32965,6 +33071,8 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
     profileId?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannelId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32978,6 +33086,8 @@ export namespace Prisma {
     imageUrl: string
     inviteCode: string
     profileId: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannelId?: string | null
@@ -32988,6 +33098,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32998,6 +33110,8 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
     profileId?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannelId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34935,6 +35049,24 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type EnumServerVisibilityFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServerVisibility | EnumServerVisibilityFieldRefInput<$PrismaModel>
+    in?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    not?: NestedEnumServerVisibilityFilter<$PrismaModel> | $Enums.ServerVisibility
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type ChannelNullableScalarRelationFilter = {
     is?: ChannelWhereInput | null
     isNot?: ChannelWhereInput | null
@@ -34951,9 +35083,15 @@ export namespace Prisma {
     imageUrl?: SortOrder
     inviteCode?: SortOrder
     profileId?: SortOrder
+    visibility?: SortOrder
+    memberCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     generalChannelId?: SortOrder
+  }
+
+  export type ServerAvgOrderByAggregateInput = {
+    memberCount?: SortOrder
   }
 
   export type ServerMaxOrderByAggregateInput = {
@@ -34962,6 +35100,8 @@ export namespace Prisma {
     imageUrl?: SortOrder
     inviteCode?: SortOrder
     profileId?: SortOrder
+    visibility?: SortOrder
+    memberCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     generalChannelId?: SortOrder
@@ -34973,9 +35113,41 @@ export namespace Prisma {
     imageUrl?: SortOrder
     inviteCode?: SortOrder
     profileId?: SortOrder
+    visibility?: SortOrder
+    memberCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     generalChannelId?: SortOrder
+  }
+
+  export type ServerSumOrderByAggregateInput = {
+    memberCount?: SortOrder
+  }
+
+  export type EnumServerVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServerVisibility | EnumServerVisibilityFieldRefInput<$PrismaModel>
+    in?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    not?: NestedEnumServerVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.ServerVisibility
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumServerVisibilityFilter<$PrismaModel>
+    _max?: NestedEnumServerVisibilityFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type EnumMemberRoleFilter<$PrismaModel = never> = {
@@ -35337,17 +35509,6 @@ export namespace Prisma {
     not?: NestedEnumPostVisibilityFilter<$PrismaModel> | $Enums.PostVisibility
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type PostCountOrderByAggregateInput = {
     id?: SortOrder
     content?: SortOrder
@@ -35408,22 +35569,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPostVisibilityFilter<$PrismaModel>
     _max?: NestedEnumPostVisibilityFilter<$PrismaModel>
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type PostScalarRelationFilter = {
@@ -36951,6 +37096,18 @@ export namespace Prisma {
     connect?: ChannelWhereUniqueInput | ChannelWhereUniqueInput[]
   }
 
+  export type EnumServerVisibilityFieldUpdateOperationsInput = {
+    set?: $Enums.ServerVisibility
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type ChannelUpdateOneWithoutGeneralForServerNestedInput = {
     create?: XOR<ChannelCreateWithoutGeneralForServerInput, ChannelUncheckedCreateWithoutGeneralForServerInput>
     connectOrCreate?: ChannelCreateOrConnectWithoutGeneralForServerInput
@@ -37807,14 +37964,6 @@ export namespace Prisma {
 
   export type EnumPostVisibilityFieldUpdateOperationsInput = {
     set?: $Enums.PostVisibility
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type ProfileUpdateOneRequiredWithoutPostsNestedInput = {
@@ -38775,6 +38924,50 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedEnumServerVisibilityFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServerVisibility | EnumServerVisibilityFieldRefInput<$PrismaModel>
+    in?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    not?: NestedEnumServerVisibilityFilter<$PrismaModel> | $Enums.ServerVisibility
+  }
+
+  export type NestedEnumServerVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ServerVisibility | EnumServerVisibilityFieldRefInput<$PrismaModel>
+    in?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ServerVisibility[] | ListEnumServerVisibilityFieldRefInput<$PrismaModel>
+    not?: NestedEnumServerVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.ServerVisibility
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumServerVisibilityFilter<$PrismaModel>
+    _max?: NestedEnumServerVisibilityFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedEnumMemberRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.MemberRole | EnumMemberRoleFieldRefInput<$PrismaModel>
     in?: $Enums.MemberRole[] | ListEnumMemberRoleFieldRefInput<$PrismaModel>
@@ -38841,33 +39034,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPostVisibilityFilter<$PrismaModel>
     _max?: NestedEnumPostVisibilityFilter<$PrismaModel>
-  }
-
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedEnumFriendRequestStatusFilter<$PrismaModel = never> = {
@@ -39223,6 +39389,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannel?: ChannelCreateNestedOneWithoutGeneralForServerInput
@@ -39235,6 +39403,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannelId?: string | null
@@ -39641,6 +39811,8 @@ export namespace Prisma {
     imageUrl?: StringFilter<"Server"> | string
     inviteCode?: StringFilter<"Server"> | string
     profileId?: StringFilter<"Server"> | string
+    visibility?: EnumServerVisibilityFilter<"Server"> | $Enums.ServerVisibility
+    memberCount?: IntFilter<"Server"> | number
     createdAt?: DateTimeFilter<"Server"> | Date | string
     updatedAt?: DateTimeFilter<"Server"> | Date | string
     generalChannelId?: StringNullableFilter<"Server"> | string | null
@@ -40220,6 +40392,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannel?: ChannelCreateNestedOneWithoutGeneralForServerInput
@@ -40233,6 +40407,8 @@ export namespace Prisma {
     imageUrl: string
     inviteCode: string
     profileId: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannelId?: string | null
@@ -40575,6 +40751,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannel?: ChannelUpdateOneWithoutGeneralForServerNestedInput
@@ -40588,6 +40766,8 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
     profileId?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannelId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40845,6 +41025,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannel?: ChannelCreateNestedOneWithoutGeneralForServerInput
@@ -40858,6 +41040,8 @@ export namespace Prisma {
     imageUrl: string
     inviteCode: string
     profileId: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannelId?: string | null
@@ -40874,6 +41058,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     profile: ProfileCreateNestedOneWithoutServerInput
@@ -40887,6 +41073,8 @@ export namespace Prisma {
     imageUrl: string
     inviteCode: string
     profileId: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: MemberUncheckedCreateNestedManyWithoutServerInput
@@ -41133,6 +41321,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannel?: ChannelUpdateOneWithoutGeneralForServerNestedInput
@@ -41146,6 +41336,8 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
     profileId?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannelId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41168,6 +41360,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     profile?: ProfileUpdateOneRequiredWithoutServerNestedInput
@@ -41181,6 +41375,8 @@ export namespace Prisma {
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
     profileId?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: MemberUncheckedUpdateManyWithoutServerNestedInput
@@ -45062,6 +45258,8 @@ export namespace Prisma {
     name: string
     imageUrl: string
     inviteCode: string
+    visibility?: $Enums.ServerVisibility
+    memberCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     generalChannelId?: string | null
@@ -45258,6 +45456,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannel?: ChannelUpdateOneWithoutGeneralForServerNestedInput
@@ -45270,6 +45470,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannelId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45282,6 +45484,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     imageUrl?: StringFieldUpdateOperationsInput | string
     inviteCode?: StringFieldUpdateOperationsInput | string
+    visibility?: EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
+    memberCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     generalChannelId?: NullableStringFieldUpdateOperationsInput | string | null

@@ -158,6 +158,28 @@ export class NewsfeedService {
     };
   }
 
+  async getPost(profileId: string, postId: string) {
+    await this.getCurrentUser(profileId);
+
+    await this.ensureCanInteractWithPost(postId, profileId);
+
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: postBaseSelect,
+    });
+
+    if (!post || post.authorId === undefined) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const likedPostIds = await this.mapLikedState([post.id], profileId);
+
+    return {
+      ...post,
+      isLiked: likedPostIds.has(post.id),
+    };
+  }
+
   async getUserPosts(
     currentProfileId: string,
     targetUserId: string,
@@ -251,6 +273,61 @@ export class NewsfeedService {
         posts.length === take
           ? posts[posts.length - 1].createdAt.toISOString()
           : null,
+    };
+  }
+
+  async searchPosts(query: string, profileId: string, limit = DEFAULT_PAGE_SIZE) {
+    await this.getCurrentUser(profileId);
+
+    const normalizedQuery = query.trim();
+
+    if (!normalizedQuery) {
+      throw new BadRequestException('Search query is required');
+    }
+
+    const take = Math.min(limit, DEFAULT_PAGE_SIZE);
+    const friendIds = await this.getFriendIds(profileId);
+
+    const posts = await this.prisma.post.findMany({
+      where: {
+        deleted: false,
+        content: {
+          contains: normalizedQuery,
+          mode: 'insensitive',
+        },
+        OR: [
+          { authorId: profileId },
+          { visibility: PostVisibility.PUBLIC },
+          {
+            visibility: PostVisibility.FRIENDS,
+            authorId: { in: friendIds.length ? friendIds : [''] },
+          },
+          {
+            visibility: PostVisibility.PRIVATE,
+            authorId: profileId,
+          },
+        ],
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+      select: {
+        ...postBaseSelect,
+        author: {
+          select: authorLiteSelect,
+        },
+      },
+    });
+
+    const likedPostIds = await this.mapLikedState(
+      posts.map((post) => post.id),
+      profileId,
+    );
+
+    return {
+      items: posts.map((post) => ({
+        ...post,
+        isLiked: likedPostIds.has(post.id),
+      })),
     };
   }
 

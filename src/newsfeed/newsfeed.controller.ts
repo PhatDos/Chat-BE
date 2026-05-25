@@ -18,6 +18,7 @@ import type { Profile } from '~/common/types/profile.type';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CursorQueryDto } from './dto/cursor-query.dto';
+import { SearchPostsQueryDto } from './dto/search-posts-query.dto';
 
 @Controller()
 export class NewsfeedController {
@@ -48,6 +49,28 @@ export class NewsfeedController {
     @Body(ValidationPipe) dto: CreatePostDto,
   ) {
     return await this.newsfeedService.createPost(profile.id, dto);
+  }
+
+  @Get('posts/search')
+  @HttpCode(HttpStatus.OK)
+  async searchPosts(
+    @CurrentProfile() profile: Profile,
+    @Query(ValidationPipe) query: SearchPostsQueryDto,
+  ) {
+    return await this.newsfeedService.searchPosts(
+      query.q,
+      profile.id,
+      query.limit,
+    );
+  }
+
+  @Get('posts/:id')
+  @HttpCode(HttpStatus.OK)
+  async getPost(
+    @CurrentProfile() profile: Profile,
+    @Param('id') postId: string,
+  ) {
+    return await this.newsfeedService.getPost(profile.id, postId);
   }
 
   @Get('users/:id/posts')

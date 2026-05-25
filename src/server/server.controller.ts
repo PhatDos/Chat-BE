@@ -24,6 +24,7 @@ import { MemberRole, type Member } from '~/generated/prisma';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { SearchServersQueryDto } from './dto/search-servers-query.dto';
 import type { InitialServerResponseDto } from './dto/initial-server-response.dto';
 import { ChannelRefetchService } from '~/message/channel-refetch.service';
 import type { Profile } from '~/common/types/profile.type';
@@ -76,6 +77,15 @@ export class ServerController {
     @CurrentProfile() profile: Profile,
   ) {
     return await this.serverService.createServer(profile.id, dto);
+  }
+
+  @Get('search')
+  @HttpCode(HttpStatus.OK)
+  async searchServers(
+    @Query(ValidationPipe) query: SearchServersQueryDto,
+    @CurrentProfile() profile: Profile,
+  ) {
+    return await this.serverService.searchServers(profile.id, query.q, query.limit);
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)

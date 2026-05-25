@@ -141,6 +141,8 @@ exports.Prisma.ServerScalarFieldEnum = {
   imageUrl: 'imageUrl',
   inviteCode: 'inviteCode',
   profileId: 'profileId',
+  visibility: 'visibility',
+  memberCount: 'memberCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   generalChannelId: 'generalChannelId'
@@ -399,6 +401,11 @@ exports.RelationshipStatus = exports.$Enums.RelationshipStatus = {
   SINGLE: 'SINGLE',
   MARRIED: 'MARRIED',
   DATING: 'DATING'
+};
+
+exports.ServerVisibility = exports.$Enums.ServerVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE'
 };
 
 exports.MemberRole = exports.$Enums.MemberRole = {

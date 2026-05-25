@@ -1,17 +1,27 @@
 import {
   Injectable,
   ForbiddenException,
+  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { MemberRole, Prisma, type Member } from '~/generated/prisma';
+import { MemberRole, Prisma, ServerVisibility, type Member } from '~/generated/prisma';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '~/utils/constants';
 import { ChannelService } from '~/channel/channel.service';
 import type { InitialServerResponseDto } from './dto/initial-server-response.dto';
+
+const serverSearchSelect = {
+  id: true,
+  name: true,
+  imageUrl: true,
+  inviteCode: true,
+  visibility: true,
+  memberCount: true,
+} as const;
 
 @Injectable()
 export class ServerService {
@@ -112,6 +122,8 @@ export class ServerService {
           name: dto.name,
           imageUrl: dto.imageUrl,
           inviteCode: uuidv4(),
+          visibility: dto.visibility ?? ServerVisibility.PRIVATE,
+          memberCount: 1,
         },
       });
 
@@ -168,6 +180,7 @@ export class ServerService {
       data: {
         name: dto.name,
         imageUrl: dto.imageUrl,
+        ...(dto.visibility ? { visibility: dto.visibility } : {}),
       },
     });
 
@@ -215,6 +228,7 @@ export class ServerService {
     const updatedServer = await this.prisma.server.update({
       where: { id: serverId },
       data: {
+        memberCount: { decrement: 1 },
         members: {
           deleteMany: {
             profileId,
@@ -315,6 +329,11 @@ export class ServerService {
         },
       });
 
+      await tx.server.update({
+        where: { id: server.id },
+        data: { memberCount: { increment: 1 } },
+      });
+
       const channels = await tx.channel.findMany({
         where: { serverId: server.id },
         select: { id: true },
@@ -332,6 +351,38 @@ export class ServerService {
       }
 
       return server;
+    });
+  }
+
+  async searchServers(profileId: string, query: string, limit = DEFAULT_PAGE_SIZE) {
+    const profile = await this.prisma.profile.findUnique({
+      where: { id: profileId },
+      select: { id: true },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+
+    const normalizedQuery = query.trim();
+
+    if (!normalizedQuery) {
+      throw new BadRequestException('Search query is required');
+    }
+
+    return this.prisma.server.findMany({
+      where: {
+        visibility: ServerVisibility.PUBLIC,
+        name: {
+          contains: normalizedQuery,
+          mode: 'insensitive',
+        },
+      },
+      select: serverSearchSelect,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: Math.min(limit, DEFAULT_PAGE_SIZE),
     });
   }
 

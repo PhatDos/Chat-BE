@@ -51,13 +51,15 @@ model Profile {
 //////////////////////////////////////////////////
 
 model Server {
-  id         String   @id @default(uuid()) @map("_id")
-  name       String
-  imageUrl   String
-  inviteCode String   @unique
-  profileId  String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String           @id @default(uuid()) @map("_id")
+  name        String
+  imageUrl    String
+  inviteCode  String           @unique
+  profileId   String
+  visibility  ServerVisibility @default(PRIVATE)
+  memberCount Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   // optional pointer to the server's general channel for fast lookup
   generalChannelId String?  @unique
@@ -340,6 +342,11 @@ enum RelationshipStatus {
   SINGLE
   MARRIED
   DATING
+}
+
+enum ServerVisibility {
+  PUBLIC
+  PRIVATE
 }
 
 //////////////////////////////////////////////////
