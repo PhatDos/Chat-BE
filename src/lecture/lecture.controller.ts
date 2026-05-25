@@ -186,6 +186,12 @@ export class LectureController {
     return await this.lectureService.getAssessmentReview(assessmentId);
   }
 
+  @Get(':lectureId/quiz')
+  @HttpCode(HttpStatus.OK)
+  async getStudentQuiz(@Param('lectureId') lectureId: string) {
+    return await this.lectureService.getStudentQuizByLecture(lectureId);
+  }
+
   @Get('channel/:channelId/leaderboard')
   @HttpCode(HttpStatus.OK)
   async getAssessmentLeaderboard(
@@ -242,6 +248,19 @@ export class LectureController {
       throw new BadRequestException('Member ID and answers are required');
     }
     return await this.lectureService.submitAssessmentAttempt(assessmentId, memberId, answers);
+  }
+
+  @Post('assessment/:assessmentId/attempt/start')
+  @HttpCode(HttpStatus.CREATED)
+  async startAssessmentAttempt(
+    @Param('assessmentId') assessmentId: string,
+    @Body('memberId') memberId: string,
+  ) {
+    if (!memberId) {
+      throw new BadRequestException('Member ID is required');
+    }
+
+    return await this.lectureService.startAssessmentAttempt(assessmentId, memberId);
   }
 
   @Get('assessment/attempts/:attemptId')

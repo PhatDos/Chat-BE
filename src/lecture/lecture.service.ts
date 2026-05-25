@@ -13,6 +13,7 @@ import { SummaryTone } from '~/generated/prisma';
 @Injectable()
 export class LectureService {
   private readonly logger = new Logger(LectureService.name);
+  private readonly quizGraceMs = 10_000;
 
   constructor(
     private prisma: PrismaService,
@@ -22,6 +23,54 @@ export class LectureService {
 
   private calculateScorePercent(score: number, totalPoints: number) {
     return totalPoints === 0 ? 0 : (score / totalPoints) * 100;
+  }
+
+  private sanitizeAssessmentForStudentQuiz(assessment: any) {
+    return {
+      ...assessment,
+      questions: assessment.questions?.map((question: any) => ({
+        ...question,
+        explanation: undefined,
+        options: question.options?.map((option: any) => ({
+          id: option.id,
+          questionId: option.questionId,
+          order: option.order,
+          optionText: option.optionText,
+        })),
+      })),
+      attempts: undefined,
+    };
+  }
+
+  private getAssessmentDeadline(assessment: { durationMinutes: number | null; expiresAt: Date | null }, startedAt: Date) {
+    const durationDeadline =
+      assessment.durationMinutes && assessment.durationMinutes > 0
+        ? new Date(startedAt.getTime() + assessment.durationMinutes * 60 * 1000)
+        : null;
+
+    if (!assessment.expiresAt) {
+      return durationDeadline;
+    }
+
+    if (!durationDeadline) {
+      return assessment.expiresAt;
+    }
+
+    return assessment.expiresAt.getTime() < durationDeadline.getTime() ? assessment.expiresAt : durationDeadline;
+  }
+
+  private isAssessmentAttemptExpired(
+    assessment: { durationMinutes: number | null; expiresAt: Date | null },
+    startedAt: Date,
+    now = new Date(),
+  ) {
+    const deadline = this.getAssessmentDeadline(assessment, startedAt);
+
+    if (!deadline) {
+      return false;
+    }
+
+    return now.getTime() > deadline.getTime() + this.quizGraceMs;
   }
 
   private async getMemberById(memberId: string) {
@@ -160,6 +209,74 @@ export class LectureService {
     }
 
     return lecture;
+  }
+
+  async getStudentQuizByLecture(lectureId: string) {
+    const lecture = await this.prisma.lecture.findUnique({
+      where: { id: lectureId },
+      select: {
+        id: true,
+        title: true,
+        assessment: {
+          select: {
+            id: true,
+            lectureId: true,
+            channelId: true,
+            createdById: true,
+            title: true,
+            description: true,
+            type: true,
+            generatedByAI: true,
+            status: true,
+            totalQuestions: true,
+            totalPoints: true,
+            durationMinutes: true,
+            allowLateSubmission: true,
+            expiresAt: true,
+            publishedAt: true,
+            createdAt: true,
+            updatedAt: true,
+            questions: {
+              orderBy: { order: 'asc' },
+              select: {
+                id: true,
+                assessmentId: true,
+                order: true,
+                questionText: true,
+                type: true,
+                points: true,
+                options: {
+                  orderBy: { order: 'asc' },
+                  select: {
+                    id: true,
+                    questionId: true,
+                    order: true,
+                    optionText: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!lecture || !lecture.assessment) {
+      throw new NotFoundException('Quiz not found');
+    }
+
+    return {
+      ...lecture.assessment,
+      questions: lecture.assessment.questions?.map((question) => ({
+        ...question,
+        options: question.options?.map((option) => ({
+          id: option.id,
+          questionId: option.questionId,
+          order: option.order,
+          optionText: option.optionText,
+        })),
+      })),
+    };
   }
 
   async getLectureFiles(lectureId: string) {
@@ -1128,6 +1245,46 @@ export class LectureService {
     return assessment;
   }
 
+  async startAssessmentAttempt(assessmentId: string, memberId: string) {
+    const assessment = await this.prisma.assessment.findUnique({
+      where: { id: assessmentId },
+      select: {
+        id: true,
+        durationMinutes: true,
+        expiresAt: true,
+      },
+    });
+
+    if (!assessment) {
+      throw new NotFoundException('Assessment not found');
+    }
+
+    const existingAttempt = await this.prisma.assessmentAttempt.findFirst({
+      where: {
+        assessmentId,
+        memberId,
+      },
+      include: {
+        assessment: true,
+      },
+    });
+
+    if (existingAttempt) {
+      return existingAttempt;
+    }
+
+    return this.prisma.assessmentAttempt.create({
+      data: {
+        assessmentId,
+        memberId,
+        status: 'IN_PROGRESS',
+      },
+      include: {
+        assessment: true,
+      },
+    });
+  }
+
   private async recalculateAssessmentTotals(assessmentId: string) {
     const questions = await this.prisma.assessmentQuestion.findMany({
       where: { assessmentId },
@@ -1200,11 +1357,29 @@ export class LectureService {
         assessmentId,
         memberId,
       },
-      select: { id: true },
+      include: {
+        assessment: {
+          select: {
+            id: true,
+            durationMinutes: true,
+            expiresAt: true,
+          },
+        },
+      },
     });
 
-    if (existingAttempt) {
+    if (existingAttempt?.submittedAt) {
       throw new ConflictException('Assessment attempt already exists for this member');
+    }
+
+    if (!existingAttempt) {
+      throw new BadRequestException('Assessment attempt has not been started');
+    }
+
+    const startedAt = existingAttempt.startedAt;
+
+    if (this.isAssessmentAttemptExpired(assessment, startedAt)) {
+      throw new ForbiddenException('Assessment time limit has expired');
     }
 
     // Calculate score
@@ -1253,16 +1428,16 @@ export class LectureService {
     // Save attempt
     let attempt;
     try {
-      attempt = await this.prisma.assessmentAttempt.create({
+      attempt = await this.prisma.assessmentAttempt.update({
+        where: { id: existingAttempt.id },
         data: {
-          assessmentId,
-          memberId,
           status: 'SUBMITTED',
           submittedAt: new Date(),
           autoScore: autoPoints,
           finalScore: autoPoints,
           scorePercent,
           answers: {
+            deleteMany: {},
             create: answerRows,
           },
         },
