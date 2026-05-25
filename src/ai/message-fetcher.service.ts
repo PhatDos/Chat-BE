@@ -61,10 +61,15 @@ export class MessageFetcherService {
           lte: to,
         },
       },
-      include: {
+      select: {
+        content: true,
         member: {
-          include: {
-            profile: true,
+          select: {
+            profile: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },

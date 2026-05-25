@@ -10,15 +10,15 @@ import {
   BadRequestException,
   NotFoundException,
   UseGuards,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DirectMessageService } from './direct-message.service';
 import {
   CreateDirectMessageDto,
   UpdateDirectMessageDto,
 } from './direct-message.dto';
-import { CurrentProfile } from 'src/common/decorators/current-profile.decorator';
-import type { Profile } from '@prisma/client';
+import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
+import type { Profile } from '~/generated/prisma';
 import { AuthGuard } from '~/common/guards/auth.guard';
 
 @Controller('direct-message')
@@ -52,7 +52,9 @@ export class DirectMessageController {
 
   @Get('conversations/list')
   async getConversationsList(@CurrentProfile() profile: Profile) {
-    const conversations = await this.directMessageService.getConversationsList(profile.id);
+    const conversations = await this.directMessageService.getConversationsList(
+      profile.id,
+    );
     return { conversations };
   }
 
@@ -70,10 +72,11 @@ export class DirectMessageController {
       throw new NotFoundException('Profile not found');
     }
 
-    const conversation = await this.directMessageService.getOrCreateConversation(
-      profile.id,
-      body.otherProfileId,
-    );
+    const conversation =
+      await this.directMessageService.getOrCreateConversation(
+        profile.id,
+        body.otherProfileId,
+      );
 
     if (!conversation) {
       throw new BadRequestException('Failed to create conversation');
@@ -85,7 +88,7 @@ export class DirectMessageController {
         ? conversation.profileTwo
         : conversation.profileOne;
 
-    return { 
+    return {
       conversation,
       otherProfile: conversationOtherProfile,
     };

@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ServerVisibility } from '~/generated/prisma';
 
 export class UpdateServerDto {
   @IsString()
@@ -8,4 +9,8 @@ export class UpdateServerDto {
   @IsString()
   @IsNotEmpty()
   imageUrl: string;
+
+  @IsEnum(ServerVisibility)
+  @IsOptional()
+  visibility?: ServerVisibility;
 }

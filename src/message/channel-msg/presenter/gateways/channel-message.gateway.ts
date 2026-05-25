@@ -93,8 +93,12 @@ export class ChannelMessageGateway {
     });
   }
 
-  async getConnectedProfileIdsInChannel(channelId: string): Promise<Set<string>> {
-    const socketsInChannel = await this.server.in(`channel:${channelId}`).allSockets();
+  async getConnectedProfileIdsInChannel(
+    channelId: string,
+  ): Promise<Set<string>> {
+    const socketsInChannel = await this.server
+      .in(`channel:${channelId}`)
+      .allSockets();
     const profileIds = new Set<string>();
 
     for (const socketId of socketsInChannel) {

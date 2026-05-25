@@ -4,7 +4,7 @@ import {
   CreateDirectMessageDto,
   UpdateDirectMessageDto,
 } from './direct-message.dto';
-import { FileType } from '@prisma/client';
+import { FileType } from '~/generated/prisma';
 
 @Injectable()
 export class DirectMessageService {

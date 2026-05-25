@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { IChannelMessageRepository } from '../../domain/repositories/channel-message.repository.interface';
-import { FileType } from '@prisma/client';
+import { FileType } from '~/generated/prisma';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()

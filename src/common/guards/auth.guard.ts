@@ -15,8 +15,7 @@ export class AuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const path = String(req.originalUrl ?? req.url ?? '').split('?')[0];
     const isReadEndpoint =
-      req.method === 'POST' &&
-      /^\/channel-messages\/[^/]+\/read$/.test(path);
+      req.method === 'POST' && /^\/channel-messages\/[^/]+\/read$/.test(path);
     const startedAt = Date.now();
 
     if (isReadEndpoint) {
@@ -35,15 +34,12 @@ export class AuthGuard implements CanActivate {
     const token = authHeader.slice(7);
 
     try {
-      const clerkSecretKey =
-        this.configService.get<string>('CLERK_SECRET_KEY');
+      const clerkSecretKey = this.configService.get<string>('CLERK_SECRET_KEY');
       const verifyStartedAt = Date.now();
 
       const payload = await verifyToken(token, {
         secretKey: clerkSecretKey!,
       });
-
-
 
       req.userId = payload.sub;
 

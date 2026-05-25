@@ -1,6 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '~/generated/prisma';
+import { createPrismaClientOptions } from '~/prisma/prisma-client';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(createPrismaClientOptions());
 
 async function main() {
   // 🔹 Lấy toàn bộ profile cùng với server & member liên quan

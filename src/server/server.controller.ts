@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Patch, Delete, Param, UseGuards, BadRequestException, Body, HttpCode, ValidationPipe, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  UseGuards,
+  BadRequestException,
+  Body,
+  HttpCode,
+  ValidationPipe,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { CurrentMember } from '~/common/decorators/current-member.decorator';
@@ -6,10 +20,12 @@ import { AuthGuard } from '~/common/guards/auth.guard';
 import { ServerMemberGuard } from '~/common/guards/server-member.guard';
 import { RoleGuard } from '~/common/guards/role.guard';
 import { Roles } from '~/common/decorators/roles.decorator';
-import { MemberRole, type Member } from '@prisma/client';
+import { MemberRole, type Member } from '~/generated/prisma';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { SearchServersQueryDto } from './dto/search-servers-query.dto';
+import type { InitialServerResponseDto } from './dto/initial-server-response.dto';
 import { ChannelRefetchService } from '~/message/channel-refetch.service';
 import type { Profile } from '~/common/types/profile.type';
 
@@ -22,19 +38,10 @@ export class ServerController {
 
   @Get('initial')
   @HttpCode(HttpStatus.OK)
-  async getInitialServer(@CurrentProfile() profile: Profile) {
+  async getInitialServer(
+    @CurrentProfile() profile: Profile,
+  ): Promise<InitialServerResponseDto | null> {
     return await this.serverService.getInitialServer(profile.id);
-  }
-
-  @UseGuards(ServerMemberGuard)
-  @Get(':serverId/initial-channel')
-  @HttpCode(HttpStatus.OK)
-  async getInitialChannel(@Param('serverId') serverId: string) {
-    if (!serverId) {
-      throw new BadRequestException('Server ID is required');
-    }
-
-    return await this.serverService.getInitialChannel(serverId);
   }
 
   @UseGuards(ServerMemberGuard)
@@ -53,8 +60,14 @@ export class ServerController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getMyServers(@CurrentProfile() profile: Profile, @Query() paginationDto: PaginationDto) {
-    return await this.serverService.getServersByProfileId(profile.id, paginationDto);
+  async getMyServers(
+    @CurrentProfile() profile: Profile,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return await this.serverService.getServersByProfileId(
+      profile.id,
+      paginationDto,
+    );
   }
 
   @Post()
@@ -64,6 +77,15 @@ export class ServerController {
     @CurrentProfile() profile: Profile,
   ) {
     return await this.serverService.createServer(profile.id, dto);
+  }
+
+  @Get('search')
+  @HttpCode(HttpStatus.OK)
+  async searchServers(
+    @Query(ValidationPipe) query: SearchServersQueryDto,
+    @CurrentProfile() profile: Profile,
+  ) {
+    return await this.serverService.searchServers(profile.id, query.q, query.limit);
   }
 
   @UseGuards(ServerMemberGuard, RoleGuard)
@@ -123,7 +145,10 @@ export class ServerController {
       throw new BadRequestException('Server ID is required');
     }
 
-    const updatedServer = await this.serverService.leaveServer(serverId, profile.id);
+    const updatedServer = await this.serverService.leaveServer(
+      serverId,
+      profile.id,
+    );
 
     await this.channelRefetchService.emitByServer(serverId);
 
@@ -174,4 +199,3 @@ export class ServerController {
     return await this.serverService.getServerSidebarData(serverId, profile.id);
   }
 }
-

@@ -34,6 +34,11 @@ export class ProfileService {
           'User',
         email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
         imageUrl: clerkUser.imageUrl || '',
+        bio: null,
+        relationshipStatus: null,
+        joinDate: null,
+        location: null,
+        isOnline: false,
       },
     });
   }

@@ -32,6 +32,7 @@ import { PrismaChannelMessageRepository } from './channel-msg/infrastructure/rep
 import { CHANNEL_MESSAGE_REPOSITORY } from './channel-msg/domain/repositories/channel-message.repository.interface';
 import { ChannelMessageHandler } from './channel-msg/application/events/handlers/channel-message.handler';
 import { ChannelModerationRealtimeHandler } from './channel-msg/application/events/handlers/channel-moderation-realtime.handler';
+import { PresenceModule } from '~/presence/presence.module';
 
 const ChannelMessageUseCases = [
   CreateChannelMessageUseCase,
@@ -49,7 +50,7 @@ const ChannelMessageUseCases = [
 
 @Global()
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, PresenceModule],
   controllers: [
     DirectMessageController,
     ChannelMessageController,

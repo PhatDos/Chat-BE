@@ -1,16 +1,27 @@
 import {
   Injectable,
   ForbiddenException,
+  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { MemberRole, Prisma, type Member } from '@prisma/client';
+import { MemberRole, Prisma, ServerVisibility, type Member } from '~/generated/prisma';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '~/utils/constants';
 import { ChannelService } from '~/channel/channel.service';
+import type { InitialServerResponseDto } from './dto/initial-server-response.dto';
+
+const serverSearchSelect = {
+  id: true,
+  name: true,
+  imageUrl: true,
+  inviteCode: true,
+  visibility: true,
+  memberCount: true,
+} as const;
 
 @Injectable()
 export class ServerService {
@@ -60,7 +71,7 @@ export class ServerService {
     // 2️⃣ Aggregate unread theo serverId
     const unread = await this.prisma.$queryRaw<
       { serverId: string; total: bigint }[]
-          >`
+    >`
       SELECT 
         c."serverId" as "serverId",
         COUNT(m."_id") as total
@@ -103,22 +114,47 @@ export class ServerService {
   }
 
   async createServer(profileId: string, dto: CreateServerDto) {
-    const server = await this.prisma.server.create({
-      data: {
-        profileId,
-        name: dto.name,
-        imageUrl: dto.imageUrl,
-        inviteCode: uuidv4(),
-        channels: {
-          create: [{ name: 'general', profileId }],
+    // Create server, its general channel and owner member in a single transaction
+    const created = await this.prisma.$transaction(async (tx) => {
+      const server = await tx.server.create({
+        data: {
+          profileId,
+          name: dto.name,
+          imageUrl: dto.imageUrl,
+          inviteCode: uuidv4(),
+          visibility: dto.visibility ?? ServerVisibility.PRIVATE,
+          memberCount: 1,
         },
-        members: {
-          create: [{ profileId, role: MemberRole.SERVEROWNER }],
+      });
+
+      const channel = await tx.channel.create({
+        data: {
+          name: 'general',
+          profileId,
+          serverId: server.id,
         },
-      },
+      });
+
+      await tx.server.update({
+        where: { id: server.id },
+        data: { generalChannelId: channel.id },
+      });
+
+      await tx.member.create({
+        data: {
+          serverId: server.id,
+          profileId,
+          role: MemberRole.SERVEROWNER,
+        },
+      });
+
+      return tx.server.findUnique({
+        where: { id: server.id },
+        include: { channels: true, members: true, generalChannel: true },
+      });
     });
 
-    return server;
+    return created;
   }
 
   async updateServer(
@@ -144,6 +180,7 @@ export class ServerService {
       data: {
         name: dto.name,
         imageUrl: dto.imageUrl,
+        ...(dto.visibility ? { visibility: dto.visibility } : {}),
       },
     });
 
@@ -191,6 +228,7 @@ export class ServerService {
     const updatedServer = await this.prisma.server.update({
       where: { id: serverId },
       data: {
+        memberCount: { decrement: 1 },
         members: {
           deleteMany: {
             profileId,
@@ -291,6 +329,11 @@ export class ServerService {
         },
       });
 
+      await tx.server.update({
+        where: { id: server.id },
+        data: { memberCount: { increment: 1 } },
+      });
+
       const channels = await tx.channel.findMany({
         where: { serverId: server.id },
         select: { id: true },
@@ -311,8 +354,43 @@ export class ServerService {
     });
   }
 
-  async getInitialServer(profileId: string) {
-    return await this.prisma.server.findFirst({
+  async searchServers(profileId: string, query: string, limit = DEFAULT_PAGE_SIZE) {
+    const profile = await this.prisma.profile.findUnique({
+      where: { id: profileId },
+      select: { id: true },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+
+    const normalizedQuery = query.trim();
+
+    if (!normalizedQuery) {
+      throw new BadRequestException('Search query is required');
+    }
+
+    return this.prisma.server.findMany({
+      where: {
+        visibility: ServerVisibility.PUBLIC,
+        name: {
+          contains: normalizedQuery,
+          mode: 'insensitive',
+        },
+      },
+      select: serverSearchSelect,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: Math.min(limit, DEFAULT_PAGE_SIZE),
+    });
+  }
+
+  async getInitialServer(
+    profileId: string,
+  ): Promise<InitialServerResponseDto | null> {
+    // include `generalChannel` so FE can directly use `generalChannelId`/data
+    const server = await this.prisma.server.findFirst({
       where: {
         members: {
           some: {
@@ -320,22 +398,21 @@ export class ServerService {
           },
         },
       },
+      include: { generalChannel: true },
     });
-  }
 
-  async getInitialChannel(serverId: string) {
-    const channels = await this.channelService.getChannelsByServerId(serverId);
-
-    const initialChannel =
-      channels.find((channel) => channel.name === 'general') ?? channels[0];
-
-    if (!initialChannel) {
-      throw new NotFoundException('Initial channel not found');
+    if (!server) {
+      return null;
     }
 
     return {
-      channelId: initialChannel.id,
-      channelName: initialChannel.name,
+      server,
+      initialChannel: server.generalChannel
+        ? {
+            channelId: server.generalChannel.id,
+            channelName: server.generalChannel.name,
+          }
+        : null,
     };
   }
 
@@ -373,6 +450,7 @@ export class ServerService {
         id: serverId,
       },
       include: {
+        generalChannel: true,
         channels: {
           orderBy: {
             createdAt: 'asc',
@@ -420,4 +498,3 @@ export class ServerService {
     };
   }
 }
-

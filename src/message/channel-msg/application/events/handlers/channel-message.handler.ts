@@ -27,10 +27,12 @@ export class ChannelMessageHandler {
     this.gateway.emitMessageCreated(message, channel.id, tempId);
 
     // 2. Business notification logic
-    const members = await this.getMembersUseCase.execute(member.serverId, channel.id);
-    const readingProfileIds = await this.gateway.getConnectedProfileIdsInChannel(
+    const members = await this.getMembersUseCase.execute(
+      member.serverId,
       channel.id,
     );
+    const readingProfileIds =
+      await this.gateway.getConnectedProfileIdsInChannel(channel.id);
 
     for (const m of members) {
       if (m.profileId === member.profileId) continue;

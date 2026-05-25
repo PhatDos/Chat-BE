@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { MemberRole } from '@prisma/client';
+import { MemberRole } from '~/generated/prisma';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
