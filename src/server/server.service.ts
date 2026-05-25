@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { MemberRole, Prisma, ServerVisibility, type Member } from '~/generated/prisma';
+import { MemberRole, Prisma, ServerVisibility, type Member } from '~/generated/prisma/client';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { PaginationDto } from './dto/pagination.dto';

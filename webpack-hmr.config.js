@@ -4,6 +4,15 @@ const { RunScriptWebpackPlugin } = require('run-script-webpack-plugin');
 module.exports = function (options, webpack) {
   return {
     ...options,
+    resolve: {
+      ...options.resolve,
+      extensionAlias: {
+        ...options.resolve?.extensionAlias,
+        '.js': ['.js', '.ts'],
+        '.mjs': ['.mjs', '.mts'],
+        '.cjs': ['.cjs', '.cts'],
+      },
+    },
     entry: ['webpack/hot/poll?100', options.entry],
     externals: [
       nodeExternals({

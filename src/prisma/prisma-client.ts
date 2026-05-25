@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, type Prisma } from '~/generated/prisma';
+import { PrismaClient, type Prisma } from '~/generated/prisma/client';
 
 type PrismaClientOptions = {
   log?: Prisma.LogLevel[];

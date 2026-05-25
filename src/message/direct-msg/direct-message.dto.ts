@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsEnum } from 'class-validator';
-import { FileType } from '~/generated/prisma';
+import { FileType } from '~/generated/prisma/client';
 
 export class CreateDirectMessageDto {
   @IsOptional()

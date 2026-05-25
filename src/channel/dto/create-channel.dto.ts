@@ -1,12 +1,12 @@
 import { IsString, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
-import { ChannelType } from '~/generated/prisma';
+import { ChannelType } from '~/generated/prisma/client';
 
 export class CreateChannelDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(ChannelType)
   @IsOptional()
-  type: ChannelType;
+  type?: ChannelType;
 }
