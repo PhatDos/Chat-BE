@@ -386,6 +386,24 @@ export class ServerService {
     });
   }
 
+  async getTopPublicServers(limit = 3) {
+    return this.prisma.server.findMany({
+      where: {
+        visibility: ServerVisibility.PUBLIC,
+      },
+      select: serverSearchSelect,
+      orderBy: [
+        {
+          memberCount: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        },
+      ],
+      take: Math.min(limit, 3),
+    });
+  }
+
   async getInitialServer(
     profileId: string,
   ): Promise<InitialServerResponseDto | null> {

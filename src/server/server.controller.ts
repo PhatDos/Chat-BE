@@ -88,6 +88,12 @@ export class ServerController {
     return await this.serverService.searchServers(profile.id, query.q, query.limit);
   }
 
+  @Get('discover/top')
+  @HttpCode(HttpStatus.OK)
+  async getTopPublicServers() {
+    return await this.serverService.getTopPublicServers(3);
+  }
+
   @UseGuards(ServerMemberGuard, RoleGuard)
   @Roles(MemberRole.SERVEROWNER, MemberRole.VICESERVEROWNER)
   @Patch(':serverId')
