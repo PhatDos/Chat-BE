@@ -3,11 +3,9 @@ import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
-  private client: Redis;
+  private readonly client = new Redis(process.env.REDIS_URL!);
 
   async onModuleInit() {
-    this.client = new Redis(process.env.REDIS_URL!);
-
     this.client.on('connect', () => {
       console.log('✅ Redis connected');
     });
@@ -18,7 +16,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await this.client.quit();
+    if (this.client.status !== 'end') {
+      await this.client.quit();
+    }
   }
 
   getClient(): Redis {

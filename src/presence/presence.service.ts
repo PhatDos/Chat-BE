@@ -86,8 +86,6 @@ export class PresenceService implements OnModuleInit, OnModuleDestroy {
         console.error('Redis subscriber error', err);
       });
 
-      await this.subscriberClient.connect();
-
       // Subscribe to expired key events for all DBs
       await this.subscriberClient.psubscribe('__keyevent@*__:expired');
 
