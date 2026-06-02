@@ -50,8 +50,21 @@ export class MessageFetcherService {
       return [];
     }
 
-    const from = readState?.formerLastReadAt ?? new Date();
+    // If formerLastReadAt is null we should consider the earliest time
+    // (epoch) so that the first-time fetch returns messages before lastReadAt.
+    // Previously using `new Date()` made `from` == now which returned no messages.
+    const from = readState?.formerLastReadAt ?? new Date(0);
     const to = readState?.lastReadAt ?? new Date();
+
+    // Temporary debug log to help verify values when calling the AI summary
+    console.log('[AI Summary Debug] getUnreadMessages', {
+      channelId,
+      memberId,
+      formerLastReadAt: readState?.formerLastReadAt,
+      lastReadAt: readState?.lastReadAt,
+      from: from?.toISOString?.() ?? String(from),
+      to: to?.toISOString?.() ?? String(to),
+    });
 
     return this.prisma.message.findMany({
       where: {

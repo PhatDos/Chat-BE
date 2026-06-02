@@ -87,9 +87,9 @@ model Member {
   messages     Message[]
   channelReads ChannelRead[] @relation("MemberChannelReads")
   lectures     Lecture[]
-  createdAssessments Assessment[] @relation("CreatedAssessments")
-  attempts AssessmentAttempt[] @relation("StudentAttempts")
-  gradedAttempts AssessmentAttempt[] @relation("GradedAttempts")
+  createdQuizzes Quiz[] @relation("CreatedQuizzes")
+  quizAttempts QuizAttempt[] @relation("StudentQuizAttempts")
+  gradedQuizAttempts QuizAttempt[] @relation("GradedQuizAttempts")
 
   @@unique([serverId, profileId])
   @@index([profileId])
@@ -112,7 +112,7 @@ model Channel {
   messages Message[]
   reads    ChannelRead[] @relation("ChannelReads")
   lectures Lecture[]
-  assessments Assessment[]
+  quizzes Quiz[]
 
   @@index([profileId])
   @@index([serverId])
@@ -375,7 +375,7 @@ model Lecture {
 
   summary Summary?
   flashcardSet FlashcardSet?
-  assessment Assessment?
+  quiz Quiz?
 
   @@index([channelId, createdAt])
   @@index([memberId])
@@ -428,7 +428,7 @@ model FlashcardSet {
   @@index([lectureId])
 }
 
-model Assessment {
+model Quiz {
   id String @id @default(uuid()) @map("_id")
 
   lectureId String?
@@ -439,11 +439,9 @@ model Assessment {
   title String
   description String?
 
-  type AssessmentType
-
   generatedByAI Boolean @default(false)
 
-  status AssessmentStatus @default(DRAFT)
+  status QuizStatus @default(DRAFT)
 
   totalQuestions Int
   totalPoints Float @default(0)
@@ -462,22 +460,23 @@ model Assessment {
 
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
-  createdBy Member @relation("CreatedAssessments", fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy Member @relation("CreatedQuizzes", fields: [createdById], references: [id], onDelete: Cascade)
 
-  questions AssessmentQuestion[]
-  attempts AssessmentAttempt[]
+  questions QuizQuestion[]
+  attempts QuizAttempt[]
 
   @@index([lectureId])
   @@unique([lectureId])
   @@index([channelId])
   @@index([createdById])
   @@index([channelId, status, expiresAt])
+
 }
 
-model AssessmentQuestion {
+model QuizQuestion {
   id String @id @default(uuid()) @map("_id")
 
-  assessmentId String
+  quizId String
 
   order Int
 
@@ -492,16 +491,17 @@ model AssessmentQuestion {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
-  options AssessmentOption[]
-  answers AssessmentAnswer[]
+  options QuizOption[]
+  answers QuizAnswer[]
 
-  @@index([assessmentId])
-  @@unique([assessmentId, order])
+  @@index([quizId])
+  @@unique([quizId, order])
+
 }
 
-model AssessmentOption {
+model QuizOption {
   id String @id @default(uuid()) @map("_id")
 
   questionId String
@@ -512,15 +512,16 @@ model AssessmentOption {
 
   isCorrect Boolean @default(false)
 
-  question AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([questionId])
+
 }
 
-model AssessmentAttempt {
+model QuizAttempt {
   id String @id @default(uuid()) @map("_id")
 
-  assessmentId String
+  quizId String
   memberId String
 
   startedAt DateTime @default(now())
@@ -547,19 +548,20 @@ model AssessmentAttempt {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  member Member @relation("StudentAttempts", fields: [memberId], references: [id], onDelete: Cascade)
-  gradedBy Member? @relation("GradedAttempts", fields: [gradedById], references: [id], onDelete: SetNull)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  member Member @relation("StudentQuizAttempts", fields: [memberId], references: [id], onDelete: Cascade)
+  gradedBy Member? @relation("GradedQuizAttempts", fields: [gradedById], references: [id], onDelete: SetNull)
 
-  answers AssessmentAnswer[]
+  answers QuizAnswer[]
 
-  @@index([assessmentId])
+  @@index([quizId])
   @@index([memberId])
-  @@unique([assessmentId, memberId])
-  @@index([assessmentId, finalScore])
+  @@unique([quizId, memberId])
+  @@index([quizId, finalScore])
+
 }
 
-model AssessmentAnswer {
+model QuizAnswer {
   id String @id @default(uuid()) @map("_id")
 
   attemptId String
@@ -580,15 +582,16 @@ model AssessmentAnswer {
 
   gradedAt DateTime?
 
-  attempt AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
-  question AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   questionSnapshot Json?
 
   @@unique([attemptId, questionId])
   @@index([attemptId])
   @@index([questionId])
+
 }
 
 enum LectureFileType {
@@ -605,12 +608,7 @@ enum SummaryTone {
   ACADEMIC
 }
 
-enum AssessmentType {
-  QUIZ
-  ASSIGNMENT
-}
-
-enum AssessmentStatus {
+enum QuizStatus {
   DRAFT
   PUBLISHED
   CLOSED

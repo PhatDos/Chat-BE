@@ -25,10 +25,10 @@ export class LectureService {
     return totalPoints === 0 ? 0 : (score / totalPoints) * 100;
   }
 
-  private sanitizeAssessmentForStudentQuiz(assessment: any) {
+  private sanitizeQuizForStudentQuiz(quiz: any) {
     return {
-      ...assessment,
-      questions: assessment.questions?.map((question: any) => ({
+      ...quiz,
+      questions: quiz.questions?.map((question: any) => ({
         ...question,
         explanation: undefined,
         options: question.options?.map((option: any) => ({
@@ -42,29 +42,29 @@ export class LectureService {
     };
   }
 
-  private getAssessmentDeadline(assessment: { durationMinutes: number | null; expiresAt: Date | null }, startedAt: Date) {
+  private getQuizDeadline(quiz: { durationMinutes: number | null; expiresAt: Date | null }, startedAt: Date) {
     const durationDeadline =
-      assessment.durationMinutes && assessment.durationMinutes > 0
-        ? new Date(startedAt.getTime() + assessment.durationMinutes * 60 * 1000)
+      quiz.durationMinutes && quiz.durationMinutes > 0
+        ? new Date(startedAt.getTime() + quiz.durationMinutes * 60 * 1000)
         : null;
 
-    if (!assessment.expiresAt) {
+    if (!quiz.expiresAt) {
       return durationDeadline;
     }
 
     if (!durationDeadline) {
-      return assessment.expiresAt;
+      return quiz.expiresAt;
     }
 
-    return assessment.expiresAt.getTime() < durationDeadline.getTime() ? assessment.expiresAt : durationDeadline;
+    return quiz.expiresAt.getTime() < durationDeadline.getTime() ? quiz.expiresAt : durationDeadline;
   }
 
-  private isAssessmentAttemptExpired(
-    assessment: { durationMinutes: number | null; expiresAt: Date | null },
+  private isQuizAttemptExpired(
+    quiz: { durationMinutes: number | null; expiresAt: Date | null },
     startedAt: Date,
     now = new Date(),
   ) {
-    const deadline = this.getAssessmentDeadline(assessment, startedAt);
+    const deadline = this.getQuizDeadline(quiz, startedAt);
 
     if (!deadline) {
       return false;
@@ -151,7 +151,7 @@ export class LectureService {
               },
             },
           },
-          assessment: true,
+          quiz: true,
         },
       });
 
@@ -186,7 +186,7 @@ export class LectureService {
             },
           },
         },
-        assessment: {
+        quiz: {
           include: {
             questions: {
               include: {
@@ -217,7 +217,7 @@ export class LectureService {
       select: {
         id: true,
         title: true,
-        assessment: {
+        quiz: {
           select: {
             id: true,
             lectureId: true,
@@ -225,7 +225,6 @@ export class LectureService {
             createdById: true,
             title: true,
             description: true,
-            type: true,
             generatedByAI: true,
             status: true,
             totalQuestions: true,
@@ -240,7 +239,7 @@ export class LectureService {
               orderBy: { order: 'asc' },
               select: {
                 id: true,
-                assessmentId: true,
+                quizId: true,
                 order: true,
                 questionText: true,
                 type: true,
@@ -261,13 +260,13 @@ export class LectureService {
       },
     });
 
-    if (!lecture || !lecture.assessment) {
+    if (!lecture || !lecture.quiz) {
       throw new NotFoundException('Quiz not found');
     }
 
     return {
-      ...lecture.assessment,
-      questions: lecture.assessment.questions?.map((question) => ({
+      ...lecture.quiz,
+      questions: lecture.quiz.questions?.map((question) => ({
         ...question,
         options: question.options?.map((option) => ({
           id: option.id,
@@ -337,7 +336,7 @@ export class LectureService {
             },
           },
         },
-        assessment: true,
+        quiz: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -452,47 +451,47 @@ export class LectureService {
   /**
    * Generate quiz for lecture
    */
-  async generateAssessment(lectureId: string, dto: GenerateQuizDto) {
+  async generateQuiz(lectureId: string, dto: GenerateQuizDto) {
     const lecture = await this.getLectureById(lectureId);
 
     if (!lecture.extractedContent) {
-      throw new BadRequestException('Cannot generate assessment: no extracted content');
+      throw new BadRequestException('Cannot generate quiz: no extracted content');
     }
 
-    // Prevent generating more than one assessment/quiz per lecture
-    if (lecture.assessment) {
-      throw new BadRequestException('Assessment already exists for this lecture');
+    // Prevent generating more than one quiz/quiz per lecture
+    if (lecture.quiz) {
+      throw new BadRequestException('Quiz already exists for this lecture');
     }
 
     try {
-      // Generate assessment using AI
-      const assessmentData = await this.aiGeneration.generateQuiz(
+      // Generate quiz using AI
+      const quizData = await this.aiGeneration.generateQuiz(
         lecture.extractedContent,
         dto.questionCount || 5,
       );
 
       const draftId = `draft-${randomUUID()}`;
-      const draftAssessment = {
+      const draftQuiz = {
         id: draftId,
         lectureId,
         channelId: lecture.channelId,
         createdById: lecture.memberId,
-        title: `${lecture.title} Assessment`,
-        description: `AI generated assessment from ${lecture.title}`,
+        title: `${lecture.title} Quiz`,
+        description: `AI generated quiz from ${lecture.title}`,
         type: 'QUIZ' as const,
         generatedByAI: true,
         status: 'DRAFT' as const,
-        totalQuestions: assessmentData.questions.length,
-        totalPoints: assessmentData.questions.length,
+        totalQuestions: quizData.questions.length,
+        totalPoints: quizData.questions.length,
         durationMinutes: null,
         allowLateSubmission: false,
         expiresAt: null,
         publishedAt: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        questions: assessmentData.questions.map((q, index) => ({
+        questions: quizData.questions.map((q, index) => ({
           id: `${draftId}-question-${index + 1}`,
-          assessmentId: draftId,
+          quizId: draftId,
           order: index + 1,
           questionText: q.question_text,
           type: 'MULTIPLE_CHOICE' as const,
@@ -514,22 +513,20 @@ export class LectureService {
 
       return {
         success: true,
-        assessment: draftAssessment,
-        quiz: draftAssessment,
-        message: `Generated assessment preview with ${assessmentData.questions.length} questions`,
+        quiz: draftQuiz,
+        message: `Generated quiz preview with ${quizData.questions.length} questions`,
       };
     } catch (error: any) {
-      this.logger.error(`Error generating assessment: ${this.getErrorMessage(error)}`);
+      this.logger.error(`Error generating quiz: ${this.getErrorMessage(error)}`);
       throw error;
     }
   }
 
-  async createAssessment(
+  async createQuiz(
     lectureId: string,
     data: {
       title: string;
       description?: string | null;
-      type?: 'QUIZ' | 'ASSIGNMENT';
       status?: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
       durationMinutes?: number | null;
       allowLateSubmission?: boolean;
@@ -551,22 +548,21 @@ export class LectureService {
   ) {
     const lecture = await this.getLectureById(lectureId);
 
-    if (lecture.assessment) {
-      throw new BadRequestException('Assessment already exists for this lecture');
+    if (lecture.quiz) {
+      throw new BadRequestException('Quiz already exists for this lecture');
     }
 
     const totalQuestions = data.questions.length;
     const totalPoints = data.questions.reduce((sum, question) => sum + (question.points ?? 1), 0);
 
-    const assessment = await this.prisma.$transaction(async (tx) => {
-      const createdAssessment = await tx.assessment.create({
+    const quiz = await this.prisma.$transaction(async (tx) => {
+      const createdQuiz = await tx.quiz.create({
         data: {
           lectureId,
           channelId: lecture.channelId,
           createdById: lecture.memberId,
           title: data.title,
           description: data.description ?? null,
-          type: data.type ?? 'QUIZ',
           generatedByAI: data.generatedByAI ?? false,
           status: data.status ?? 'PUBLISHED',
           totalQuestions,
@@ -579,9 +575,9 @@ export class LectureService {
       });
 
       for (const [index, questionData] of data.questions.entries()) {
-        const createdQuestion = await tx.assessmentQuestion.create({
+        const createdQuestion = await tx.quizQuestion.create({
           data: {
-            assessmentId: createdAssessment.id,
+            quizId: createdQuiz.id,
             order: questionData.order ?? index + 1,
             questionText: questionData.questionText,
             type: questionData.type ?? 'MULTIPLE_CHOICE',
@@ -591,7 +587,7 @@ export class LectureService {
         });
 
         if (questionData.options?.length) {
-          await tx.assessmentOption.createMany({
+          await tx.quizOption.createMany({
             data: questionData.options.map((option, optionIndex) => ({
               questionId: createdQuestion.id,
               order: option.order ?? optionIndex + 1,
@@ -602,10 +598,10 @@ export class LectureService {
         }
       }
 
-      return createdAssessment;
+      return createdQuiz;
     });
 
-    return this.getAssessmentById(assessment.id);
+    return this.getQuizById(quiz.id);
   }
 
   /**
@@ -627,8 +623,8 @@ export class LectureService {
   /**
    * Get quizzes by lecture
    */
-  async getAssessmentsByLecture(lectureId: string) {
-    const assessments = await this.prisma.assessment.findMany({
+  async getQuizsByLecture(lectureId: string) {
+    const quizzes = await this.prisma.quiz.findMany({
       where: { lectureId },
       include: {
         questions: {
@@ -645,15 +641,14 @@ export class LectureService {
       },
     });
 
-    return assessments;
+    return quizzes;
   }
 
-  async updateAssessment(
-    assessmentId: string,
+  async updateQuiz(
+    quizId: string,
     data: {
       title?: string;
       description?: string | null;
-      type?: 'QUIZ' | 'ASSIGNMENT';
       totalPoints?: number;
       durationMinutes?: number | null;
       allowLateSubmission?: boolean;
@@ -661,12 +656,11 @@ export class LectureService {
       status?: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
     },
   ) {
-    return this.prisma.assessment.update({
-      where: { id: assessmentId },
+    return this.prisma.quiz.update({
+      where: { id: quizId },
       data: {
         ...(data.title !== undefined ? { title: data.title } : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
-        ...(data.type !== undefined ? { type: data.type } : {}),
         ...(data.totalPoints !== undefined ? { totalPoints: data.totalPoints } : {}),
         ...(data.durationMinutes !== undefined ? { durationMinutes: data.durationMinutes } : {}),
         ...(data.allowLateSubmission !== undefined ? { allowLateSubmission: data.allowLateSubmission } : {}),
@@ -689,8 +683,8 @@ export class LectureService {
     });
   }
 
-  async addAssessmentQuestion(
-    assessmentId: string,
+  async addQuizQuestion(
+    quizId: string,
     data: {
       questionText: string;
       type?: 'MULTIPLE_CHOICE' | 'MULTI_SELECT' | 'TRUE_FALSE' | 'ESSAY';
@@ -700,8 +694,8 @@ export class LectureService {
       order?: number;
     },
   ) {
-    const lastQuestion = await this.prisma.assessmentQuestion.findFirst({
-      where: { assessmentId },
+    const lastQuestion = await this.prisma.quizQuestion.findFirst({
+      where: { quizId },
       orderBy: { order: 'desc' },
       select: { order: true },
     });
@@ -710,9 +704,9 @@ export class LectureService {
       ? this.normalizeCorrectOptions(data.options, data.type ?? 'MULTIPLE_CHOICE')
       : undefined;
 
-    const question = await this.prisma.assessmentQuestion.create({
+    const question = await this.prisma.quizQuestion.create({
       data: {
-        assessmentId,
+        quizId,
         order: data.order ?? (lastQuestion?.order ?? 0) + 1,
         questionText: data.questionText,
         type: data.type ?? 'MULTIPLE_CHOICE',
@@ -734,12 +728,12 @@ export class LectureService {
       },
     });
 
-    await this.recalculateAssessmentTotals(assessmentId);
+    await this.recalculateQuizTotals(quizId);
 
     return question;
   }
 
-  async updateAssessmentQuestion(
+  async updateQuizQuestion(
     questionId: string,
     data: {
       questionText?: string;
@@ -756,7 +750,7 @@ export class LectureService {
     },
   ) {
     const question = await this.prisma.$transaction(async (tx) => {
-      const updatedQuestion = await tx.assessmentQuestion.update({
+      const updatedQuestion = await tx.quizQuestion.update({
         where: { id: questionId },
         data: {
           ...(data.questionText !== undefined ? { questionText: data.questionText } : {}),
@@ -794,7 +788,7 @@ export class LectureService {
 
         await Promise.all(
           normalizedOptions.map((option) =>
-            tx.assessmentOption.updateMany({
+            tx.quizOption.updateMany({
               where: {
                 id: option.id,
                 questionId,
@@ -808,7 +802,7 @@ export class LectureService {
           ),
         );
 
-        updatedQuestion.options = await tx.assessmentOption.findMany({
+        updatedQuestion.options = await tx.quizOption.findMany({
           where: { questionId },
           orderBy: { order: 'asc' },
         });
@@ -820,7 +814,7 @@ export class LectureService {
         if (correctOptions.length > 1) {
           const [keepOption, ...optionsToReset] = correctOptions;
 
-          await tx.assessmentOption.updateMany({
+          await tx.quizOption.updateMany({
             where: {
               id: {
                 in: optionsToReset.map((option) => option.id),
@@ -840,48 +834,48 @@ export class LectureService {
       return updatedQuestion;
     });
 
-    await this.recalculateAssessmentTotals(question.assessmentId);
+    await this.recalculateQuizTotals(question.quizId);
 
     return question;
   }
 
-  async deleteAssessmentQuestion(questionId: string) {
-    const question = await this.prisma.assessmentQuestion.findUnique({
+  async deleteQuizQuestion(questionId: string) {
+    const question = await this.prisma.quizQuestion.findUnique({
       where: { id: questionId },
-      select: { assessmentId: true },
+      select: { quizId: true },
     });
 
     if (!question) {
-      throw new NotFoundException('Assessment question not found');
+      throw new NotFoundException('Quiz question not found');
     }
 
-    await this.prisma.assessmentQuestion.delete({ where: { id: questionId } });
-    await this.recalculateAssessmentTotals(question.assessmentId);
+    await this.prisma.quizQuestion.delete({ where: { id: questionId } });
+    await this.recalculateQuizTotals(question.quizId);
 
     return { success: true };
   }
 
-  async addAssessmentOption(
+  async addQuizOption(
     questionId: string,
     data: { optionText: string; isCorrect?: boolean; order?: number },
   ) {
-    const question = await this.prisma.assessmentQuestion.findUnique({
+    const question = await this.prisma.quizQuestion.findUnique({
       where: { id: questionId },
       select: { type: true },
     });
 
     if (!question) {
-      throw new NotFoundException('Assessment question not found');
+      throw new NotFoundException('Quiz question not found');
     }
 
-    const lastOption = await this.prisma.assessmentOption.findFirst({
+    const lastOption = await this.prisma.quizOption.findFirst({
       where: { questionId },
       orderBy: { order: 'desc' },
       select: { order: true },
     });
 
     return this.prisma.$transaction(async (tx) => {
-      const created = await tx.assessmentOption.create({
+      const created = await tx.quizOption.create({
         data: {
           questionId,
           order: data.order ?? (lastOption?.order ?? 0) + 1,
@@ -891,7 +885,7 @@ export class LectureService {
       });
 
       if (data.isCorrect && this.isSingleCorrectAnswerQuestion(question.type)) {
-        await tx.assessmentOption.updateMany({
+        await tx.quizOption.updateMany({
           where: {
             questionId,
             id: { not: created.id },
@@ -904,11 +898,11 @@ export class LectureService {
     });
   }
 
-  async updateAssessmentOption(
+  async updateQuizOption(
     optionId: string,
     data: { optionText?: string; isCorrect?: boolean; order?: number },
   ) {
-    const option = await this.prisma.assessmentOption.findUnique({
+    const option = await this.prisma.quizOption.findUnique({
       where: { id: optionId },
       select: {
         questionId: true,
@@ -919,11 +913,11 @@ export class LectureService {
     });
 
     if (!option) {
-      throw new NotFoundException('Assessment option not found');
+      throw new NotFoundException('Quiz option not found');
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.assessmentOption.update({
+      const updated = await tx.quizOption.update({
         where: { id: optionId },
         data: {
           ...(data.optionText !== undefined ? { optionText: data.optionText } : {}),
@@ -933,7 +927,7 @@ export class LectureService {
       });
 
       if (data.isCorrect && this.isSingleCorrectAnswerQuestion(option.question.type)) {
-        await tx.assessmentOption.updateMany({
+        await tx.quizOption.updateMany({
           where: {
             questionId: option.questionId,
             id: { not: optionId },
@@ -946,14 +940,14 @@ export class LectureService {
     });
   }
 
-  async deleteAssessmentOption(optionId: string) {
-    await this.prisma.assessmentOption.delete({ where: { id: optionId } });
+  async deleteQuizOption(optionId: string) {
+    await this.prisma.quizOption.delete({ where: { id: optionId } });
     return { success: true };
   }
 
-  async publishAssessment(assessmentId: string) {
-    return this.prisma.assessment.update({
-      where: { id: assessmentId },
+  async publishQuiz(quizId: string) {
+    return this.prisma.quiz.update({
+      where: { id: quizId },
       data: {
         status: 'PUBLISHED',
         publishedAt: new Date(),
@@ -974,23 +968,23 @@ export class LectureService {
     });
   }
 
-  async closeAssessment(assessmentId: string) {
-    return this.prisma.assessment.update({
-      where: { id: assessmentId },
+  async closeQuiz(quizId: string) {
+    return this.prisma.quiz.update({
+      where: { id: quizId },
       data: { status: 'CLOSED' },
     });
   }
 
-  async archiveAssessment(assessmentId: string) {
-    return this.prisma.assessment.update({
-      where: { id: assessmentId },
+  async archiveQuiz(quizId: string) {
+    return this.prisma.quiz.update({
+      where: { id: quizId },
       data: { status: 'ARCHIVED' },
     });
   }
 
-  async getAssessmentReview(assessmentId: string) {
-    return this.prisma.assessment.findUnique({
-      where: { id: assessmentId },
+  async getQuizReview(quizId: string) {
+    return this.prisma.quiz.findUnique({
+      where: { id: quizId },
       include: {
         questions: {
           include: {
@@ -1010,7 +1004,7 @@ export class LectureService {
     });
   }
 
-  async gradeAssessmentAttempt(
+  async gradeQuizAttempt(
     attemptId: string,
     data: {
       teacherAdjustment?: number;
@@ -1024,21 +1018,21 @@ export class LectureService {
       status?: 'GRADED' | 'RETURNED' | 'GRADING';
     },
   ) {
-    const attempt = await this.prisma.assessmentAttempt.findUnique({
+    const attempt = await this.prisma.quizAttempt.findUnique({
       where: { id: attemptId },
       include: {
-        assessment: true,
+        quiz: true,
         answers: true,
       },
     });
 
     if (!attempt) {
-      throw new NotFoundException('Assessment attempt not found');
+      throw new NotFoundException('Quiz attempt not found');
     }
 
     const answerUpdates = data.answers || [];
     for (const answer of answerUpdates) {
-      await this.prisma.assessmentAnswer.update({
+      await this.prisma.quizAnswer.update({
         where: { id: answer.answerId },
         data: {
           ...(answer.teacherAdjustedPoints !== undefined ? { teacherAdjustedPoints: answer.teacherAdjustedPoints } : {}),
@@ -1048,16 +1042,16 @@ export class LectureService {
       });
     }
 
-    const refreshed = await this.prisma.assessmentAttempt.findUnique({
+    const refreshed = await this.prisma.quizAttempt.findUnique({
       where: { id: attemptId },
       include: { answers: true },
     });
 
     const teacherAdjustment = data.teacherAdjustment ?? 0;
     const finalScore = (refreshed?.autoScore ?? attempt.autoScore) + teacherAdjustment;
-    const scorePercent = this.calculateScorePercent(finalScore, attempt.assessment.totalPoints ?? 0);
+    const scorePercent = this.calculateScorePercent(finalScore, attempt.quiz.totalPoints ?? 0);
 
-    return this.prisma.assessmentAttempt.update({
+    return this.prisma.quizAttempt.update({
       where: { id: attemptId },
       data: {
         teacherAdjustment,
@@ -1070,7 +1064,7 @@ export class LectureService {
       },
       include: {
         answers: true,
-        assessment: true,
+        quiz: true,
         member: {
           include: { profile: true },
         },
@@ -1078,7 +1072,7 @@ export class LectureService {
     });
   }
 
-  async getAssessmentLeaderboard(
+  async getQuizLeaderboard(
     channelId: string,
     profileId: string,
     profileUserId?: string,
@@ -1116,7 +1110,7 @@ export class LectureService {
       throw new ForbiddenException('Not a member of this channel');
     }
 
-    const assessments = await this.prisma.assessment.findMany({
+    const quizzes = await this.prisma.quiz.findMany({
       where: { channelId },
       select: {
         id: true,
@@ -1126,21 +1120,21 @@ export class LectureService {
       orderBy: [{ createdAt: 'asc' }, { title: 'asc' }],
     });
 
-    const assessmentIds = assessments.map((assessment) => assessment.id);
+    const quizIds = quizzes.map((quiz) => quiz.id);
 
-    if (assessmentIds.length === 0) {
+    if (quizIds.length === 0) {
       return {
         channelId: channel.id,
         channelName: channel.name,
-        assessments: [],
+        quizzes: [],
         entries: [],
       };
     }
 
-    const attempts = await this.prisma.assessmentAttempt.findMany({
-      where: { assessmentId: { in: assessmentIds } },
+    const attempts = await this.prisma.quizAttempt.findMany({
+      where: { quizId: { in: quizIds } },
       select: {
-        assessmentId: true,
+        quizId: true,
         memberId: true,
         scorePercent: true,
         finalScore: true,
@@ -1150,24 +1144,24 @@ export class LectureService {
     });
 
     const attemptMap = new Map(
-      attempts.map((attempt) => [`${attempt.memberId}:${attempt.assessmentId}`, attempt]),
+      attempts.map((attempt) => [`${attempt.memberId}:${attempt.quizId}`, attempt]),
     );
 
     const leaderboardEntries = channel.server.members.map((member) => {
-      const assignmentScores = assessments.map((assessment) => {
-        const attempt = attemptMap.get(`${member.id}:${assessment.id}`);
+      const quizScores = quizzes.map((quiz) => {
+        const attempt = attemptMap.get(`${member.id}:${quiz.id}`);
 
         return {
-          assessmentId: assessment.id,
+          quizId: quiz.id,
           scorePercent: attempt?.scorePercent ?? null,
           finalScore: attempt?.finalScore ?? null,
           submittedAt: attempt?.submittedAt ?? null,
         };
       });
 
-      const totalScore = assignmentScores.reduce((sum, score) => sum + (score.scorePercent ?? 0), 0);
+      const totalScore = quizScores.reduce((sum, score) => sum + (score.scorePercent ?? 0), 0);
 
-      const lastActivityAt = assignmentScores.reduce<string | null>((latest, score) => {
+      const lastActivityAt = quizScores.reduce<string | null>((latest, score) => {
         const timestamp = score.submittedAt?.toISOString() ?? null;
 
         if (!timestamp) {
@@ -1184,7 +1178,7 @@ export class LectureService {
       return {
         memberId: member.id,
         member,
-        assignmentScores,
+        quizScores,
         totalScore,
         lastActivityAt,
       };
@@ -1207,14 +1201,14 @@ export class LectureService {
     return {
       channelId: channel.id,
       channelName: channel.name,
-      assessments,
+      quizzes,
       entries: leaderboardEntries,
     };
   }
 
-  async getAssessmentById(assessmentId: string) {
-    const assessment = await this.prisma.assessment.findUnique({
-      where: { id: assessmentId },
+  async getQuizById(quizId: string) {
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
       include: {
         questions: {
           include: {
@@ -1233,21 +1227,21 @@ export class LectureService {
       },
     });
 
-    if (!assessment) {
-      throw new NotFoundException('Assessment not found');
+    if (!quiz) {
+      throw new NotFoundException('Quiz not found');
     }
 
     // Block submissions after expiry
-    if (assessment.expiresAt && new Date() > assessment.expiresAt) {
-      throw new ForbiddenException('Assessment has expired');
+    if (quiz.expiresAt && new Date() > quiz.expiresAt) {
+      throw new ForbiddenException('Quiz has expired');
     }
 
-    return assessment;
+    return quiz;
   }
 
-  async startAssessmentAttempt(assessmentId: string, memberId: string) {
-    const assessment = await this.prisma.assessment.findUnique({
-      where: { id: assessmentId },
+  async startQuizAttempt(quizId: string, memberId: string) {
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
       select: {
         id: true,
         durationMinutes: true,
@@ -1255,17 +1249,17 @@ export class LectureService {
       },
     });
 
-    if (!assessment) {
-      throw new NotFoundException('Assessment not found');
+    if (!quiz) {
+      throw new NotFoundException('Quiz not found');
     }
 
-    const existingAttempt = await this.prisma.assessmentAttempt.findFirst({
+    const existingAttempt = await this.prisma.quizAttempt.findFirst({
       where: {
-        assessmentId,
+        quizId,
         memberId,
       },
       include: {
-        assessment: true,
+        quiz: true,
       },
     });
 
@@ -1273,28 +1267,28 @@ export class LectureService {
       return existingAttempt;
     }
 
-    return this.prisma.assessmentAttempt.create({
+    return this.prisma.quizAttempt.create({
       data: {
-        assessmentId,
+        quizId,
         memberId,
         status: 'IN_PROGRESS',
       },
       include: {
-        assessment: true,
+        quiz: true,
       },
     });
   }
 
-  private async recalculateAssessmentTotals(assessmentId: string) {
-    const questions = await this.prisma.assessmentQuestion.findMany({
-      where: { assessmentId },
+  private async recalculateQuizTotals(quizId: string) {
+    const questions = await this.prisma.quizQuestion.findMany({
+      where: { quizId },
       select: { points: true },
     });
 
     const totalPoints = questions.reduce((sum, question) => sum + question.points, 0);
 
-    await this.prisma.assessment.update({
-      where: { id: assessmentId },
+    await this.prisma.quiz.update({
+      where: { id: quizId },
       data: {
         totalQuestions: questions.length,
         totalPoints,
@@ -1330,15 +1324,15 @@ export class LectureService {
   }
 
   /**
-   * Submit assessment attempt
+   * Submit quiz attempt
    */
-  async submitAssessmentAttempt(
-    assessmentId: string,
+  async submitQuizAttempt(
+    quizId: string,
     memberId: string,
     answers: Record<string, string>, // questionId -> optionId
   ) {
-    const assessment = await this.prisma.assessment.findUnique({
-      where: { id: assessmentId },
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
       include: {
         questions: {
           include: {
@@ -1348,17 +1342,17 @@ export class LectureService {
       },
     });
 
-    if (!assessment) {
-      throw new NotFoundException('Assessment not found');
+    if (!quiz) {
+      throw new NotFoundException('Quiz not found');
     }
 
-    const existingAttempt = await this.prisma.assessmentAttempt.findFirst({
+    const existingAttempt = await this.prisma.quizAttempt.findFirst({
       where: {
-        assessmentId,
+        quizId,
         memberId,
       },
       include: {
-        assessment: {
+        quiz: {
           select: {
             id: true,
             durationMinutes: true,
@@ -1369,25 +1363,25 @@ export class LectureService {
     });
 
     if (existingAttempt?.submittedAt) {
-      throw new ConflictException('Assessment attempt already exists for this member');
+      throw new ConflictException('Quiz attempt already exists for this member');
     }
 
     if (!existingAttempt) {
-      throw new BadRequestException('Assessment attempt has not been started');
+      throw new BadRequestException('Quiz attempt has not been started');
     }
 
     const startedAt = existingAttempt.startedAt;
 
-    if (this.isAssessmentAttemptExpired(assessment, startedAt)) {
-      throw new ForbiddenException('Assessment time limit has expired');
+    if (this.isQuizAttemptExpired(quiz, startedAt)) {
+      throw new ForbiddenException('Quiz time limit has expired');
     }
 
     // Calculate score
     let correctCount = 0;
     let autoPoints = 0;
-    const totalPoints = assessment.questions.reduce((sum, question) => sum + question.points, 0);
+    const totalPoints = quiz.questions.reduce((sum, question) => sum + question.points, 0);
 
-    const answerRows = assessment.questions.map((question) => {
+    const answerRows = quiz.questions.map((question) => {
       const selectedOptionId = answers[question.id];
       const selectedOption = question.options.find((o) => o.id === selectedOptionId);
       const answerText = selectedOption ? null : (selectedOptionId ?? null);
@@ -1428,7 +1422,7 @@ export class LectureService {
     // Save attempt
     let attempt;
     try {
-      attempt = await this.prisma.assessmentAttempt.update({
+      attempt = await this.prisma.quizAttempt.update({
         where: { id: existingAttempt.id },
         data: {
           status: 'SUBMITTED',
@@ -1443,7 +1437,7 @@ export class LectureService {
         },
         include: {
           answers: true,
-          assessment: {
+          quiz: {
             include: {
               questions: {
                 include: {
@@ -1456,7 +1450,7 @@ export class LectureService {
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException('Assessment attempt already exists for this member');
+        throw new ConflictException('Quiz attempt already exists for this member');
       }
 
       throw error;
@@ -1469,16 +1463,16 @@ export class LectureService {
       scorePercent,
       finalScore: autoPoints,
       correctCount,
-      totalQuestions: assessment.questions.length,
+      totalQuestions: quiz.questions.length,
       totalPoints,
     };
   }
 
-  async getAssessmentAttemptById(attemptId: string) {
-    const attempt = await this.prisma.assessmentAttempt.findUnique({
+  async getQuizAttemptById(attemptId: string) {
+    const attempt = await this.prisma.quizAttempt.findUnique({
       where: { id: attemptId },
       include: {
-        assessment: {
+        quiz: {
           include: {
             questions: {
               include: {
@@ -1502,22 +1496,14 @@ export class LectureService {
     });
 
     if (!attempt) {
-      throw new NotFoundException('Assessment attempt not found');
+      throw new NotFoundException('Quiz attempt not found');
     }
 
     return attempt;
   }
 
-  async generateQuiz(lectureId: string, dto: GenerateQuizDto) {
-    return this.generateAssessment(lectureId, dto);
-  }
-
   async getQuizzesByLecture(lectureId: string) {
-    return this.getAssessmentsByLecture(lectureId);
-  }
-
-  async submitQuizAttempt(quizId: string, memberId: string, answers: Record<string, string>) {
-    return this.submitAssessmentAttempt(quizId, memberId, answers);
+    return this.getQuizsByLecture(lectureId);
   }
 
   private getErrorMessage(error: unknown): string {

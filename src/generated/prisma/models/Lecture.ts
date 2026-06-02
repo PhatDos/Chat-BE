@@ -218,7 +218,7 @@ export type LectureWhereInput = {
   member?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   summary?: Prisma.XOR<Prisma.SummaryNullableScalarRelationFilter, Prisma.SummaryWhereInput> | null
   flashcardSet?: Prisma.XOR<Prisma.FlashcardSetNullableScalarRelationFilter, Prisma.FlashcardSetWhereInput> | null
-  assessment?: Prisma.XOR<Prisma.AssessmentNullableScalarRelationFilter, Prisma.AssessmentWhereInput> | null
+  quiz?: Prisma.XOR<Prisma.QuizNullableScalarRelationFilter, Prisma.QuizWhereInput> | null
 }
 
 export type LectureOrderByWithRelationInput = {
@@ -235,7 +235,7 @@ export type LectureOrderByWithRelationInput = {
   member?: Prisma.MemberOrderByWithRelationInput
   summary?: Prisma.SummaryOrderByWithRelationInput
   flashcardSet?: Prisma.FlashcardSetOrderByWithRelationInput
-  assessment?: Prisma.AssessmentOrderByWithRelationInput
+  quiz?: Prisma.QuizOrderByWithRelationInput
 }
 
 export type LectureWhereUniqueInput = Prisma.AtLeast<{
@@ -255,7 +255,7 @@ export type LectureWhereUniqueInput = Prisma.AtLeast<{
   member?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   summary?: Prisma.XOR<Prisma.SummaryNullableScalarRelationFilter, Prisma.SummaryWhereInput> | null
   flashcardSet?: Prisma.XOR<Prisma.FlashcardSetNullableScalarRelationFilter, Prisma.FlashcardSetWhereInput> | null
-  assessment?: Prisma.XOR<Prisma.AssessmentNullableScalarRelationFilter, Prisma.AssessmentWhereInput> | null
+  quiz?: Prisma.XOR<Prisma.QuizNullableScalarRelationFilter, Prisma.QuizWhereInput> | null
 }, "id">
 
 export type LectureOrderByWithAggregationInput = {
@@ -300,7 +300,7 @@ export type LectureCreateInput = {
   member: Prisma.MemberCreateNestedOneWithoutLecturesInput
   summary?: Prisma.SummaryCreateNestedOneWithoutLectureInput
   flashcardSet?: Prisma.FlashcardSetCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLectureInput
 }
 
 export type LectureUncheckedCreateInput = {
@@ -315,7 +315,7 @@ export type LectureUncheckedCreateInput = {
   updatedAt?: Date | string
   summary?: Prisma.SummaryUncheckedCreateNestedOneWithoutLectureInput
   flashcardSet?: Prisma.FlashcardSetUncheckedCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentUncheckedCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLectureInput
 }
 
 export type LectureUpdateInput = {
@@ -330,7 +330,7 @@ export type LectureUpdateInput = {
   member?: Prisma.MemberUpdateOneRequiredWithoutLecturesNestedInput
   summary?: Prisma.SummaryUpdateOneWithoutLectureNestedInput
   flashcardSet?: Prisma.FlashcardSetUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateInput = {
@@ -345,7 +345,7 @@ export type LectureUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   summary?: Prisma.SummaryUncheckedUpdateOneWithoutLectureNestedInput
   flashcardSet?: Prisma.FlashcardSetUncheckedUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUncheckedUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureCreateManyInput = {
@@ -554,20 +554,20 @@ export type LectureUpdateOneRequiredWithoutFlashcardSetNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LectureUpdateToOneWithWhereWithoutFlashcardSetInput, Prisma.LectureUpdateWithoutFlashcardSetInput>, Prisma.LectureUncheckedUpdateWithoutFlashcardSetInput>
 }
 
-export type LectureCreateNestedOneWithoutAssessmentInput = {
-  create?: Prisma.XOR<Prisma.LectureCreateWithoutAssessmentInput, Prisma.LectureUncheckedCreateWithoutAssessmentInput>
-  connectOrCreate?: Prisma.LectureCreateOrConnectWithoutAssessmentInput
+export type LectureCreateNestedOneWithoutQuizInput = {
+  create?: Prisma.XOR<Prisma.LectureCreateWithoutQuizInput, Prisma.LectureUncheckedCreateWithoutQuizInput>
+  connectOrCreate?: Prisma.LectureCreateOrConnectWithoutQuizInput
   connect?: Prisma.LectureWhereUniqueInput
 }
 
-export type LectureUpdateOneWithoutAssessmentNestedInput = {
-  create?: Prisma.XOR<Prisma.LectureCreateWithoutAssessmentInput, Prisma.LectureUncheckedCreateWithoutAssessmentInput>
-  connectOrCreate?: Prisma.LectureCreateOrConnectWithoutAssessmentInput
-  upsert?: Prisma.LectureUpsertWithoutAssessmentInput
+export type LectureUpdateOneWithoutQuizNestedInput = {
+  create?: Prisma.XOR<Prisma.LectureCreateWithoutQuizInput, Prisma.LectureUncheckedCreateWithoutQuizInput>
+  connectOrCreate?: Prisma.LectureCreateOrConnectWithoutQuizInput
+  upsert?: Prisma.LectureUpsertWithoutQuizInput
   disconnect?: Prisma.LectureWhereInput | boolean
   delete?: Prisma.LectureWhereInput | boolean
   connect?: Prisma.LectureWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.LectureUpdateToOneWithWhereWithoutAssessmentInput, Prisma.LectureUpdateWithoutAssessmentInput>, Prisma.LectureUncheckedUpdateWithoutAssessmentInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LectureUpdateToOneWithWhereWithoutQuizInput, Prisma.LectureUpdateWithoutQuizInput>, Prisma.LectureUncheckedUpdateWithoutQuizInput>
 }
 
 export type LectureCreateWithoutMemberInput = {
@@ -581,7 +581,7 @@ export type LectureCreateWithoutMemberInput = {
   channel: Prisma.ChannelCreateNestedOneWithoutLecturesInput
   summary?: Prisma.SummaryCreateNestedOneWithoutLectureInput
   flashcardSet?: Prisma.FlashcardSetCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLectureInput
 }
 
 export type LectureUncheckedCreateWithoutMemberInput = {
@@ -595,7 +595,7 @@ export type LectureUncheckedCreateWithoutMemberInput = {
   updatedAt?: Date | string
   summary?: Prisma.SummaryUncheckedCreateNestedOneWithoutLectureInput
   flashcardSet?: Prisma.FlashcardSetUncheckedCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentUncheckedCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLectureInput
 }
 
 export type LectureCreateOrConnectWithoutMemberInput = {
@@ -650,7 +650,7 @@ export type LectureCreateWithoutChannelInput = {
   member: Prisma.MemberCreateNestedOneWithoutLecturesInput
   summary?: Prisma.SummaryCreateNestedOneWithoutLectureInput
   flashcardSet?: Prisma.FlashcardSetCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLectureInput
 }
 
 export type LectureUncheckedCreateWithoutChannelInput = {
@@ -664,7 +664,7 @@ export type LectureUncheckedCreateWithoutChannelInput = {
   updatedAt?: Date | string
   summary?: Prisma.SummaryUncheckedCreateNestedOneWithoutLectureInput
   flashcardSet?: Prisma.FlashcardSetUncheckedCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentUncheckedCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLectureInput
 }
 
 export type LectureCreateOrConnectWithoutChannelInput = {
@@ -704,7 +704,7 @@ export type LectureCreateWithoutSummaryInput = {
   channel: Prisma.ChannelCreateNestedOneWithoutLecturesInput
   member: Prisma.MemberCreateNestedOneWithoutLecturesInput
   flashcardSet?: Prisma.FlashcardSetCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLectureInput
 }
 
 export type LectureUncheckedCreateWithoutSummaryInput = {
@@ -718,7 +718,7 @@ export type LectureUncheckedCreateWithoutSummaryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   flashcardSet?: Prisma.FlashcardSetUncheckedCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentUncheckedCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLectureInput
 }
 
 export type LectureCreateOrConnectWithoutSummaryInput = {
@@ -748,7 +748,7 @@ export type LectureUpdateWithoutSummaryInput = {
   channel?: Prisma.ChannelUpdateOneRequiredWithoutLecturesNestedInput
   member?: Prisma.MemberUpdateOneRequiredWithoutLecturesNestedInput
   flashcardSet?: Prisma.FlashcardSetUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateWithoutSummaryInput = {
@@ -762,7 +762,7 @@ export type LectureUncheckedUpdateWithoutSummaryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   flashcardSet?: Prisma.FlashcardSetUncheckedUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUncheckedUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureCreateWithoutFlashcardSetInput = {
@@ -776,7 +776,7 @@ export type LectureCreateWithoutFlashcardSetInput = {
   channel: Prisma.ChannelCreateNestedOneWithoutLecturesInput
   member: Prisma.MemberCreateNestedOneWithoutLecturesInput
   summary?: Prisma.SummaryCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLectureInput
 }
 
 export type LectureUncheckedCreateWithoutFlashcardSetInput = {
@@ -790,7 +790,7 @@ export type LectureUncheckedCreateWithoutFlashcardSetInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   summary?: Prisma.SummaryUncheckedCreateNestedOneWithoutLectureInput
-  assessment?: Prisma.AssessmentUncheckedCreateNestedOneWithoutLectureInput
+  quiz?: Prisma.QuizUncheckedCreateNestedOneWithoutLectureInput
 }
 
 export type LectureCreateOrConnectWithoutFlashcardSetInput = {
@@ -820,7 +820,7 @@ export type LectureUpdateWithoutFlashcardSetInput = {
   channel?: Prisma.ChannelUpdateOneRequiredWithoutLecturesNestedInput
   member?: Prisma.MemberUpdateOneRequiredWithoutLecturesNestedInput
   summary?: Prisma.SummaryUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateWithoutFlashcardSetInput = {
@@ -834,10 +834,10 @@ export type LectureUncheckedUpdateWithoutFlashcardSetInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   summary?: Prisma.SummaryUncheckedUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUncheckedUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLectureNestedInput
 }
 
-export type LectureCreateWithoutAssessmentInput = {
+export type LectureCreateWithoutQuizInput = {
   id?: string
   title: string
   fileUrl: string
@@ -851,7 +851,7 @@ export type LectureCreateWithoutAssessmentInput = {
   flashcardSet?: Prisma.FlashcardSetCreateNestedOneWithoutLectureInput
 }
 
-export type LectureUncheckedCreateWithoutAssessmentInput = {
+export type LectureUncheckedCreateWithoutQuizInput = {
   id?: string
   title: string
   fileUrl: string
@@ -865,23 +865,23 @@ export type LectureUncheckedCreateWithoutAssessmentInput = {
   flashcardSet?: Prisma.FlashcardSetUncheckedCreateNestedOneWithoutLectureInput
 }
 
-export type LectureCreateOrConnectWithoutAssessmentInput = {
+export type LectureCreateOrConnectWithoutQuizInput = {
   where: Prisma.LectureWhereUniqueInput
-  create: Prisma.XOR<Prisma.LectureCreateWithoutAssessmentInput, Prisma.LectureUncheckedCreateWithoutAssessmentInput>
+  create: Prisma.XOR<Prisma.LectureCreateWithoutQuizInput, Prisma.LectureUncheckedCreateWithoutQuizInput>
 }
 
-export type LectureUpsertWithoutAssessmentInput = {
-  update: Prisma.XOR<Prisma.LectureUpdateWithoutAssessmentInput, Prisma.LectureUncheckedUpdateWithoutAssessmentInput>
-  create: Prisma.XOR<Prisma.LectureCreateWithoutAssessmentInput, Prisma.LectureUncheckedCreateWithoutAssessmentInput>
+export type LectureUpsertWithoutQuizInput = {
+  update: Prisma.XOR<Prisma.LectureUpdateWithoutQuizInput, Prisma.LectureUncheckedUpdateWithoutQuizInput>
+  create: Prisma.XOR<Prisma.LectureCreateWithoutQuizInput, Prisma.LectureUncheckedCreateWithoutQuizInput>
   where?: Prisma.LectureWhereInput
 }
 
-export type LectureUpdateToOneWithWhereWithoutAssessmentInput = {
+export type LectureUpdateToOneWithWhereWithoutQuizInput = {
   where?: Prisma.LectureWhereInput
-  data: Prisma.XOR<Prisma.LectureUpdateWithoutAssessmentInput, Prisma.LectureUncheckedUpdateWithoutAssessmentInput>
+  data: Prisma.XOR<Prisma.LectureUpdateWithoutQuizInput, Prisma.LectureUncheckedUpdateWithoutQuizInput>
 }
 
-export type LectureUpdateWithoutAssessmentInput = {
+export type LectureUpdateWithoutQuizInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -895,7 +895,7 @@ export type LectureUpdateWithoutAssessmentInput = {
   flashcardSet?: Prisma.FlashcardSetUpdateOneWithoutLectureNestedInput
 }
 
-export type LectureUncheckedUpdateWithoutAssessmentInput = {
+export type LectureUncheckedUpdateWithoutQuizInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -931,7 +931,7 @@ export type LectureUpdateWithoutMemberInput = {
   channel?: Prisma.ChannelUpdateOneRequiredWithoutLecturesNestedInput
   summary?: Prisma.SummaryUpdateOneWithoutLectureNestedInput
   flashcardSet?: Prisma.FlashcardSetUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateWithoutMemberInput = {
@@ -945,7 +945,7 @@ export type LectureUncheckedUpdateWithoutMemberInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   summary?: Prisma.SummaryUncheckedUpdateOneWithoutLectureNestedInput
   flashcardSet?: Prisma.FlashcardSetUncheckedUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUncheckedUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateManyWithoutMemberInput = {
@@ -981,7 +981,7 @@ export type LectureUpdateWithoutChannelInput = {
   member?: Prisma.MemberUpdateOneRequiredWithoutLecturesNestedInput
   summary?: Prisma.SummaryUpdateOneWithoutLectureNestedInput
   flashcardSet?: Prisma.FlashcardSetUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateWithoutChannelInput = {
@@ -995,7 +995,7 @@ export type LectureUncheckedUpdateWithoutChannelInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   summary?: Prisma.SummaryUncheckedUpdateOneWithoutLectureNestedInput
   flashcardSet?: Prisma.FlashcardSetUncheckedUpdateOneWithoutLectureNestedInput
-  assessment?: Prisma.AssessmentUncheckedUpdateOneWithoutLectureNestedInput
+  quiz?: Prisma.QuizUncheckedUpdateOneWithoutLectureNestedInput
 }
 
 export type LectureUncheckedUpdateManyWithoutChannelInput = {
@@ -1025,7 +1025,7 @@ export type LectureSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   member?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   summary?: boolean | Prisma.Lecture$summaryArgs<ExtArgs>
   flashcardSet?: boolean | Prisma.Lecture$flashcardSetArgs<ExtArgs>
-  assessment?: boolean | Prisma.Lecture$assessmentArgs<ExtArgs>
+  quiz?: boolean | Prisma.Lecture$quizArgs<ExtArgs>
 }, ExtArgs["result"]["lecture"]>
 
 export type LectureSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1074,7 +1074,7 @@ export type LectureInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   member?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   summary?: boolean | Prisma.Lecture$summaryArgs<ExtArgs>
   flashcardSet?: boolean | Prisma.Lecture$flashcardSetArgs<ExtArgs>
-  assessment?: boolean | Prisma.Lecture$assessmentArgs<ExtArgs>
+  quiz?: boolean | Prisma.Lecture$quizArgs<ExtArgs>
 }
 export type LectureIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   channel?: boolean | Prisma.ChannelDefaultArgs<ExtArgs>
@@ -1092,7 +1092,7 @@ export type $LecturePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     member: Prisma.$MemberPayload<ExtArgs>
     summary: Prisma.$SummaryPayload<ExtArgs> | null
     flashcardSet: Prisma.$FlashcardSetPayload<ExtArgs> | null
-    assessment: Prisma.$AssessmentPayload<ExtArgs> | null
+    quiz: Prisma.$QuizPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1502,7 +1502,7 @@ export interface Prisma__LectureClient<T, Null = never, ExtArgs extends runtime.
   member<T extends Prisma.MemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MemberDefaultArgs<ExtArgs>>): Prisma.Prisma__MemberClient<runtime.Types.Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   summary<T extends Prisma.Lecture$summaryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lecture$summaryArgs<ExtArgs>>): Prisma.Prisma__SummaryClient<runtime.Types.Result.GetResult<Prisma.$SummaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   flashcardSet<T extends Prisma.Lecture$flashcardSetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lecture$flashcardSetArgs<ExtArgs>>): Prisma.Prisma__FlashcardSetClient<runtime.Types.Result.GetResult<Prisma.$FlashcardSetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  assessment<T extends Prisma.Lecture$assessmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lecture$assessmentArgs<ExtArgs>>): Prisma.Prisma__AssessmentClient<runtime.Types.Result.GetResult<Prisma.$AssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  quiz<T extends Prisma.Lecture$quizArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lecture$quizArgs<ExtArgs>>): Prisma.Prisma__QuizClient<runtime.Types.Result.GetResult<Prisma.$QuizPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1975,22 +1975,22 @@ export type Lecture$flashcardSetArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * Lecture.assessment
+ * Lecture.quiz
  */
-export type Lecture$assessmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Lecture$quizArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Assessment
+   * Select specific fields to fetch from the Quiz
    */
-  select?: Prisma.AssessmentSelect<ExtArgs> | null
+  select?: Prisma.QuizSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Assessment
+   * Omit specific fields from the Quiz
    */
-  omit?: Prisma.AssessmentOmit<ExtArgs> | null
+  omit?: Prisma.QuizOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AssessmentInclude<ExtArgs> | null
-  where?: Prisma.AssessmentWhereInput
+  include?: Prisma.QuizInclude<ExtArgs> | null
+  where?: Prisma.QuizWhereInput
 }
 
 /**

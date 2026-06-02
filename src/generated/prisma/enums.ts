@@ -91,22 +91,14 @@ export const SummaryTone = {
 export type SummaryTone = (typeof SummaryTone)[keyof typeof SummaryTone]
 
 
-export const AssessmentType = {
-  QUIZ: 'QUIZ',
-  ASSIGNMENT: 'ASSIGNMENT'
-} as const
-
-export type AssessmentType = (typeof AssessmentType)[keyof typeof AssessmentType]
-
-
-export const AssessmentStatus = {
+export const QuizStatus = {
   DRAFT: 'DRAFT',
   PUBLISHED: 'PUBLISHED',
   CLOSED: 'CLOSED',
   ARCHIVED: 'ARCHIVED'
 } as const
 
-export type AssessmentStatus = (typeof AssessmentStatus)[keyof typeof AssessmentStatus]
+export type QuizStatus = (typeof QuizStatus)[keyof typeof QuizStatus]
 
 
 export const AttemptStatus = {

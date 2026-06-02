@@ -171,7 +171,12 @@ export class PrismaChannelMessageRepository
       FROM target_member tm
       ON CONFLICT ("memberId", "channelId")
       DO UPDATE SET
-        "formerLastReadAt" = "ChannelRead"."lastReadAt",
+        "formerLastReadAt" = CASE
+          WHEN "ChannelRead"."lastReadAt" IS NOT NULL
+            AND EXTRACT(EPOCH FROM (NOW() - "ChannelRead"."lastReadAt")) > 1
+          THEN "ChannelRead"."lastReadAt"
+          ELSE "ChannelRead"."formerLastReadAt"
+        END,
         "lastReadAt" = NOW()
       RETURNING
         "_id" AS "id",
