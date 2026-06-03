@@ -83,6 +83,21 @@ export type ConversationRead = Prisma.ConversationReadModel
  */
 export type ChannelRead = Prisma.ChannelReadModel
 /**
+ * Model Poll
+ * 
+ */
+export type Poll = Prisma.PollModel
+/**
+ * Model PollOption
+ * 
+ */
+export type PollOption = Prisma.PollOptionModel
+/**
+ * Model PollVote
+ * 
+ */
+export type PollVote = Prisma.PollVoteModel
+/**
  * Model Post
  * 
  */

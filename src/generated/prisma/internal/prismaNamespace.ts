@@ -393,6 +393,9 @@ export const ModelName = {
   DirectMessage: 'DirectMessage',
   ConversationRead: 'ConversationRead',
   ChannelRead: 'ChannelRead',
+  Poll: 'Poll',
+  PollOption: 'PollOption',
+  PollVote: 'PollVote',
   Post: 'Post',
   Comment: 'Comment',
   Like: 'Like',
@@ -422,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "server" | "member" | "channel" | "message" | "conversation" | "directMessage" | "conversationRead" | "channelRead" | "post" | "comment" | "like" | "friend" | "friendRequest" | "lecture" | "summary" | "flashcard" | "flashcardSet" | "quiz" | "quizQuestion" | "quizOption" | "quizAttempt" | "quizAnswer"
+    modelProps: "profile" | "server" | "member" | "channel" | "message" | "conversation" | "directMessage" | "conversationRead" | "channelRead" | "poll" | "pollOption" | "pollVote" | "post" | "comment" | "like" | "friend" | "friendRequest" | "lecture" | "summary" | "flashcard" | "flashcardSet" | "quiz" | "quizQuestion" | "quizOption" | "quizAttempt" | "quizAnswer"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1089,6 +1092,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ChannelReadCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ChannelReadCountAggregateOutputType> | number
+        }
+      }
+    }
+    Poll: {
+      payload: Prisma.$PollPayload<ExtArgs>
+      fields: Prisma.PollFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PollFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PollFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        findFirst: {
+          args: Prisma.PollFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PollFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        findMany: {
+          args: Prisma.PollFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>[]
+        }
+        create: {
+          args: Prisma.PollCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        createMany: {
+          args: Prisma.PollCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PollCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>[]
+        }
+        delete: {
+          args: Prisma.PollDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        update: {
+          args: Prisma.PollUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        deleteMany: {
+          args: Prisma.PollDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PollUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PollUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>[]
+        }
+        upsert: {
+          args: Prisma.PollUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        aggregate: {
+          args: Prisma.PollAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePoll>
+        }
+        groupBy: {
+          args: Prisma.PollGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PollCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollCountAggregateOutputType> | number
+        }
+      }
+    }
+    PollOption: {
+      payload: Prisma.$PollOptionPayload<ExtArgs>
+      fields: Prisma.PollOptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PollOptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PollOptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        findFirst: {
+          args: Prisma.PollOptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PollOptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        findMany: {
+          args: Prisma.PollOptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>[]
+        }
+        create: {
+          args: Prisma.PollOptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        createMany: {
+          args: Prisma.PollOptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PollOptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>[]
+        }
+        delete: {
+          args: Prisma.PollOptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        update: {
+          args: Prisma.PollOptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PollOptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PollOptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PollOptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PollOptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        aggregate: {
+          args: Prisma.PollOptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePollOption>
+        }
+        groupBy: {
+          args: Prisma.PollOptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollOptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PollOptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollOptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    PollVote: {
+      payload: Prisma.$PollVotePayload<ExtArgs>
+      fields: Prisma.PollVoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PollVoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PollVoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        findFirst: {
+          args: Prisma.PollVoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PollVoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        findMany: {
+          args: Prisma.PollVoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>[]
+        }
+        create: {
+          args: Prisma.PollVoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        createMany: {
+          args: Prisma.PollVoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PollVoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>[]
+        }
+        delete: {
+          args: Prisma.PollVoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        update: {
+          args: Prisma.PollVoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        deleteMany: {
+          args: Prisma.PollVoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PollVoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PollVoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>[]
+        }
+        upsert: {
+          args: Prisma.PollVoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        aggregate: {
+          args: Prisma.PollVoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePollVote>
+        }
+        groupBy: {
+          args: Prisma.PollVoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollVoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PollVoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollVoteCountAggregateOutputType> | number
         }
       }
     }
@@ -2289,6 +2514,36 @@ export const ChannelReadScalarFieldEnum = {
 export type ChannelReadScalarFieldEnum = (typeof ChannelReadScalarFieldEnum)[keyof typeof ChannelReadScalarFieldEnum]
 
 
+export const PollScalarFieldEnum = {
+  id: 'id',
+  question: 'question',
+  channelId: 'channelId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PollScalarFieldEnum = (typeof PollScalarFieldEnum)[keyof typeof PollScalarFieldEnum]
+
+
+export const PollOptionScalarFieldEnum = {
+  id: 'id',
+  pollId: 'pollId',
+  text: 'text'
+} as const
+
+export type PollOptionScalarFieldEnum = (typeof PollOptionScalarFieldEnum)[keyof typeof PollOptionScalarFieldEnum]
+
+
+export const PollVoteScalarFieldEnum = {
+  id: 'id',
+  optionId: 'optionId',
+  memberId: 'memberId',
+  createdAt: 'createdAt'
+} as const
+
+export type PollVoteScalarFieldEnum = (typeof PollVoteScalarFieldEnum)[keyof typeof PollVoteScalarFieldEnum]
+
+
 export const PostScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -2866,6 +3121,9 @@ export type GlobalOmitConfig = {
   directMessage?: Prisma.DirectMessageOmit
   conversationRead?: Prisma.ConversationReadOmit
   channelRead?: Prisma.ChannelReadOmit
+  poll?: Prisma.PollOmit
+  pollOption?: Prisma.PollOptionOmit
+  pollVote?: Prisma.PollVoteOmit
   post?: Prisma.PostOmit
   comment?: Prisma.CommentOmit
   like?: Prisma.LikeOmit

@@ -198,6 +198,8 @@ export type MemberWhereInput = {
   createdQuizzes?: Prisma.QuizListRelationFilter
   quizAttempts?: Prisma.QuizAttemptListRelationFilter
   gradedQuizAttempts?: Prisma.QuizAttemptListRelationFilter
+  createdPolls?: Prisma.PollListRelationFilter
+  pollVotes?: Prisma.PollVoteListRelationFilter
 }
 
 export type MemberOrderByWithRelationInput = {
@@ -215,6 +217,8 @@ export type MemberOrderByWithRelationInput = {
   createdQuizzes?: Prisma.QuizOrderByRelationAggregateInput
   quizAttempts?: Prisma.QuizAttemptOrderByRelationAggregateInput
   gradedQuizAttempts?: Prisma.QuizAttemptOrderByRelationAggregateInput
+  createdPolls?: Prisma.PollOrderByRelationAggregateInput
+  pollVotes?: Prisma.PollVoteOrderByRelationAggregateInput
 }
 
 export type MemberWhereUniqueInput = Prisma.AtLeast<{
@@ -236,6 +240,8 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   createdQuizzes?: Prisma.QuizListRelationFilter
   quizAttempts?: Prisma.QuizAttemptListRelationFilter
   gradedQuizAttempts?: Prisma.QuizAttemptListRelationFilter
+  createdPolls?: Prisma.PollListRelationFilter
+  pollVotes?: Prisma.PollVoteListRelationFilter
 }, "id" | "serverId_profileId">
 
 export type MemberOrderByWithAggregationInput = {
@@ -275,6 +281,8 @@ export type MemberCreateInput = {
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateInput = {
@@ -290,6 +298,8 @@ export type MemberUncheckedCreateInput = {
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUpdateInput = {
@@ -305,6 +315,8 @@ export type MemberUpdateInput = {
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateInput = {
@@ -320,6 +332,8 @@ export type MemberUncheckedUpdateInput = {
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateManyInput = {
@@ -517,6 +531,34 @@ export type MemberUpdateOneRequiredWithoutChannelReadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutChannelReadsInput, Prisma.MemberUpdateWithoutChannelReadsInput>, Prisma.MemberUncheckedUpdateWithoutChannelReadsInput>
 }
 
+export type MemberCreateNestedOneWithoutCreatedPollsInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutCreatedPollsInput, Prisma.MemberUncheckedCreateWithoutCreatedPollsInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutCreatedPollsInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberUpdateOneRequiredWithoutCreatedPollsNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutCreatedPollsInput, Prisma.MemberUncheckedCreateWithoutCreatedPollsInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutCreatedPollsInput
+  upsert?: Prisma.MemberUpsertWithoutCreatedPollsInput
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutCreatedPollsInput, Prisma.MemberUpdateWithoutCreatedPollsInput>, Prisma.MemberUncheckedUpdateWithoutCreatedPollsInput>
+}
+
+export type MemberCreateNestedOneWithoutPollVotesInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutPollVotesInput, Prisma.MemberUncheckedCreateWithoutPollVotesInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutPollVotesInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberUpdateOneRequiredWithoutPollVotesNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutPollVotesInput, Prisma.MemberUncheckedCreateWithoutPollVotesInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutPollVotesInput
+  upsert?: Prisma.MemberUpsertWithoutPollVotesInput
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutPollVotesInput, Prisma.MemberUpdateWithoutPollVotesInput>, Prisma.MemberUncheckedUpdateWithoutPollVotesInput>
+}
+
 export type MemberCreateNestedOneWithoutLecturesInput = {
   create?: Prisma.XOR<Prisma.MemberCreateWithoutLecturesInput, Prisma.MemberUncheckedCreateWithoutLecturesInput>
   connectOrCreate?: Prisma.MemberCreateOrConnectWithoutLecturesInput
@@ -587,6 +629,8 @@ export type MemberCreateWithoutProfileInput = {
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutProfileInput = {
@@ -601,6 +645,8 @@ export type MemberUncheckedCreateWithoutProfileInput = {
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutProfileInput = {
@@ -653,6 +699,8 @@ export type MemberCreateWithoutServerInput = {
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutServerInput = {
@@ -667,6 +715,8 @@ export type MemberUncheckedCreateWithoutServerInput = {
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutServerInput = {
@@ -707,6 +757,8 @@ export type MemberCreateWithoutMessagesInput = {
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutMessagesInput = {
@@ -721,6 +773,8 @@ export type MemberUncheckedCreateWithoutMessagesInput = {
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutMessagesInput = {
@@ -751,6 +805,8 @@ export type MemberUpdateWithoutMessagesInput = {
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutMessagesInput = {
@@ -765,6 +821,8 @@ export type MemberUncheckedUpdateWithoutMessagesInput = {
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutChannelReadsInput = {
@@ -779,6 +837,8 @@ export type MemberCreateWithoutChannelReadsInput = {
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutChannelReadsInput = {
@@ -793,6 +853,8 @@ export type MemberUncheckedCreateWithoutChannelReadsInput = {
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutChannelReadsInput = {
@@ -823,6 +885,8 @@ export type MemberUpdateWithoutChannelReadsInput = {
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutChannelReadsInput = {
@@ -837,6 +901,168 @@ export type MemberUncheckedUpdateWithoutChannelReadsInput = {
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberCreateWithoutCreatedPollsInput = {
+  id?: string
+  role?: $Enums.MemberRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile: Prisma.ProfileCreateNestedOneWithoutMembersInput
+  server: Prisma.ServerCreateNestedOneWithoutMembersInput
+  messages?: Prisma.MessageCreateNestedManyWithoutMemberInput
+  channelReads?: Prisma.ChannelReadCreateNestedManyWithoutMemberInput
+  lectures?: Prisma.LectureCreateNestedManyWithoutMemberInput
+  createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
+  quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
+  gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
+}
+
+export type MemberUncheckedCreateWithoutCreatedPollsInput = {
+  id?: string
+  role?: $Enums.MemberRole
+  profileId: string
+  serverId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutMemberInput
+  channelReads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutMemberInput
+  lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutMemberInput
+  createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
+  quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
+  gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
+}
+
+export type MemberCreateOrConnectWithoutCreatedPollsInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutCreatedPollsInput, Prisma.MemberUncheckedCreateWithoutCreatedPollsInput>
+}
+
+export type MemberUpsertWithoutCreatedPollsInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutCreatedPollsInput, Prisma.MemberUncheckedUpdateWithoutCreatedPollsInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutCreatedPollsInput, Prisma.MemberUncheckedCreateWithoutCreatedPollsInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutCreatedPollsInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutCreatedPollsInput, Prisma.MemberUncheckedUpdateWithoutCreatedPollsInput>
+}
+
+export type MemberUpdateWithoutCreatedPollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUpdateOneRequiredWithoutMembersNestedInput
+  server?: Prisma.ServerUpdateOneRequiredWithoutMembersNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutMemberNestedInput
+  channelReads?: Prisma.ChannelReadUpdateManyWithoutMemberNestedInput
+  lectures?: Prisma.LectureUpdateManyWithoutMemberNestedInput
+  createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
+  quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
+  gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutCreatedPollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutMemberNestedInput
+  channelReads?: Prisma.ChannelReadUncheckedUpdateManyWithoutMemberNestedInput
+  lectures?: Prisma.LectureUncheckedUpdateManyWithoutMemberNestedInput
+  createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
+  quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
+  gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberCreateWithoutPollVotesInput = {
+  id?: string
+  role?: $Enums.MemberRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile: Prisma.ProfileCreateNestedOneWithoutMembersInput
+  server: Prisma.ServerCreateNestedOneWithoutMembersInput
+  messages?: Prisma.MessageCreateNestedManyWithoutMemberInput
+  channelReads?: Prisma.ChannelReadCreateNestedManyWithoutMemberInput
+  lectures?: Prisma.LectureCreateNestedManyWithoutMemberInput
+  createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
+  quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
+  gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+}
+
+export type MemberUncheckedCreateWithoutPollVotesInput = {
+  id?: string
+  role?: $Enums.MemberRole
+  profileId: string
+  serverId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutMemberInput
+  channelReads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutMemberInput
+  lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutMemberInput
+  createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
+  quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
+  gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type MemberCreateOrConnectWithoutPollVotesInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutPollVotesInput, Prisma.MemberUncheckedCreateWithoutPollVotesInput>
+}
+
+export type MemberUpsertWithoutPollVotesInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutPollVotesInput, Prisma.MemberUncheckedUpdateWithoutPollVotesInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutPollVotesInput, Prisma.MemberUncheckedCreateWithoutPollVotesInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutPollVotesInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutPollVotesInput, Prisma.MemberUncheckedUpdateWithoutPollVotesInput>
+}
+
+export type MemberUpdateWithoutPollVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUpdateOneRequiredWithoutMembersNestedInput
+  server?: Prisma.ServerUpdateOneRequiredWithoutMembersNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutMemberNestedInput
+  channelReads?: Prisma.ChannelReadUpdateManyWithoutMemberNestedInput
+  lectures?: Prisma.LectureUpdateManyWithoutMemberNestedInput
+  createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
+  quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
+  gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutPollVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutMemberNestedInput
+  channelReads?: Prisma.ChannelReadUncheckedUpdateManyWithoutMemberNestedInput
+  lectures?: Prisma.LectureUncheckedUpdateManyWithoutMemberNestedInput
+  createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
+  quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
+  gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type MemberCreateWithoutLecturesInput = {
@@ -851,6 +1077,8 @@ export type MemberCreateWithoutLecturesInput = {
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutLecturesInput = {
@@ -865,6 +1093,8 @@ export type MemberUncheckedCreateWithoutLecturesInput = {
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutLecturesInput = {
@@ -895,6 +1125,8 @@ export type MemberUpdateWithoutLecturesInput = {
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutLecturesInput = {
@@ -909,6 +1141,8 @@ export type MemberUncheckedUpdateWithoutLecturesInput = {
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutCreatedQuizzesInput = {
@@ -923,6 +1157,8 @@ export type MemberCreateWithoutCreatedQuizzesInput = {
   lectures?: Prisma.LectureCreateNestedManyWithoutMemberInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutCreatedQuizzesInput = {
@@ -937,6 +1173,8 @@ export type MemberUncheckedCreateWithoutCreatedQuizzesInput = {
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutMemberInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutCreatedQuizzesInput = {
@@ -967,6 +1205,8 @@ export type MemberUpdateWithoutCreatedQuizzesInput = {
   lectures?: Prisma.LectureUpdateManyWithoutMemberNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutCreatedQuizzesInput = {
@@ -981,6 +1221,8 @@ export type MemberUncheckedUpdateWithoutCreatedQuizzesInput = {
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutMemberNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutQuizAttemptsInput = {
@@ -995,6 +1237,8 @@ export type MemberCreateWithoutQuizAttemptsInput = {
   lectures?: Prisma.LectureCreateNestedManyWithoutMemberInput
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   gradedQuizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutQuizAttemptsInput = {
@@ -1009,6 +1253,8 @@ export type MemberUncheckedCreateWithoutQuizAttemptsInput = {
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutMemberInput
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutGradedByInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutQuizAttemptsInput = {
@@ -1028,6 +1274,8 @@ export type MemberCreateWithoutGradedQuizAttemptsInput = {
   lectures?: Prisma.LectureCreateNestedManyWithoutMemberInput
   createdQuizzes?: Prisma.QuizCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutMemberInput
+  createdPolls?: Prisma.PollCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutGradedQuizAttemptsInput = {
@@ -1042,6 +1290,8 @@ export type MemberUncheckedCreateWithoutGradedQuizAttemptsInput = {
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutMemberInput
   createdQuizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutCreatedByInput
   quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutMemberInput
+  createdPolls?: Prisma.PollUncheckedCreateNestedManyWithoutCreatedByInput
+  pollVotes?: Prisma.PollVoteUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutGradedQuizAttemptsInput = {
@@ -1072,6 +1322,8 @@ export type MemberUpdateWithoutQuizAttemptsInput = {
   lectures?: Prisma.LectureUpdateManyWithoutMemberNestedInput
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutQuizAttemptsInput = {
@@ -1086,6 +1338,8 @@ export type MemberUncheckedUpdateWithoutQuizAttemptsInput = {
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutMemberNestedInput
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUpsertWithoutGradedQuizAttemptsInput = {
@@ -1111,6 +1365,8 @@ export type MemberUpdateWithoutGradedQuizAttemptsInput = {
   lectures?: Prisma.LectureUpdateManyWithoutMemberNestedInput
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutGradedQuizAttemptsInput = {
@@ -1125,6 +1381,8 @@ export type MemberUncheckedUpdateWithoutGradedQuizAttemptsInput = {
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutMemberNestedInput
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateManyProfileInput = {
@@ -1147,6 +1405,8 @@ export type MemberUpdateWithoutProfileInput = {
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutProfileInput = {
@@ -1161,6 +1421,8 @@ export type MemberUncheckedUpdateWithoutProfileInput = {
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateManyWithoutProfileInput = {
@@ -1191,6 +1453,8 @@ export type MemberUpdateWithoutServerInput = {
   createdQuizzes?: Prisma.QuizUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutServerInput = {
@@ -1205,6 +1469,8 @@ export type MemberUncheckedUpdateWithoutServerInput = {
   createdQuizzes?: Prisma.QuizUncheckedUpdateManyWithoutCreatedByNestedInput
   quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutMemberNestedInput
   gradedQuizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutGradedByNestedInput
+  createdPolls?: Prisma.PollUncheckedUpdateManyWithoutCreatedByNestedInput
+  pollVotes?: Prisma.PollVoteUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateManyWithoutServerInput = {
@@ -1227,6 +1493,8 @@ export type MemberCountOutputType = {
   createdQuizzes: number
   quizAttempts: number
   gradedQuizAttempts: number
+  createdPolls: number
+  pollVotes: number
 }
 
 export type MemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1236,6 +1504,8 @@ export type MemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   createdQuizzes?: boolean | MemberCountOutputTypeCountCreatedQuizzesArgs
   quizAttempts?: boolean | MemberCountOutputTypeCountQuizAttemptsArgs
   gradedQuizAttempts?: boolean | MemberCountOutputTypeCountGradedQuizAttemptsArgs
+  createdPolls?: boolean | MemberCountOutputTypeCountCreatedPollsArgs
+  pollVotes?: boolean | MemberCountOutputTypeCountPollVotesArgs
 }
 
 /**
@@ -1290,6 +1560,20 @@ export type MemberCountOutputTypeCountGradedQuizAttemptsArgs<ExtArgs extends run
   where?: Prisma.QuizAttemptWhereInput
 }
 
+/**
+ * MemberCountOutputType without action
+ */
+export type MemberCountOutputTypeCountCreatedPollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PollWhereInput
+}
+
+/**
+ * MemberCountOutputType without action
+ */
+export type MemberCountOutputTypeCountPollVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PollVoteWhereInput
+}
+
 
 export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1306,6 +1590,8 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdQuizzes?: boolean | Prisma.Member$createdQuizzesArgs<ExtArgs>
   quizAttempts?: boolean | Prisma.Member$quizAttemptsArgs<ExtArgs>
   gradedQuizAttempts?: boolean | Prisma.Member$gradedQuizAttemptsArgs<ExtArgs>
+  createdPolls?: boolean | Prisma.Member$createdPollsArgs<ExtArgs>
+  pollVotes?: boolean | Prisma.Member$pollVotesArgs<ExtArgs>
   _count?: boolean | Prisma.MemberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["member"]>
 
@@ -1350,6 +1636,8 @@ export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdQuizzes?: boolean | Prisma.Member$createdQuizzesArgs<ExtArgs>
   quizAttempts?: boolean | Prisma.Member$quizAttemptsArgs<ExtArgs>
   gradedQuizAttempts?: boolean | Prisma.Member$gradedQuizAttemptsArgs<ExtArgs>
+  createdPolls?: boolean | Prisma.Member$createdPollsArgs<ExtArgs>
+  pollVotes?: boolean | Prisma.Member$pollVotesArgs<ExtArgs>
   _count?: boolean | Prisma.MemberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1372,6 +1660,8 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     createdQuizzes: Prisma.$QuizPayload<ExtArgs>[]
     quizAttempts: Prisma.$QuizAttemptPayload<ExtArgs>[]
     gradedQuizAttempts: Prisma.$QuizAttemptPayload<ExtArgs>[]
+    createdPolls: Prisma.$PollPayload<ExtArgs>[]
+    pollVotes: Prisma.$PollVotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1782,6 +2072,8 @@ export interface Prisma__MemberClient<T, Null = never, ExtArgs extends runtime.T
   createdQuizzes<T extends Prisma.Member$createdQuizzesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$createdQuizzesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuizPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   quizAttempts<T extends Prisma.Member$quizAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$quizAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuizAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   gradedQuizAttempts<T extends Prisma.Member$gradedQuizAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$gradedQuizAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuizAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdPolls<T extends Prisma.Member$createdPollsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$createdPollsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PollPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pollVotes<T extends Prisma.Member$pollVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$pollVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PollVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2354,6 +2646,54 @@ export type Member$gradedQuizAttemptsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.QuizAttemptScalarFieldEnum | Prisma.QuizAttemptScalarFieldEnum[]
+}
+
+/**
+ * Member.createdPolls
+ */
+export type Member$createdPollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Poll
+   */
+  select?: Prisma.PollSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Poll
+   */
+  omit?: Prisma.PollOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PollInclude<ExtArgs> | null
+  where?: Prisma.PollWhereInput
+  orderBy?: Prisma.PollOrderByWithRelationInput | Prisma.PollOrderByWithRelationInput[]
+  cursor?: Prisma.PollWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PollScalarFieldEnum | Prisma.PollScalarFieldEnum[]
+}
+
+/**
+ * Member.pollVotes
+ */
+export type Member$pollVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PollVote
+   */
+  select?: Prisma.PollVoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PollVote
+   */
+  omit?: Prisma.PollVoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PollVoteInclude<ExtArgs> | null
+  where?: Prisma.PollVoteWhereInput
+  orderBy?: Prisma.PollVoteOrderByWithRelationInput | Prisma.PollVoteOrderByWithRelationInput[]
+  cursor?: Prisma.PollVoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PollVoteScalarFieldEnum | Prisma.PollVoteScalarFieldEnum[]
 }
 
 /**

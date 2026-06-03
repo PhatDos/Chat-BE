@@ -7,12 +7,14 @@ import { ChannelRefetchService } from './channel-refetch.service';
 
 import { DirectMessageController } from './direct-msg/direct-message.controller';
 import { ChannelMessageController } from './channel-msg/presenter/controllers/channel-message.controller';
+import { PollController } from './poll/poll.controller';
 import { NotificationController } from './notification/notification.controller';
 
 import { MessageGateway } from './message.gateway';
 import { DirectMessageGateway } from './direct-msg/direct-message.gateway';
 import { ChannelMessageGateway } from './channel-msg/presenter/gateways/channel-message.gateway';
 import { AuthGuard } from '~/common/guards/auth.guard';
+import { PollService } from './poll/poll.service';
 
 import {
   CreateChannelMessageUseCase,
@@ -54,6 +56,7 @@ const ChannelMessageUseCases = [
   controllers: [
     DirectMessageController,
     ChannelMessageController,
+    PollController,
     NotificationController,
   ],
   providers: [
@@ -69,6 +72,7 @@ const ChannelMessageUseCases = [
     DirectMessageGateway,
     ChannelMessageGateway,
     NotificationService,
+    PollService,
     AuthGuard,
     ...ChannelMessageUseCases,
   ],
@@ -77,6 +81,7 @@ const ChannelMessageUseCases = [
     ChannelRefetchService,
     ChannelMessageGateway,
     NotificationService,
+    PollService,
     ...ChannelMessageUseCases,
   ],
 })

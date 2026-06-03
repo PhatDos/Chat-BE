@@ -205,6 +205,7 @@ export type ChannelWhereInput = {
   reads?: Prisma.ChannelReadListRelationFilter
   lectures?: Prisma.LectureListRelationFilter
   quizzes?: Prisma.QuizListRelationFilter
+  polls?: Prisma.PollListRelationFilter
 }
 
 export type ChannelOrderByWithRelationInput = {
@@ -222,6 +223,7 @@ export type ChannelOrderByWithRelationInput = {
   reads?: Prisma.ChannelReadOrderByRelationAggregateInput
   lectures?: Prisma.LectureOrderByRelationAggregateInput
   quizzes?: Prisma.QuizOrderByRelationAggregateInput
+  polls?: Prisma.PollOrderByRelationAggregateInput
 }
 
 export type ChannelWhereUniqueInput = Prisma.AtLeast<{
@@ -242,6 +244,7 @@ export type ChannelWhereUniqueInput = Prisma.AtLeast<{
   reads?: Prisma.ChannelReadListRelationFilter
   lectures?: Prisma.LectureListRelationFilter
   quizzes?: Prisma.QuizListRelationFilter
+  polls?: Prisma.PollListRelationFilter
 }, "id">
 
 export type ChannelOrderByWithAggregationInput = {
@@ -283,6 +286,7 @@ export type ChannelCreateInput = {
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateInput = {
@@ -298,6 +302,7 @@ export type ChannelUncheckedCreateInput = {
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUpdateInput = {
@@ -313,6 +318,7 @@ export type ChannelUpdateInput = {
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateInput = {
@@ -328,6 +334,7 @@ export type ChannelUncheckedUpdateInput = {
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelCreateManyInput = {
@@ -540,6 +547,20 @@ export type ChannelUpdateOneRequiredWithoutReadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ChannelUpdateToOneWithWhereWithoutReadsInput, Prisma.ChannelUpdateWithoutReadsInput>, Prisma.ChannelUncheckedUpdateWithoutReadsInput>
 }
 
+export type ChannelCreateNestedOneWithoutPollsInput = {
+  create?: Prisma.XOR<Prisma.ChannelCreateWithoutPollsInput, Prisma.ChannelUncheckedCreateWithoutPollsInput>
+  connectOrCreate?: Prisma.ChannelCreateOrConnectWithoutPollsInput
+  connect?: Prisma.ChannelWhereUniqueInput
+}
+
+export type ChannelUpdateOneRequiredWithoutPollsNestedInput = {
+  create?: Prisma.XOR<Prisma.ChannelCreateWithoutPollsInput, Prisma.ChannelUncheckedCreateWithoutPollsInput>
+  connectOrCreate?: Prisma.ChannelCreateOrConnectWithoutPollsInput
+  upsert?: Prisma.ChannelUpsertWithoutPollsInput
+  connect?: Prisma.ChannelWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ChannelUpdateToOneWithWhereWithoutPollsInput, Prisma.ChannelUpdateWithoutPollsInput>, Prisma.ChannelUncheckedUpdateWithoutPollsInput>
+}
+
 export type ChannelCreateNestedOneWithoutLecturesInput = {
   create?: Prisma.XOR<Prisma.ChannelCreateWithoutLecturesInput, Prisma.ChannelUncheckedCreateWithoutLecturesInput>
   connectOrCreate?: Prisma.ChannelCreateOrConnectWithoutLecturesInput
@@ -580,6 +601,7 @@ export type ChannelCreateWithoutProfileInput = {
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutProfileInput = {
@@ -594,6 +616,7 @@ export type ChannelUncheckedCreateWithoutProfileInput = {
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutProfileInput = {
@@ -647,6 +670,7 @@ export type ChannelCreateWithoutGeneralForServerInput = {
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutGeneralForServerInput = {
@@ -661,6 +685,7 @@ export type ChannelUncheckedCreateWithoutGeneralForServerInput = {
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutGeneralForServerInput = {
@@ -680,6 +705,7 @@ export type ChannelCreateWithoutServerInput = {
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutServerInput = {
@@ -694,6 +720,7 @@ export type ChannelUncheckedCreateWithoutServerInput = {
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutServerInput = {
@@ -729,6 +756,7 @@ export type ChannelUpdateWithoutGeneralForServerInput = {
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutGeneralForServerInput = {
@@ -743,6 +771,7 @@ export type ChannelUncheckedUpdateWithoutGeneralForServerInput = {
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUpsertWithWhereUniqueWithoutServerInput = {
@@ -773,6 +802,7 @@ export type ChannelCreateWithoutMessagesInput = {
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutMessagesInput = {
@@ -787,6 +817,7 @@ export type ChannelUncheckedCreateWithoutMessagesInput = {
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutMessagesInput = {
@@ -817,6 +848,7 @@ export type ChannelUpdateWithoutMessagesInput = {
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutMessagesInput = {
@@ -831,6 +863,7 @@ export type ChannelUncheckedUpdateWithoutMessagesInput = {
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelCreateWithoutReadsInput = {
@@ -845,6 +878,7 @@ export type ChannelCreateWithoutReadsInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutReadsInput = {
@@ -859,6 +893,7 @@ export type ChannelUncheckedCreateWithoutReadsInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutReadsInput = {
@@ -889,6 +924,7 @@ export type ChannelUpdateWithoutReadsInput = {
   messages?: Prisma.MessageUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutReadsInput = {
@@ -901,6 +937,83 @@ export type ChannelUncheckedUpdateWithoutReadsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   generalForServer?: Prisma.ServerUncheckedUpdateOneWithoutGeneralChannelNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChannelNestedInput
+  lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
+  quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
+}
+
+export type ChannelCreateWithoutPollsInput = {
+  id?: string
+  name: string
+  type?: $Enums.ChannelType
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  profile: Prisma.ProfileCreateNestedOneWithoutChannelsInput
+  server: Prisma.ServerCreateNestedOneWithoutChannelsInput
+  generalForServer?: Prisma.ServerCreateNestedOneWithoutGeneralChannelInput
+  messages?: Prisma.MessageCreateNestedManyWithoutChannelInput
+  reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
+  lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
+  quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+}
+
+export type ChannelUncheckedCreateWithoutPollsInput = {
+  id?: string
+  name: string
+  type?: $Enums.ChannelType
+  profileId: string
+  serverId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  generalForServer?: Prisma.ServerUncheckedCreateNestedOneWithoutGeneralChannelInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChannelInput
+  reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
+  lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
+  quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+}
+
+export type ChannelCreateOrConnectWithoutPollsInput = {
+  where: Prisma.ChannelWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChannelCreateWithoutPollsInput, Prisma.ChannelUncheckedCreateWithoutPollsInput>
+}
+
+export type ChannelUpsertWithoutPollsInput = {
+  update: Prisma.XOR<Prisma.ChannelUpdateWithoutPollsInput, Prisma.ChannelUncheckedUpdateWithoutPollsInput>
+  create: Prisma.XOR<Prisma.ChannelCreateWithoutPollsInput, Prisma.ChannelUncheckedCreateWithoutPollsInput>
+  where?: Prisma.ChannelWhereInput
+}
+
+export type ChannelUpdateToOneWithWhereWithoutPollsInput = {
+  where?: Prisma.ChannelWhereInput
+  data: Prisma.XOR<Prisma.ChannelUpdateWithoutPollsInput, Prisma.ChannelUncheckedUpdateWithoutPollsInput>
+}
+
+export type ChannelUpdateWithoutPollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumChannelTypeFieldUpdateOperationsInput | $Enums.ChannelType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  profile?: Prisma.ProfileUpdateOneRequiredWithoutChannelsNestedInput
+  server?: Prisma.ServerUpdateOneRequiredWithoutChannelsNestedInput
+  generalForServer?: Prisma.ServerUpdateOneWithoutGeneralChannelNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutChannelNestedInput
+  reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
+  lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
+  quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+}
+
+export type ChannelUncheckedUpdateWithoutPollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumChannelTypeFieldUpdateOperationsInput | $Enums.ChannelType
+  profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  generalForServer?: Prisma.ServerUncheckedUpdateOneWithoutGeneralChannelNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutChannelNestedInput
+  reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
 }
@@ -917,6 +1030,7 @@ export type ChannelCreateWithoutLecturesInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutChannelInput
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutLecturesInput = {
@@ -931,6 +1045,7 @@ export type ChannelUncheckedCreateWithoutLecturesInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChannelInput
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   quizzes?: Prisma.QuizUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutLecturesInput = {
@@ -961,6 +1076,7 @@ export type ChannelUpdateWithoutLecturesInput = {
   messages?: Prisma.MessageUpdateManyWithoutChannelNestedInput
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutLecturesInput = {
@@ -975,6 +1091,7 @@ export type ChannelUncheckedUpdateWithoutLecturesInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChannelNestedInput
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelCreateWithoutQuizzesInput = {
@@ -989,6 +1106,7 @@ export type ChannelCreateWithoutQuizzesInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutChannelInput
   reads?: Prisma.ChannelReadCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelUncheckedCreateWithoutQuizzesInput = {
@@ -1003,6 +1121,7 @@ export type ChannelUncheckedCreateWithoutQuizzesInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChannelInput
   reads?: Prisma.ChannelReadUncheckedCreateNestedManyWithoutChannelInput
   lectures?: Prisma.LectureUncheckedCreateNestedManyWithoutChannelInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutChannelInput
 }
 
 export type ChannelCreateOrConnectWithoutQuizzesInput = {
@@ -1033,6 +1152,7 @@ export type ChannelUpdateWithoutQuizzesInput = {
   messages?: Prisma.MessageUpdateManyWithoutChannelNestedInput
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutQuizzesInput = {
@@ -1047,6 +1167,7 @@ export type ChannelUncheckedUpdateWithoutQuizzesInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChannelNestedInput
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelCreateManyProfileInput = {
@@ -1070,6 +1191,7 @@ export type ChannelUpdateWithoutProfileInput = {
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutProfileInput = {
@@ -1084,6 +1206,7 @@ export type ChannelUncheckedUpdateWithoutProfileInput = {
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateManyWithoutProfileInput = {
@@ -1116,6 +1239,7 @@ export type ChannelUpdateWithoutServerInput = {
   reads?: Prisma.ChannelReadUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateWithoutServerInput = {
@@ -1130,6 +1254,7 @@ export type ChannelUncheckedUpdateWithoutServerInput = {
   reads?: Prisma.ChannelReadUncheckedUpdateManyWithoutChannelNestedInput
   lectures?: Prisma.LectureUncheckedUpdateManyWithoutChannelNestedInput
   quizzes?: Prisma.QuizUncheckedUpdateManyWithoutChannelNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutChannelNestedInput
 }
 
 export type ChannelUncheckedUpdateManyWithoutServerInput = {
@@ -1151,6 +1276,7 @@ export type ChannelCountOutputType = {
   reads: number
   lectures: number
   quizzes: number
+  polls: number
 }
 
 export type ChannelCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1158,6 +1284,7 @@ export type ChannelCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   reads?: boolean | ChannelCountOutputTypeCountReadsArgs
   lectures?: boolean | ChannelCountOutputTypeCountLecturesArgs
   quizzes?: boolean | ChannelCountOutputTypeCountQuizzesArgs
+  polls?: boolean | ChannelCountOutputTypeCountPollsArgs
 }
 
 /**
@@ -1198,6 +1325,13 @@ export type ChannelCountOutputTypeCountQuizzesArgs<ExtArgs extends runtime.Types
   where?: Prisma.QuizWhereInput
 }
 
+/**
+ * ChannelCountOutputType without action
+ */
+export type ChannelCountOutputTypeCountPollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PollWhereInput
+}
+
 
 export type ChannelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1214,6 +1348,7 @@ export type ChannelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   reads?: boolean | Prisma.Channel$readsArgs<ExtArgs>
   lectures?: boolean | Prisma.Channel$lecturesArgs<ExtArgs>
   quizzes?: boolean | Prisma.Channel$quizzesArgs<ExtArgs>
+  polls?: boolean | Prisma.Channel$pollsArgs<ExtArgs>
   _count?: boolean | Prisma.ChannelCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["channel"]>
 
@@ -1260,6 +1395,7 @@ export type ChannelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   reads?: boolean | Prisma.Channel$readsArgs<ExtArgs>
   lectures?: boolean | Prisma.Channel$lecturesArgs<ExtArgs>
   quizzes?: boolean | Prisma.Channel$quizzesArgs<ExtArgs>
+  polls?: boolean | Prisma.Channel$pollsArgs<ExtArgs>
   _count?: boolean | Prisma.ChannelCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ChannelIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1281,6 +1417,7 @@ export type $ChannelPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     reads: Prisma.$ChannelReadPayload<ExtArgs>[]
     lectures: Prisma.$LecturePayload<ExtArgs>[]
     quizzes: Prisma.$QuizPayload<ExtArgs>[]
+    polls: Prisma.$PollPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1691,6 +1828,7 @@ export interface Prisma__ChannelClient<T, Null = never, ExtArgs extends runtime.
   reads<T extends Prisma.Channel$readsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Channel$readsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChannelReadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   lectures<T extends Prisma.Channel$lecturesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Channel$lecturesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LecturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   quizzes<T extends Prisma.Channel$quizzesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Channel$quizzesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuizPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  polls<T extends Prisma.Channel$pollsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Channel$pollsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PollPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2235,6 +2373,30 @@ export type Channel$quizzesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.QuizScalarFieldEnum | Prisma.QuizScalarFieldEnum[]
+}
+
+/**
+ * Channel.polls
+ */
+export type Channel$pollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Poll
+   */
+  select?: Prisma.PollSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Poll
+   */
+  omit?: Prisma.PollOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PollInclude<ExtArgs> | null
+  where?: Prisma.PollWhereInput
+  orderBy?: Prisma.PollOrderByWithRelationInput | Prisma.PollOrderByWithRelationInput[]
+  cursor?: Prisma.PollWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PollScalarFieldEnum | Prisma.PollScalarFieldEnum[]
 }
 
 /**

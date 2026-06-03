@@ -60,6 +60,9 @@ export const ModelName = {
   DirectMessage: 'DirectMessage',
   ConversationRead: 'ConversationRead',
   ChannelRead: 'ChannelRead',
+  Poll: 'Poll',
+  PollOption: 'PollOption',
+  PollVote: 'PollVote',
   Post: 'Post',
   Comment: 'Comment',
   Like: 'Like',
@@ -212,6 +215,36 @@ export const ChannelReadScalarFieldEnum = {
 } as const
 
 export type ChannelReadScalarFieldEnum = (typeof ChannelReadScalarFieldEnum)[keyof typeof ChannelReadScalarFieldEnum]
+
+
+export const PollScalarFieldEnum = {
+  id: 'id',
+  question: 'question',
+  channelId: 'channelId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PollScalarFieldEnum = (typeof PollScalarFieldEnum)[keyof typeof PollScalarFieldEnum]
+
+
+export const PollOptionScalarFieldEnum = {
+  id: 'id',
+  pollId: 'pollId',
+  text: 'text'
+} as const
+
+export type PollOptionScalarFieldEnum = (typeof PollOptionScalarFieldEnum)[keyof typeof PollOptionScalarFieldEnum]
+
+
+export const PollVoteScalarFieldEnum = {
+  id: 'id',
+  optionId: 'optionId',
+  memberId: 'memberId',
+  createdAt: 'createdAt'
+} as const
+
+export type PollVoteScalarFieldEnum = (typeof PollVoteScalarFieldEnum)[keyof typeof PollVoteScalarFieldEnum]
 
 
 export const PostScalarFieldEnum = {

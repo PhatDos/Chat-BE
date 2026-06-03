@@ -90,6 +90,8 @@ model Member {
   createdQuizzes Quiz[] @relation("CreatedQuizzes")
   quizAttempts QuizAttempt[] @relation("StudentQuizAttempts")
   gradedQuizAttempts QuizAttempt[] @relation("GradedQuizAttempts")
+  createdPolls Poll[] @relation("CreatedPolls")
+  pollVotes PollVote[]
 
   @@unique([serverId, profileId])
   @@index([profileId])
@@ -113,6 +115,7 @@ model Channel {
   reads    ChannelRead[] @relation("ChannelReads")
   lectures Lecture[]
   quizzes Quiz[]
+  polls    Poll[]
 
   @@index([profileId])
   @@index([serverId])
@@ -207,6 +210,56 @@ model ChannelRead {
   @@unique([memberId, channelId])
   @@index([channelId])
   @@index([channelId, lastReadAt])
+}
+
+model Poll {
+  id String @id @default(uuid()) @map("_id")
+
+  question String
+
+  channelId String
+  createdById String
+
+  createdAt DateTime @default(now())
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  createdBy Member @relation("CreatedPolls", fields: [createdById], references: [id], onDelete: Cascade)
+
+  options PollOption[]
+
+  @@index([channelId])
+  @@index([createdById])
+  @@index([channelId, createdAt])
+}
+
+model PollOption {
+  id String @id @default(uuid()) @map("_id")
+
+  pollId String
+
+  text String
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  votes PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id String @id @default(uuid()) @map("_id")
+
+  optionId String
+  memberId String
+
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([optionId, memberId])
+  @@index([memberId])
+  @@index([optionId])
 }
 
 //////////////////////////////////////////////////
