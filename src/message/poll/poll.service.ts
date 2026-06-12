@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import type { Prisma } from '~/generated/prisma/client';
 import { PrismaService } from '~/prisma/prisma.service';
 
 type PollOptionSnapshot = {
@@ -38,6 +39,26 @@ type PollEventPayload = {
   question: string;
   pollId?: string;
 };
+
+type PollWithRelations = Prisma.PollGetPayload<{
+  include: {
+    createdBy: {
+      include: {
+        profile: true;
+      };
+    };
+    options: {
+      include: {
+        votes: {
+          select: {
+            memberId: true;
+          };
+        };
+      };
+      orderBy: { id: 'asc' };
+    };
+  };
+}>;
 
 @Injectable()
 export class PollService {
@@ -74,7 +95,7 @@ export class PollService {
     return { channel, member };
   }
 
-  private normalizePoll(poll: any, memberId?: string): PollSnapshot {
+  private normalizePoll(poll: PollWithRelations, memberId?: string): PollSnapshot {
     const options = (poll.options ?? []).map((option: any) => {
       const votes = Array.isArray(option.votes) ? option.votes : [];
       const isSelected = memberId
@@ -143,7 +164,7 @@ export class PollService {
 
     const { member } = await this.resolveChannelAndMember(channelId, profileId);
 
-    const polls = await this.pollClient.poll.findMany({
+    const polls: PollWithRelations[] = await this.pollClient.poll.findMany({
       where: { channelId },
       orderBy: { createdAt: 'desc' },
       include: {
