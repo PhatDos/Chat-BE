@@ -25,9 +25,16 @@ export class UsersService {
 
     if (!profile) throw new NotFoundException('User not found');
 
+    const friendsCount = await this.prisma.friend.count({
+      where: {
+        OR: [{ userOneId: id }, { userTwoId: id }],
+      },
+    });
+
     return {
       ...profile,
       isOnline: await this.presenceService.isOnline(profile.id),
+      friendsCount,
     };
   }
 
