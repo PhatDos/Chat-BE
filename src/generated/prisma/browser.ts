@@ -63,6 +63,21 @@ export type ConversationRead = Prisma.ConversationReadModel
  */
 export type ChannelRead = Prisma.ChannelReadModel
 /**
+ * Model Poll
+ * 
+ */
+export type Poll = Prisma.PollModel
+/**
+ * Model PollOption
+ * 
+ */
+export type PollOption = Prisma.PollOptionModel
+/**
+ * Model PollVote
+ * 
+ */
+export type PollVote = Prisma.PollVoteModel
+/**
  * Model Post
  * 
  */
@@ -108,27 +123,27 @@ export type Flashcard = Prisma.FlashcardModel
  */
 export type FlashcardSet = Prisma.FlashcardSetModel
 /**
- * Model Assessment
+ * Model Quiz
  * 
  */
-export type Assessment = Prisma.AssessmentModel
+export type Quiz = Prisma.QuizModel
 /**
- * Model AssessmentQuestion
+ * Model QuizQuestion
  * 
  */
-export type AssessmentQuestion = Prisma.AssessmentQuestionModel
+export type QuizQuestion = Prisma.QuizQuestionModel
 /**
- * Model AssessmentOption
+ * Model QuizOption
  * 
  */
-export type AssessmentOption = Prisma.AssessmentOptionModel
+export type QuizOption = Prisma.QuizOptionModel
 /**
- * Model AssessmentAttempt
+ * Model QuizAttempt
  * 
  */
-export type AssessmentAttempt = Prisma.AssessmentAttemptModel
+export type QuizAttempt = Prisma.QuizAttemptModel
 /**
- * Model AssessmentAnswer
+ * Model QuizAnswer
  * 
  */
-export type AssessmentAnswer = Prisma.AssessmentAnswerModel
+export type QuizAnswer = Prisma.QuizAnswerModel

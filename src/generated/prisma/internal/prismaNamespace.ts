@@ -393,6 +393,9 @@ export const ModelName = {
   DirectMessage: 'DirectMessage',
   ConversationRead: 'ConversationRead',
   ChannelRead: 'ChannelRead',
+  Poll: 'Poll',
+  PollOption: 'PollOption',
+  PollVote: 'PollVote',
   Post: 'Post',
   Comment: 'Comment',
   Like: 'Like',
@@ -402,11 +405,11 @@ export const ModelName = {
   Summary: 'Summary',
   Flashcard: 'Flashcard',
   FlashcardSet: 'FlashcardSet',
-  Assessment: 'Assessment',
-  AssessmentQuestion: 'AssessmentQuestion',
-  AssessmentOption: 'AssessmentOption',
-  AssessmentAttempt: 'AssessmentAttempt',
-  AssessmentAnswer: 'AssessmentAnswer'
+  Quiz: 'Quiz',
+  QuizQuestion: 'QuizQuestion',
+  QuizOption: 'QuizOption',
+  QuizAttempt: 'QuizAttempt',
+  QuizAnswer: 'QuizAnswer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -422,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "server" | "member" | "channel" | "message" | "conversation" | "directMessage" | "conversationRead" | "channelRead" | "post" | "comment" | "like" | "friend" | "friendRequest" | "lecture" | "summary" | "flashcard" | "flashcardSet" | "assessment" | "assessmentQuestion" | "assessmentOption" | "assessmentAttempt" | "assessmentAnswer"
+    modelProps: "profile" | "server" | "member" | "channel" | "message" | "conversation" | "directMessage" | "conversationRead" | "channelRead" | "poll" | "pollOption" | "pollVote" | "post" | "comment" | "like" | "friend" | "friendRequest" | "lecture" | "summary" | "flashcard" | "flashcardSet" | "quiz" | "quizQuestion" | "quizOption" | "quizAttempt" | "quizAnswer"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1092,6 +1095,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Poll: {
+      payload: Prisma.$PollPayload<ExtArgs>
+      fields: Prisma.PollFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PollFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PollFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        findFirst: {
+          args: Prisma.PollFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PollFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        findMany: {
+          args: Prisma.PollFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>[]
+        }
+        create: {
+          args: Prisma.PollCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        createMany: {
+          args: Prisma.PollCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PollCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>[]
+        }
+        delete: {
+          args: Prisma.PollDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        update: {
+          args: Prisma.PollUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        deleteMany: {
+          args: Prisma.PollDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PollUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PollUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>[]
+        }
+        upsert: {
+          args: Prisma.PollUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollPayload>
+        }
+        aggregate: {
+          args: Prisma.PollAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePoll>
+        }
+        groupBy: {
+          args: Prisma.PollGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PollCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollCountAggregateOutputType> | number
+        }
+      }
+    }
+    PollOption: {
+      payload: Prisma.$PollOptionPayload<ExtArgs>
+      fields: Prisma.PollOptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PollOptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PollOptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        findFirst: {
+          args: Prisma.PollOptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PollOptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        findMany: {
+          args: Prisma.PollOptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>[]
+        }
+        create: {
+          args: Prisma.PollOptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        createMany: {
+          args: Prisma.PollOptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PollOptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>[]
+        }
+        delete: {
+          args: Prisma.PollOptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        update: {
+          args: Prisma.PollOptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PollOptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PollOptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PollOptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PollOptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollOptionPayload>
+        }
+        aggregate: {
+          args: Prisma.PollOptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePollOption>
+        }
+        groupBy: {
+          args: Prisma.PollOptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollOptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PollOptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollOptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    PollVote: {
+      payload: Prisma.$PollVotePayload<ExtArgs>
+      fields: Prisma.PollVoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PollVoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PollVoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        findFirst: {
+          args: Prisma.PollVoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PollVoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        findMany: {
+          args: Prisma.PollVoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>[]
+        }
+        create: {
+          args: Prisma.PollVoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        createMany: {
+          args: Prisma.PollVoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PollVoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>[]
+        }
+        delete: {
+          args: Prisma.PollVoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        update: {
+          args: Prisma.PollVoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        deleteMany: {
+          args: Prisma.PollVoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PollVoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PollVoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>[]
+        }
+        upsert: {
+          args: Prisma.PollVoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PollVotePayload>
+        }
+        aggregate: {
+          args: Prisma.PollVoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePollVote>
+        }
+        groupBy: {
+          args: Prisma.PollVoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollVoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PollVoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PollVoteCountAggregateOutputType> | number
+        }
+      }
+    }
     Post: {
       payload: Prisma.$PostPayload<ExtArgs>
       fields: Prisma.PostFieldRefs
@@ -1758,373 +1983,373 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Assessment: {
-      payload: Prisma.$AssessmentPayload<ExtArgs>
-      fields: Prisma.AssessmentFieldRefs
+    Quiz: {
+      payload: Prisma.$QuizPayload<ExtArgs>
+      fields: Prisma.QuizFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AssessmentFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload> | null
+          args: Prisma.QuizFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AssessmentFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>
+          args: Prisma.QuizFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>
         }
         findFirst: {
-          args: Prisma.AssessmentFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload> | null
+          args: Prisma.QuizFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AssessmentFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>
+          args: Prisma.QuizFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>
         }
         findMany: {
-          args: Prisma.AssessmentFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>[]
+          args: Prisma.QuizFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>[]
         }
         create: {
-          args: Prisma.AssessmentCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>
+          args: Prisma.QuizCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>
         }
         createMany: {
-          args: Prisma.AssessmentCreateManyArgs<ExtArgs>
+          args: Prisma.QuizCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AssessmentCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>[]
+          args: Prisma.QuizCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>[]
         }
         delete: {
-          args: Prisma.AssessmentDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>
+          args: Prisma.QuizDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>
         }
         update: {
-          args: Prisma.AssessmentUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>
+          args: Prisma.QuizUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>
         }
         deleteMany: {
-          args: Prisma.AssessmentDeleteManyArgs<ExtArgs>
+          args: Prisma.QuizDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AssessmentUpdateManyArgs<ExtArgs>
+          args: Prisma.QuizUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AssessmentUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>[]
+          args: Prisma.QuizUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>[]
         }
         upsert: {
-          args: Prisma.AssessmentUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentPayload>
+          args: Prisma.QuizUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizPayload>
         }
         aggregate: {
-          args: Prisma.AssessmentAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessment>
+          args: Prisma.QuizAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuiz>
         }
         groupBy: {
-          args: Prisma.AssessmentGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentGroupByOutputType>[]
+          args: Prisma.QuizGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AssessmentCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentCountAggregateOutputType> | number
+          args: Prisma.QuizCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizCountAggregateOutputType> | number
         }
       }
     }
-    AssessmentQuestion: {
-      payload: Prisma.$AssessmentQuestionPayload<ExtArgs>
-      fields: Prisma.AssessmentQuestionFieldRefs
+    QuizQuestion: {
+      payload: Prisma.$QuizQuestionPayload<ExtArgs>
+      fields: Prisma.QuizQuestionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AssessmentQuestionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload> | null
+          args: Prisma.QuizQuestionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AssessmentQuestionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>
+          args: Prisma.QuizQuestionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>
         }
         findFirst: {
-          args: Prisma.AssessmentQuestionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload> | null
+          args: Prisma.QuizQuestionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AssessmentQuestionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>
+          args: Prisma.QuizQuestionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>
         }
         findMany: {
-          args: Prisma.AssessmentQuestionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>[]
+          args: Prisma.QuizQuestionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>[]
         }
         create: {
-          args: Prisma.AssessmentQuestionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>
+          args: Prisma.QuizQuestionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>
         }
         createMany: {
-          args: Prisma.AssessmentQuestionCreateManyArgs<ExtArgs>
+          args: Prisma.QuizQuestionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AssessmentQuestionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>[]
+          args: Prisma.QuizQuestionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>[]
         }
         delete: {
-          args: Prisma.AssessmentQuestionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>
+          args: Prisma.QuizQuestionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>
         }
         update: {
-          args: Prisma.AssessmentQuestionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>
+          args: Prisma.QuizQuestionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>
         }
         deleteMany: {
-          args: Prisma.AssessmentQuestionDeleteManyArgs<ExtArgs>
+          args: Prisma.QuizQuestionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AssessmentQuestionUpdateManyArgs<ExtArgs>
+          args: Prisma.QuizQuestionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AssessmentQuestionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>[]
+          args: Prisma.QuizQuestionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>[]
         }
         upsert: {
-          args: Prisma.AssessmentQuestionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionPayload>
+          args: Prisma.QuizQuestionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizQuestionPayload>
         }
         aggregate: {
-          args: Prisma.AssessmentQuestionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentQuestion>
+          args: Prisma.QuizQuestionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuizQuestion>
         }
         groupBy: {
-          args: Prisma.AssessmentQuestionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentQuestionGroupByOutputType>[]
+          args: Prisma.QuizQuestionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizQuestionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AssessmentQuestionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentQuestionCountAggregateOutputType> | number
+          args: Prisma.QuizQuestionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizQuestionCountAggregateOutputType> | number
         }
       }
     }
-    AssessmentOption: {
-      payload: Prisma.$AssessmentOptionPayload<ExtArgs>
-      fields: Prisma.AssessmentOptionFieldRefs
+    QuizOption: {
+      payload: Prisma.$QuizOptionPayload<ExtArgs>
+      fields: Prisma.QuizOptionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AssessmentOptionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload> | null
+          args: Prisma.QuizOptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AssessmentOptionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>
+          args: Prisma.QuizOptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>
         }
         findFirst: {
-          args: Prisma.AssessmentOptionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload> | null
+          args: Prisma.QuizOptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AssessmentOptionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>
+          args: Prisma.QuizOptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>
         }
         findMany: {
-          args: Prisma.AssessmentOptionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>[]
+          args: Prisma.QuizOptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>[]
         }
         create: {
-          args: Prisma.AssessmentOptionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>
+          args: Prisma.QuizOptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>
         }
         createMany: {
-          args: Prisma.AssessmentOptionCreateManyArgs<ExtArgs>
+          args: Prisma.QuizOptionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AssessmentOptionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>[]
+          args: Prisma.QuizOptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>[]
         }
         delete: {
-          args: Prisma.AssessmentOptionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>
+          args: Prisma.QuizOptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>
         }
         update: {
-          args: Prisma.AssessmentOptionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>
+          args: Prisma.QuizOptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>
         }
         deleteMany: {
-          args: Prisma.AssessmentOptionDeleteManyArgs<ExtArgs>
+          args: Prisma.QuizOptionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AssessmentOptionUpdateManyArgs<ExtArgs>
+          args: Prisma.QuizOptionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AssessmentOptionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>[]
+          args: Prisma.QuizOptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>[]
         }
         upsert: {
-          args: Prisma.AssessmentOptionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentOptionPayload>
+          args: Prisma.QuizOptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizOptionPayload>
         }
         aggregate: {
-          args: Prisma.AssessmentOptionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentOption>
+          args: Prisma.QuizOptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuizOption>
         }
         groupBy: {
-          args: Prisma.AssessmentOptionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentOptionGroupByOutputType>[]
+          args: Prisma.QuizOptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizOptionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AssessmentOptionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentOptionCountAggregateOutputType> | number
+          args: Prisma.QuizOptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizOptionCountAggregateOutputType> | number
         }
       }
     }
-    AssessmentAttempt: {
-      payload: Prisma.$AssessmentAttemptPayload<ExtArgs>
-      fields: Prisma.AssessmentAttemptFieldRefs
+    QuizAttempt: {
+      payload: Prisma.$QuizAttemptPayload<ExtArgs>
+      fields: Prisma.QuizAttemptFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AssessmentAttemptFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload> | null
+          args: Prisma.QuizAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AssessmentAttemptFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>
+          args: Prisma.QuizAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>
         }
         findFirst: {
-          args: Prisma.AssessmentAttemptFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload> | null
+          args: Prisma.QuizAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AssessmentAttemptFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>
+          args: Prisma.QuizAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>
         }
         findMany: {
-          args: Prisma.AssessmentAttemptFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>[]
+          args: Prisma.QuizAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>[]
         }
         create: {
-          args: Prisma.AssessmentAttemptCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>
+          args: Prisma.QuizAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>
         }
         createMany: {
-          args: Prisma.AssessmentAttemptCreateManyArgs<ExtArgs>
+          args: Prisma.QuizAttemptCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AssessmentAttemptCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>[]
+          args: Prisma.QuizAttemptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>[]
         }
         delete: {
-          args: Prisma.AssessmentAttemptDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>
+          args: Prisma.QuizAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>
         }
         update: {
-          args: Prisma.AssessmentAttemptUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>
+          args: Prisma.QuizAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>
         }
         deleteMany: {
-          args: Prisma.AssessmentAttemptDeleteManyArgs<ExtArgs>
+          args: Prisma.QuizAttemptDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AssessmentAttemptUpdateManyArgs<ExtArgs>
+          args: Prisma.QuizAttemptUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AssessmentAttemptUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>[]
+          args: Prisma.QuizAttemptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>[]
         }
         upsert: {
-          args: Prisma.AssessmentAttemptUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAttemptPayload>
+          args: Prisma.QuizAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAttemptPayload>
         }
         aggregate: {
-          args: Prisma.AssessmentAttemptAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentAttempt>
+          args: Prisma.QuizAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuizAttempt>
         }
         groupBy: {
-          args: Prisma.AssessmentAttemptGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentAttemptGroupByOutputType>[]
+          args: Prisma.QuizAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizAttemptGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AssessmentAttemptCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentAttemptCountAggregateOutputType> | number
+          args: Prisma.QuizAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizAttemptCountAggregateOutputType> | number
         }
       }
     }
-    AssessmentAnswer: {
-      payload: Prisma.$AssessmentAnswerPayload<ExtArgs>
-      fields: Prisma.AssessmentAnswerFieldRefs
+    QuizAnswer: {
+      payload: Prisma.$QuizAnswerPayload<ExtArgs>
+      fields: Prisma.QuizAnswerFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AssessmentAnswerFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload> | null
+          args: Prisma.QuizAnswerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AssessmentAnswerFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>
+          args: Prisma.QuizAnswerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>
         }
         findFirst: {
-          args: Prisma.AssessmentAnswerFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload> | null
+          args: Prisma.QuizAnswerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AssessmentAnswerFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>
+          args: Prisma.QuizAnswerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>
         }
         findMany: {
-          args: Prisma.AssessmentAnswerFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>[]
+          args: Prisma.QuizAnswerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>[]
         }
         create: {
-          args: Prisma.AssessmentAnswerCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>
+          args: Prisma.QuizAnswerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>
         }
         createMany: {
-          args: Prisma.AssessmentAnswerCreateManyArgs<ExtArgs>
+          args: Prisma.QuizAnswerCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AssessmentAnswerCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>[]
+          args: Prisma.QuizAnswerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>[]
         }
         delete: {
-          args: Prisma.AssessmentAnswerDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>
+          args: Prisma.QuizAnswerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>
         }
         update: {
-          args: Prisma.AssessmentAnswerUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>
+          args: Prisma.QuizAnswerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>
         }
         deleteMany: {
-          args: Prisma.AssessmentAnswerDeleteManyArgs<ExtArgs>
+          args: Prisma.QuizAnswerDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AssessmentAnswerUpdateManyArgs<ExtArgs>
+          args: Prisma.QuizAnswerUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AssessmentAnswerUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>[]
+          args: Prisma.QuizAnswerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>[]
         }
         upsert: {
-          args: Prisma.AssessmentAnswerUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentAnswerPayload>
+          args: Prisma.QuizAnswerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAnswerPayload>
         }
         aggregate: {
-          args: Prisma.AssessmentAnswerAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentAnswer>
+          args: Prisma.QuizAnswerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuizAnswer>
         }
         groupBy: {
-          args: Prisma.AssessmentAnswerGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentAnswerGroupByOutputType>[]
+          args: Prisma.QuizAnswerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizAnswerGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AssessmentAnswerCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssessmentAnswerCountAggregateOutputType> | number
+          args: Prisma.QuizAnswerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizAnswerCountAggregateOutputType> | number
         }
       }
     }
@@ -2289,6 +2514,36 @@ export const ChannelReadScalarFieldEnum = {
 export type ChannelReadScalarFieldEnum = (typeof ChannelReadScalarFieldEnum)[keyof typeof ChannelReadScalarFieldEnum]
 
 
+export const PollScalarFieldEnum = {
+  id: 'id',
+  question: 'question',
+  channelId: 'channelId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PollScalarFieldEnum = (typeof PollScalarFieldEnum)[keyof typeof PollScalarFieldEnum]
+
+
+export const PollOptionScalarFieldEnum = {
+  id: 'id',
+  pollId: 'pollId',
+  text: 'text'
+} as const
+
+export type PollOptionScalarFieldEnum = (typeof PollOptionScalarFieldEnum)[keyof typeof PollOptionScalarFieldEnum]
+
+
+export const PollVoteScalarFieldEnum = {
+  id: 'id',
+  optionId: 'optionId',
+  memberId: 'memberId',
+  createdAt: 'createdAt'
+} as const
+
+export type PollVoteScalarFieldEnum = (typeof PollVoteScalarFieldEnum)[keyof typeof PollVoteScalarFieldEnum]
+
+
 export const PostScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -2399,14 +2654,13 @@ export const FlashcardSetScalarFieldEnum = {
 export type FlashcardSetScalarFieldEnum = (typeof FlashcardSetScalarFieldEnum)[keyof typeof FlashcardSetScalarFieldEnum]
 
 
-export const AssessmentScalarFieldEnum = {
+export const QuizScalarFieldEnum = {
   id: 'id',
   lectureId: 'lectureId',
   channelId: 'channelId',
   createdById: 'createdById',
   title: 'title',
   description: 'description',
-  type: 'type',
   generatedByAI: 'generatedByAI',
   status: 'status',
   totalQuestions: 'totalQuestions',
@@ -2419,12 +2673,12 @@ export const AssessmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AssessmentScalarFieldEnum = (typeof AssessmentScalarFieldEnum)[keyof typeof AssessmentScalarFieldEnum]
+export type QuizScalarFieldEnum = (typeof QuizScalarFieldEnum)[keyof typeof QuizScalarFieldEnum]
 
 
-export const AssessmentQuestionScalarFieldEnum = {
+export const QuizQuestionScalarFieldEnum = {
   id: 'id',
-  assessmentId: 'assessmentId',
+  quizId: 'quizId',
   order: 'order',
   questionText: 'questionText',
   type: 'type',
@@ -2434,10 +2688,10 @@ export const AssessmentQuestionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AssessmentQuestionScalarFieldEnum = (typeof AssessmentQuestionScalarFieldEnum)[keyof typeof AssessmentQuestionScalarFieldEnum]
+export type QuizQuestionScalarFieldEnum = (typeof QuizQuestionScalarFieldEnum)[keyof typeof QuizQuestionScalarFieldEnum]
 
 
-export const AssessmentOptionScalarFieldEnum = {
+export const QuizOptionScalarFieldEnum = {
   id: 'id',
   questionId: 'questionId',
   order: 'order',
@@ -2445,12 +2699,12 @@ export const AssessmentOptionScalarFieldEnum = {
   isCorrect: 'isCorrect'
 } as const
 
-export type AssessmentOptionScalarFieldEnum = (typeof AssessmentOptionScalarFieldEnum)[keyof typeof AssessmentOptionScalarFieldEnum]
+export type QuizOptionScalarFieldEnum = (typeof QuizOptionScalarFieldEnum)[keyof typeof QuizOptionScalarFieldEnum]
 
 
-export const AssessmentAttemptScalarFieldEnum = {
+export const QuizAttemptScalarFieldEnum = {
   id: 'id',
-  assessmentId: 'assessmentId',
+  quizId: 'quizId',
   memberId: 'memberId',
   startedAt: 'startedAt',
   submittedAt: 'submittedAt',
@@ -2467,10 +2721,10 @@ export const AssessmentAttemptScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AssessmentAttemptScalarFieldEnum = (typeof AssessmentAttemptScalarFieldEnum)[keyof typeof AssessmentAttemptScalarFieldEnum]
+export type QuizAttemptScalarFieldEnum = (typeof QuizAttemptScalarFieldEnum)[keyof typeof QuizAttemptScalarFieldEnum]
 
 
-export const AssessmentAnswerScalarFieldEnum = {
+export const QuizAnswerScalarFieldEnum = {
   id: 'id',
   attemptId: 'attemptId',
   questionId: 'questionId',
@@ -2485,7 +2739,7 @@ export const AssessmentAnswerScalarFieldEnum = {
   questionSnapshot: 'questionSnapshot'
 } as const
 
-export type AssessmentAnswerScalarFieldEnum = (typeof AssessmentAnswerScalarFieldEnum)[keyof typeof AssessmentAnswerScalarFieldEnum]
+export type QuizAnswerScalarFieldEnum = (typeof QuizAnswerScalarFieldEnum)[keyof typeof QuizAnswerScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2711,30 +2965,16 @@ export type ListEnumSummaryToneFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
- * Reference to a field of type 'AssessmentType'
+ * Reference to a field of type 'QuizStatus'
  */
-export type EnumAssessmentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentType'>
+export type EnumQuizStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QuizStatus'>
     
 
 
 /**
- * Reference to a field of type 'AssessmentType[]'
+ * Reference to a field of type 'QuizStatus[]'
  */
-export type ListEnumAssessmentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentType[]'>
-    
-
-
-/**
- * Reference to a field of type 'AssessmentStatus'
- */
-export type EnumAssessmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentStatus'>
-    
-
-
-/**
- * Reference to a field of type 'AssessmentStatus[]'
- */
-export type ListEnumAssessmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentStatus[]'>
+export type ListEnumQuizStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QuizStatus[]'>
     
 
 
@@ -2881,6 +3121,9 @@ export type GlobalOmitConfig = {
   directMessage?: Prisma.DirectMessageOmit
   conversationRead?: Prisma.ConversationReadOmit
   channelRead?: Prisma.ChannelReadOmit
+  poll?: Prisma.PollOmit
+  pollOption?: Prisma.PollOptionOmit
+  pollVote?: Prisma.PollVoteOmit
   post?: Prisma.PostOmit
   comment?: Prisma.CommentOmit
   like?: Prisma.LikeOmit
@@ -2890,11 +3133,11 @@ export type GlobalOmitConfig = {
   summary?: Prisma.SummaryOmit
   flashcard?: Prisma.FlashcardOmit
   flashcardSet?: Prisma.FlashcardSetOmit
-  assessment?: Prisma.AssessmentOmit
-  assessmentQuestion?: Prisma.AssessmentQuestionOmit
-  assessmentOption?: Prisma.AssessmentOptionOmit
-  assessmentAttempt?: Prisma.AssessmentAttemptOmit
-  assessmentAnswer?: Prisma.AssessmentAnswerOmit
+  quiz?: Prisma.QuizOmit
+  quizQuestion?: Prisma.QuizQuestionOmit
+  quizOption?: Prisma.QuizOptionOmit
+  quizAttempt?: Prisma.QuizAttemptOmit
+  quizAnswer?: Prisma.QuizAnswerOmit
 }
 
 /* Types for Logging */

@@ -60,6 +60,9 @@ export const ModelName = {
   DirectMessage: 'DirectMessage',
   ConversationRead: 'ConversationRead',
   ChannelRead: 'ChannelRead',
+  Poll: 'Poll',
+  PollOption: 'PollOption',
+  PollVote: 'PollVote',
   Post: 'Post',
   Comment: 'Comment',
   Like: 'Like',
@@ -69,11 +72,11 @@ export const ModelName = {
   Summary: 'Summary',
   Flashcard: 'Flashcard',
   FlashcardSet: 'FlashcardSet',
-  Assessment: 'Assessment',
-  AssessmentQuestion: 'AssessmentQuestion',
-  AssessmentOption: 'AssessmentOption',
-  AssessmentAttempt: 'AssessmentAttempt',
-  AssessmentAnswer: 'AssessmentAnswer'
+  Quiz: 'Quiz',
+  QuizQuestion: 'QuizQuestion',
+  QuizOption: 'QuizOption',
+  QuizAttempt: 'QuizAttempt',
+  QuizAnswer: 'QuizAnswer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -214,6 +217,36 @@ export const ChannelReadScalarFieldEnum = {
 export type ChannelReadScalarFieldEnum = (typeof ChannelReadScalarFieldEnum)[keyof typeof ChannelReadScalarFieldEnum]
 
 
+export const PollScalarFieldEnum = {
+  id: 'id',
+  question: 'question',
+  channelId: 'channelId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PollScalarFieldEnum = (typeof PollScalarFieldEnum)[keyof typeof PollScalarFieldEnum]
+
+
+export const PollOptionScalarFieldEnum = {
+  id: 'id',
+  pollId: 'pollId',
+  text: 'text'
+} as const
+
+export type PollOptionScalarFieldEnum = (typeof PollOptionScalarFieldEnum)[keyof typeof PollOptionScalarFieldEnum]
+
+
+export const PollVoteScalarFieldEnum = {
+  id: 'id',
+  optionId: 'optionId',
+  memberId: 'memberId',
+  createdAt: 'createdAt'
+} as const
+
+export type PollVoteScalarFieldEnum = (typeof PollVoteScalarFieldEnum)[keyof typeof PollVoteScalarFieldEnum]
+
+
 export const PostScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -324,14 +357,13 @@ export const FlashcardSetScalarFieldEnum = {
 export type FlashcardSetScalarFieldEnum = (typeof FlashcardSetScalarFieldEnum)[keyof typeof FlashcardSetScalarFieldEnum]
 
 
-export const AssessmentScalarFieldEnum = {
+export const QuizScalarFieldEnum = {
   id: 'id',
   lectureId: 'lectureId',
   channelId: 'channelId',
   createdById: 'createdById',
   title: 'title',
   description: 'description',
-  type: 'type',
   generatedByAI: 'generatedByAI',
   status: 'status',
   totalQuestions: 'totalQuestions',
@@ -344,12 +376,12 @@ export const AssessmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AssessmentScalarFieldEnum = (typeof AssessmentScalarFieldEnum)[keyof typeof AssessmentScalarFieldEnum]
+export type QuizScalarFieldEnum = (typeof QuizScalarFieldEnum)[keyof typeof QuizScalarFieldEnum]
 
 
-export const AssessmentQuestionScalarFieldEnum = {
+export const QuizQuestionScalarFieldEnum = {
   id: 'id',
-  assessmentId: 'assessmentId',
+  quizId: 'quizId',
   order: 'order',
   questionText: 'questionText',
   type: 'type',
@@ -359,10 +391,10 @@ export const AssessmentQuestionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AssessmentQuestionScalarFieldEnum = (typeof AssessmentQuestionScalarFieldEnum)[keyof typeof AssessmentQuestionScalarFieldEnum]
+export type QuizQuestionScalarFieldEnum = (typeof QuizQuestionScalarFieldEnum)[keyof typeof QuizQuestionScalarFieldEnum]
 
 
-export const AssessmentOptionScalarFieldEnum = {
+export const QuizOptionScalarFieldEnum = {
   id: 'id',
   questionId: 'questionId',
   order: 'order',
@@ -370,12 +402,12 @@ export const AssessmentOptionScalarFieldEnum = {
   isCorrect: 'isCorrect'
 } as const
 
-export type AssessmentOptionScalarFieldEnum = (typeof AssessmentOptionScalarFieldEnum)[keyof typeof AssessmentOptionScalarFieldEnum]
+export type QuizOptionScalarFieldEnum = (typeof QuizOptionScalarFieldEnum)[keyof typeof QuizOptionScalarFieldEnum]
 
 
-export const AssessmentAttemptScalarFieldEnum = {
+export const QuizAttemptScalarFieldEnum = {
   id: 'id',
-  assessmentId: 'assessmentId',
+  quizId: 'quizId',
   memberId: 'memberId',
   startedAt: 'startedAt',
   submittedAt: 'submittedAt',
@@ -392,10 +424,10 @@ export const AssessmentAttemptScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AssessmentAttemptScalarFieldEnum = (typeof AssessmentAttemptScalarFieldEnum)[keyof typeof AssessmentAttemptScalarFieldEnum]
+export type QuizAttemptScalarFieldEnum = (typeof QuizAttemptScalarFieldEnum)[keyof typeof QuizAttemptScalarFieldEnum]
 
 
-export const AssessmentAnswerScalarFieldEnum = {
+export const QuizAnswerScalarFieldEnum = {
   id: 'id',
   attemptId: 'attemptId',
   questionId: 'questionId',
@@ -410,7 +442,7 @@ export const AssessmentAnswerScalarFieldEnum = {
   questionSnapshot: 'questionSnapshot'
 } as const
 
-export type AssessmentAnswerScalarFieldEnum = (typeof AssessmentAnswerScalarFieldEnum)[keyof typeof AssessmentAnswerScalarFieldEnum]
+export type QuizAnswerScalarFieldEnum = (typeof QuizAnswerScalarFieldEnum)[keyof typeof QuizAnswerScalarFieldEnum]
 
 
 export const SortOrder = {

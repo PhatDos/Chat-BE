@@ -142,4 +142,13 @@ export class MessageGateway
         console.warn('channel:leave markChannelAsRead failed', message);
       });
   }
+
+  emitPollUpdated(payload: {
+    channelId: string;
+    action: 'created' | 'voted' | 'deleted';
+    question: string;
+    pollId?: string;
+  }) {
+    this.server.to(`channel:${payload.channelId}`).emit('poll:updated', payload);
+  }
 }

@@ -69,16 +69,6 @@ export class LectureController {
     return await this.lectureService.generateFlashcards(lectureId, dto);
   }
 
-  @Post(':lectureId/generate/assessment')
-  @HttpCode(HttpStatus.CREATED)
-  async generateAssessment(
-    @Param('lectureId') lectureId: string,
-    @Body(ValidationPipe) dto: GenerateQuizDto,
-    @CurrentProfile() profile: Profile,
-  ) {
-    return await this.lectureService.generateAssessment(lectureId, dto);
-  }
-
   @Post(':lectureId/generate/quiz')
   @HttpCode(HttpStatus.CREATED)
   async generateQuiz(
@@ -86,74 +76,74 @@ export class LectureController {
     @Body(ValidationPipe) dto: GenerateQuizDto,
     @CurrentProfile() profile: Profile,
   ) {
-    return await this.generateAssessment(lectureId, dto, profile);
+    return await this.lectureService.generateQuiz(lectureId, dto);
   }
 
-  @Post(':lectureId/assessment')
+  @Post(':lectureId/quiz')
   @HttpCode(HttpStatus.CREATED)
-  async createAssessment(
+  async createQuiz(
     @Param('lectureId') lectureId: string,
     @Body(ValidationPipe) body: any,
     @CurrentProfile() profile: Profile,
   ) {
-    return await this.lectureService.createAssessment(lectureId, body);
+    return await this.lectureService.createQuiz(lectureId, body);
   }
 
-  @Patch('assessment/:assessmentId')
+  @Patch('quiz/:quizId')
   @HttpCode(HttpStatus.OK)
-  async updateAssessment(
-    @Param('assessmentId') assessmentId: string,
+  async updateQuiz(
+    @Param('quizId') quizId: string,
     @Body(ValidationPipe) body: any,
   ) {
-    return await this.lectureService.updateAssessment(assessmentId, body);
+    return await this.lectureService.updateQuiz(quizId, body);
   }
 
-  @Patch('assessment/:assessmentId/publish')
+  @Patch('quiz/:quizId/publish')
   @HttpCode(HttpStatus.OK)
-  async publishAssessment(@Param('assessmentId') assessmentId: string) {
-    return await this.lectureService.publishAssessment(assessmentId);
+  async publishQuiz(@Param('quizId') quizId: string) {
+    return await this.lectureService.publishQuiz(quizId);
   }
 
-  @Patch('assessment/:assessmentId/close')
+  @Patch('quiz/:quizId/close')
   @HttpCode(HttpStatus.OK)
-  async closeAssessment(@Param('assessmentId') assessmentId: string) {
-    return await this.lectureService.closeAssessment(assessmentId);
+  async closeQuiz(@Param('quizId') quizId: string) {
+    return await this.lectureService.closeQuiz(quizId);
   }
 
-  @Patch('assessment/:assessmentId/archive')
+  @Patch('quiz/:quizId/archive')
   @HttpCode(HttpStatus.OK)
-  async archiveAssessment(@Param('assessmentId') assessmentId: string) {
-    return await this.lectureService.archiveAssessment(assessmentId);
+  async archiveQuiz(@Param('quizId') quizId: string) {
+    return await this.lectureService.archiveQuiz(quizId);
   }
 
-  @Post('assessment/:assessmentId/questions')
+  @Post('quiz/:quizId/questions')
   @HttpCode(HttpStatus.CREATED)
-  async addAssessmentQuestion(@Param('assessmentId') assessmentId: string, @Body(ValidationPipe) body: any) {
-    return await this.lectureService.addAssessmentQuestion(assessmentId, body);
+  async addQuizQuestion(@Param('quizId') quizId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.addQuizQuestion(quizId, body);
   }
 
-  @Patch('assessment/questions/:questionId')
+  @Patch('quiz/questions/:questionId')
   @HttpCode(HttpStatus.OK)
-  async updateAssessmentQuestion(@Param('questionId') questionId: string, @Body(ValidationPipe) body: any) {
-    return await this.lectureService.updateAssessmentQuestion(questionId, body);
+  async updateQuizQuestion(@Param('questionId') questionId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.updateQuizQuestion(questionId, body);
   }
 
-  @Delete('assessment/questions/:questionId')
+  @Delete('quiz/questions/:questionId')
   @HttpCode(HttpStatus.OK)
-  async deleteAssessmentQuestion(@Param('questionId') questionId: string) {
-    return await this.lectureService.deleteAssessmentQuestion(questionId);
+  async deleteQuizQuestion(@Param('questionId') questionId: string) {
+    return await this.lectureService.deleteQuizQuestion(questionId);
   }
 
-  @Patch('assessment/options/:optionId')
+  @Patch('quiz/options/:optionId')
   @HttpCode(HttpStatus.OK)
-  async updateAssessmentOption(@Param('optionId') optionId: string, @Body(ValidationPipe) body: any) {
-    return await this.lectureService.updateAssessmentOption(optionId, body);
+  async updateQuizOption(@Param('optionId') optionId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.updateQuizOption(optionId, body);
   }
 
-  @Delete('assessment/options/:optionId')
+  @Delete('quiz/options/:optionId')
   @HttpCode(HttpStatus.OK)
-  async deleteAssessmentOption(@Param('optionId') optionId: string) {
-    return await this.lectureService.deleteAssessmentOption(optionId);
+  async deleteQuizOption(@Param('optionId') optionId: string) {
+    return await this.lectureService.deleteQuizOption(optionId);
   }
 
   @Get(':lectureId/flashcards')
@@ -162,28 +152,28 @@ export class LectureController {
     return await this.lectureService.getFlashcardsByLecture(lectureId);
   }
 
-  @Get(':lectureId/assessments')
+  @Get(':lectureId/quizs')
   @HttpCode(HttpStatus.OK)
-  async getAssessments(@Param('lectureId') lectureId: string) {
-    return await this.lectureService.getAssessmentsByLecture(lectureId);
+  async getQuizs(@Param('lectureId') lectureId: string) {
+    return await this.lectureService.getQuizsByLecture(lectureId);
   }
 
   @Get(':lectureId/quizzes')
   @HttpCode(HttpStatus.OK)
   async getQuizzes(@Param('lectureId') lectureId: string) {
-    return await this.getAssessments(lectureId);
+    return await this.getQuizs(lectureId);
   }
 
-  @Get('assessment/:assessmentId')
+  @Get('quiz/:quizId')
   @HttpCode(HttpStatus.OK)
-  async getAssessmentById(@Param('assessmentId') assessmentId: string) {
-    return await this.lectureService.getAssessmentById(assessmentId);
+  async getQuizById(@Param('quizId') quizId: string) {
+    return await this.lectureService.getQuizById(quizId);
   }
 
-  @Get(':lectureId/assessment/:assessmentId/review')
+  @Get(':lectureId/quiz/:quizId/review')
   @HttpCode(HttpStatus.OK)
-  async getAssessmentReview(@Param('assessmentId') assessmentId: string) {
-    return await this.lectureService.getAssessmentReview(assessmentId);
+  async getQuizReview(@Param('quizId') quizId: string) {
+    return await this.lectureService.getQuizReview(quizId);
   }
 
   @Get(':lectureId/quiz')
@@ -194,13 +184,13 @@ export class LectureController {
 
   @Get('channel/:channelId/leaderboard')
   @HttpCode(HttpStatus.OK)
-  async getAssessmentLeaderboard(
+  async getQuizLeaderboard(
     @Param('channelId') channelId: string,
     @CurrentProfile() profile: Profile,
   ) {
     console.log({ path: `/lectures/channel/${channelId}/leaderboard` });
 
-    return await this.lectureService.getAssessmentLeaderboard(channelId, profile.id, profile.userId);
+    return await this.lectureService.getQuizLeaderboard(channelId, profile.id, profile.userId);
   }
 
   @Get('channel/:serverId/:channelId')
@@ -213,60 +203,27 @@ export class LectureController {
     return await this.lectureService.getLecturesByChannel(serverId, channelId);
   }
 
-  @Get('assessment/:assessmentId/leaderboard')
+  @Get('quiz/:quizId/leaderboard')
   @HttpCode(HttpStatus.OK)
-  async getAssessmentLeaderboardByAssessment(
-    @Param('assessmentId') assessmentId: string,
+  async getQuizLeaderboardByQuiz(
+    @Param('quizId') quizId: string,
     @CurrentProfile() profile: Profile,
   ) {
-    const assessment = await this.lectureService.getAssessmentById(assessmentId);
+    const quiz = await this.lectureService.getQuizById(quizId);
 
-    return await this.lectureService.getAssessmentLeaderboard(assessment.channelId, profile.id, profile.userId);
+    return await this.lectureService.getQuizLeaderboard(quiz.channelId, profile.id, profile.userId);
   }
 
-  @Get('assessment/:assessmentId/reveal')
+  @Get('quiz/:quizId/reveal')
   @HttpCode(HttpStatus.OK)
-  async revealAssessment(@Param('assessmentId') assessmentId: string) {
-    return await this.lectureService.getAssessmentById(assessmentId);
+  async revealQuiz(@Param('quizId') quizId: string) {
+    return await this.lectureService.getQuizById(quizId);
   }
 
-  @Patch('assessment/attempts/:attemptId/grade')
+  @Patch('quiz/attempts/:attemptId/grade')
   @HttpCode(HttpStatus.OK)
-  async gradeAssessmentAttempt(@Param('attemptId') attemptId: string, @Body(ValidationPipe) body: any) {
-    return await this.lectureService.gradeAssessmentAttempt(attemptId, body);
-  }
-
-  @Post('assessment/:assessmentId/attempt')
-  @HttpCode(HttpStatus.CREATED)
-  async submitAssessmentAttempt(
-    @Param('assessmentId') assessmentId: string,
-    @Body('memberId') memberId: string,
-    @Body('answers') answers: Record<string, string>,
-    @CurrentProfile() profile: Profile,
-  ) {
-    if (!memberId || !answers) {
-      throw new BadRequestException('Member ID and answers are required');
-    }
-    return await this.lectureService.submitAssessmentAttempt(assessmentId, memberId, answers);
-  }
-
-  @Post('assessment/:assessmentId/attempt/start')
-  @HttpCode(HttpStatus.CREATED)
-  async startAssessmentAttempt(
-    @Param('assessmentId') assessmentId: string,
-    @Body('memberId') memberId: string,
-  ) {
-    if (!memberId) {
-      throw new BadRequestException('Member ID is required');
-    }
-
-    return await this.lectureService.startAssessmentAttempt(assessmentId, memberId);
-  }
-
-  @Get('assessment/attempts/:attemptId')
-  @HttpCode(HttpStatus.OK)
-  async getAssessmentAttemptById(@Param('attemptId') attemptId: string) {
-    return await this.lectureService.getAssessmentAttemptById(attemptId);
+  async gradeQuizAttempt(@Param('attemptId') attemptId: string, @Body(ValidationPipe) body: any) {
+    return await this.lectureService.gradeQuizAttempt(attemptId, body);
   }
 
   @Post('quiz/:quizId/attempt')
@@ -277,6 +234,28 @@ export class LectureController {
     @Body('answers') answers: Record<string, string>,
     @CurrentProfile() profile: Profile,
   ) {
-    return await this.submitAssessmentAttempt(quizId, memberId, answers, profile);
+    if (!memberId || !answers) {
+      throw new BadRequestException('Member ID and answers are required');
+    }
+    return await this.lectureService.submitQuizAttempt(quizId, memberId, answers);
+  }
+
+  @Post('quiz/:quizId/attempt/start')
+  @HttpCode(HttpStatus.CREATED)
+  async startQuizAttempt(
+    @Param('quizId') quizId: string,
+    @Body('memberId') memberId: string,
+  ) {
+    if (!memberId) {
+      throw new BadRequestException('Member ID is required');
+    }
+
+    return await this.lectureService.startQuizAttempt(quizId, memberId);
+  }
+
+  @Get('quiz/attempts/:attemptId')
+  @HttpCode(HttpStatus.OK)
+  async getQuizAttemptById(@Param('attemptId') attemptId: string) {
+    return await this.lectureService.getQuizAttemptById(attemptId);
   }
 }

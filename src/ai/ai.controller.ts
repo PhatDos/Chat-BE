@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { CurrentProfile } from '../common/decorators/current-profile.decorator';
 import type { Profile } from '../common/types/profile.type';
-import { AiService } from './ai.service';
+import { AiService, type UnreadSummaryResponse } from './ai.service';
 import { MessageFetcherService } from './message-fetcher.service';
 
 @Controller('ai')
@@ -15,7 +15,7 @@ export class AiController {
   async summarizeUnread(
     @Param('channelId') channelId: string,
     @CurrentProfile() profile: Profile,
-  ) {
+  ): Promise<UnreadSummaryResponse> {
     const member = await this.messageFetcher.getMemberByChannelAndProfile(
       channelId,
       profile.id,
@@ -27,11 +27,15 @@ export class AiController {
     );
 
     if (!messages.length) {
-      return { summary: 'No unread messages 🎉' };
+      return {
+        summary: 'No unread messages 🎉',
+        mainTopics: [],
+        decisions: [],
+        importantQuestions: [],
+        actionItems: [],
+      };
     }
 
-    const summary = await this.aiService.summarizeMessages(messages);
-
-    return { summary };
+    return this.aiService.summarizeMessages(messages);
   }
 }

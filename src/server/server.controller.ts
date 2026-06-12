@@ -16,7 +16,6 @@ import {
 import { ServerService } from './server.service';
 import { CurrentProfile } from '~/common/decorators/current-profile.decorator';
 import { CurrentMember } from '~/common/decorators/current-member.decorator';
-import { AuthGuard } from '~/common/guards/auth.guard';
 import { ServerMemberGuard } from '~/common/guards/server-member.guard';
 import { RoleGuard } from '~/common/guards/role.guard';
 import { Roles } from '~/common/decorators/roles.decorator';
