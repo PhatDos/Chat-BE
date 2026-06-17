@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import {
   CreateDirectMessageDto,
@@ -46,6 +50,54 @@ export class DirectMessageService {
       items: messages,
       nextCursor,
     };
+  }
+
+  async searchMessages(
+    conversationId: string,
+    profileId: string,
+    query: string,
+    limit = 20,
+  ) {
+    const normalizedQuery = query?.trim();
+
+    if (!conversationId) {
+      throw new BadRequestException('conversationId is required');
+    }
+
+    if (!normalizedQuery) {
+      throw new BadRequestException('Search query is required');
+    }
+
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { profileOneId: true, profileTwoId: true },
+    });
+
+    if (
+      !conversation ||
+      (conversation.profileOneId !== profileId &&
+        conversation.profileTwoId !== profileId)
+    ) {
+      throw new ForbiddenException('You cannot search this conversation');
+    }
+
+    const messages = await this.prisma.directMessage.findMany({
+      where: {
+        conversationId,
+        deleted: false,
+        content: {
+          contains: normalizedQuery,
+          mode: 'insensitive',
+        },
+      },
+      take: Math.min(limit, 20),
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      include: {
+        sender: true,
+      },
+    });
+
+    return { items: messages };
   }
 
   // FIND ONE

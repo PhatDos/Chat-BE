@@ -7,6 +7,10 @@ export class UpdateServerDto {
   name: string;
 
   @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsString()
   @IsNotEmpty()
   imageUrl: string;
 

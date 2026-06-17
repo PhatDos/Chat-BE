@@ -55,6 +55,7 @@ model Server {
   id         String   @id @default(uuid()) @map("_id")
   name       String
   imageUrl   String
+  description String?
   inviteCode String   @unique
   profileId  String
   visibility ServerVisibility @default(PRIVATE)

@@ -7,6 +7,7 @@ import { ChannelRefetchService } from './channel-refetch.service';
 
 import { DirectMessageController } from './direct-msg/direct-message.controller';
 import { ChannelMessageController } from './channel-msg/presenter/controllers/channel-message.controller';
+import { AttachmentController } from './attachment/attachment.controller';
 import { PollController } from './poll/poll.controller';
 import { NotificationController } from './notification/notification.controller';
 
@@ -15,12 +16,14 @@ import { DirectMessageGateway } from './direct-msg/direct-message.gateway';
 import { ChannelMessageGateway } from './channel-msg/presenter/gateways/channel-message.gateway';
 import { AuthGuard } from '~/common/guards/auth.guard';
 import { PollService } from './poll/poll.service';
+import { AttachmentService } from './attachment/attachment.service';
 
 import {
   CreateChannelMessageUseCase,
   UpdateChannelMessageUseCase,
   DeleteChannelMessageUseCase,
   GetChannelMessagesUseCase,
+  SearchChannelMessagesUseCase,
   FindOneChannelMessageUseCase,
   MarkChannelAsReadUseCase,
   UpdateChannelNotifyUseCase,
@@ -41,6 +44,7 @@ const ChannelMessageUseCases = [
   UpdateChannelMessageUseCase,
   DeleteChannelMessageUseCase,
   GetChannelMessagesUseCase,
+  SearchChannelMessagesUseCase,
   FindOneChannelMessageUseCase,
   MarkChannelAsReadUseCase,
   UpdateChannelNotifyUseCase,
@@ -56,6 +60,7 @@ const ChannelMessageUseCases = [
   controllers: [
     DirectMessageController,
     ChannelMessageController,
+    AttachmentController,
     PollController,
     NotificationController,
   ],
@@ -72,6 +77,7 @@ const ChannelMessageUseCases = [
     DirectMessageGateway,
     ChannelMessageGateway,
     NotificationService,
+    AttachmentService,
     PollService,
     AuthGuard,
     ...ChannelMessageUseCases,

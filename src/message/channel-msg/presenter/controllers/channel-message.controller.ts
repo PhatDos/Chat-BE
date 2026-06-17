@@ -21,6 +21,7 @@ import type { Profile } from '~/common/types/profile.type';
 
 import {
   GetChannelMessagesUseCase,
+  SearchChannelMessagesUseCase,
   FindOneChannelMessageUseCase,
   UpdateChannelMessageUseCase,
   DeleteChannelMessageUseCase,
@@ -32,6 +33,7 @@ import {
 export class ChannelMessageController {
   constructor(
     private readonly getMessagesUseCase: GetChannelMessagesUseCase,
+    private readonly searchMessagesUseCase: SearchChannelMessagesUseCase,
     private readonly findOneUseCase: FindOneChannelMessageUseCase,
     private readonly updateUseCase: UpdateChannelMessageUseCase,
     private readonly deleteUseCase: DeleteChannelMessageUseCase,
@@ -46,6 +48,19 @@ export class ChannelMessageController {
     @Query('cursor') cursor?: string,
   ) {
     return this.getMessagesUseCase.execute(channelId, cursor);
+  }
+
+  @Get('search')
+  searchMessages(
+    @Query('channelId') channelId: string,
+    @Query('q') query: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.searchMessagesUseCase.execute(
+      channelId,
+      query,
+      limit ? Number(limit) : undefined,
+    );
   }
 
   @Get(':id')

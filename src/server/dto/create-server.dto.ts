@@ -7,6 +7,10 @@ export class CreateServerDto {
   name: string;
 
   @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsString()
   @IsNotEmpty()
   imageUrl: string;
 
