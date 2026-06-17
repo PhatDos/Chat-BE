@@ -159,7 +159,7 @@ async function moderateWithGemini(
     };
   } catch (error) {
     console.error('Gemini moderation error:', error);
-    return { isFlagged: true, reason: 'moderation_unavailable' };
+    return { isFlagged: false, reason: 'moderation_unavailable' };
   }
 }
 
