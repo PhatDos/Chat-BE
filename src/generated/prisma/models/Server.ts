@@ -38,6 +38,7 @@ export type ServerMinAggregateOutputType = {
   id: string | null
   name: string | null
   imageUrl: string | null
+  description: string | null
   inviteCode: string | null
   profileId: string | null
   visibility: $Enums.ServerVisibility | null
@@ -51,6 +52,7 @@ export type ServerMaxAggregateOutputType = {
   id: string | null
   name: string | null
   imageUrl: string | null
+  description: string | null
   inviteCode: string | null
   profileId: string | null
   visibility: $Enums.ServerVisibility | null
@@ -64,6 +66,7 @@ export type ServerCountAggregateOutputType = {
   id: number
   name: number
   imageUrl: number
+  description: number
   inviteCode: number
   profileId: number
   visibility: number
@@ -87,6 +90,7 @@ export type ServerMinAggregateInputType = {
   id?: true
   name?: true
   imageUrl?: true
+  description?: true
   inviteCode?: true
   profileId?: true
   visibility?: true
@@ -100,6 +104,7 @@ export type ServerMaxAggregateInputType = {
   id?: true
   name?: true
   imageUrl?: true
+  description?: true
   inviteCode?: true
   profileId?: true
   visibility?: true
@@ -113,6 +118,7 @@ export type ServerCountAggregateInputType = {
   id?: true
   name?: true
   imageUrl?: true
+  description?: true
   inviteCode?: true
   profileId?: true
   visibility?: true
@@ -213,6 +219,7 @@ export type ServerGroupByOutputType = {
   id: string
   name: string
   imageUrl: string
+  description: string | null
   inviteCode: string
   profileId: string
   visibility: $Enums.ServerVisibility
@@ -249,6 +256,7 @@ export type ServerWhereInput = {
   id?: Prisma.StringFilter<"Server"> | string
   name?: Prisma.StringFilter<"Server"> | string
   imageUrl?: Prisma.StringFilter<"Server"> | string
+  description?: Prisma.StringNullableFilter<"Server"> | string | null
   inviteCode?: Prisma.StringFilter<"Server"> | string
   profileId?: Prisma.StringFilter<"Server"> | string
   visibility?: Prisma.EnumServerVisibilityFilter<"Server"> | $Enums.ServerVisibility
@@ -266,6 +274,7 @@ export type ServerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   inviteCode?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -288,6 +297,7 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ServerWhereInput | Prisma.ServerWhereInput[]
   name?: Prisma.StringFilter<"Server"> | string
   imageUrl?: Prisma.StringFilter<"Server"> | string
+  description?: Prisma.StringNullableFilter<"Server"> | string | null
   profileId?: Prisma.StringFilter<"Server"> | string
   visibility?: Prisma.EnumServerVisibilityFilter<"Server"> | $Enums.ServerVisibility
   memberCount?: Prisma.IntFilter<"Server"> | number
@@ -303,6 +313,7 @@ export type ServerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   inviteCode?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -324,6 +335,7 @@ export type ServerScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Server"> | string
   name?: Prisma.StringWithAggregatesFilter<"Server"> | string
   imageUrl?: Prisma.StringWithAggregatesFilter<"Server"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   inviteCode?: Prisma.StringWithAggregatesFilter<"Server"> | string
   profileId?: Prisma.StringWithAggregatesFilter<"Server"> | string
   visibility?: Prisma.EnumServerVisibilityWithAggregatesFilter<"Server"> | $Enums.ServerVisibility
@@ -337,6 +349,7 @@ export type ServerCreateInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -352,6 +365,7 @@ export type ServerUncheckedCreateInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   profileId: string
   visibility?: $Enums.ServerVisibility
@@ -367,6 +381,7 @@ export type ServerUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -382,6 +397,7 @@ export type ServerUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
@@ -397,6 +413,7 @@ export type ServerCreateManyInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   profileId: string
   visibility?: $Enums.ServerVisibility
@@ -410,6 +427,7 @@ export type ServerUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -421,6 +439,7 @@ export type ServerUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
@@ -444,6 +463,7 @@ export type ServerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   inviteCode?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -461,6 +481,7 @@ export type ServerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   inviteCode?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -474,6 +495,7 @@ export type ServerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   inviteCode?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -615,6 +637,7 @@ export type ServerCreateWithoutProfileInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -629,6 +652,7 @@ export type ServerUncheckedCreateWithoutProfileInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -672,6 +696,7 @@ export type ServerScalarWhereInput = {
   id?: Prisma.StringFilter<"Server"> | string
   name?: Prisma.StringFilter<"Server"> | string
   imageUrl?: Prisma.StringFilter<"Server"> | string
+  description?: Prisma.StringNullableFilter<"Server"> | string | null
   inviteCode?: Prisma.StringFilter<"Server"> | string
   profileId?: Prisma.StringFilter<"Server"> | string
   visibility?: Prisma.EnumServerVisibilityFilter<"Server"> | $Enums.ServerVisibility
@@ -685,6 +710,7 @@ export type ServerCreateWithoutMembersInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -699,6 +725,7 @@ export type ServerUncheckedCreateWithoutMembersInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   profileId: string
   visibility?: $Enums.ServerVisibility
@@ -729,6 +756,7 @@ export type ServerUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -743,6 +771,7 @@ export type ServerUncheckedUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
@@ -757,6 +786,7 @@ export type ServerCreateWithoutChannelsInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -771,6 +801,7 @@ export type ServerUncheckedCreateWithoutChannelsInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   profileId: string
   visibility?: $Enums.ServerVisibility
@@ -790,6 +821,7 @@ export type ServerCreateWithoutGeneralChannelInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -804,6 +836,7 @@ export type ServerUncheckedCreateWithoutGeneralChannelInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   profileId: string
   visibility?: $Enums.ServerVisibility
@@ -834,6 +867,7 @@ export type ServerUpdateWithoutChannelsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -848,6 +882,7 @@ export type ServerUncheckedUpdateWithoutChannelsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
@@ -873,6 +908,7 @@ export type ServerUpdateWithoutGeneralChannelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -887,6 +923,7 @@ export type ServerUncheckedUpdateWithoutGeneralChannelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
@@ -901,6 +938,7 @@ export type ServerCreateManyProfileInput = {
   id?: string
   name: string
   imageUrl: string
+  description?: string | null
   inviteCode: string
   visibility?: $Enums.ServerVisibility
   memberCount?: number
@@ -913,6 +951,7 @@ export type ServerUpdateWithoutProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -927,6 +966,7 @@ export type ServerUncheckedUpdateWithoutProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -941,6 +981,7 @@ export type ServerUncheckedUpdateManyWithoutProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inviteCode?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumServerVisibilityFieldUpdateOperationsInput | $Enums.ServerVisibility
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -993,6 +1034,7 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   name?: boolean
   imageUrl?: boolean
+  description?: boolean
   inviteCode?: boolean
   profileId?: boolean
   visibility?: boolean
@@ -1011,6 +1053,7 @@ export type ServerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   imageUrl?: boolean
+  description?: boolean
   inviteCode?: boolean
   profileId?: boolean
   visibility?: boolean
@@ -1026,6 +1069,7 @@ export type ServerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   imageUrl?: boolean
+  description?: boolean
   inviteCode?: boolean
   profileId?: boolean
   visibility?: boolean
@@ -1041,6 +1085,7 @@ export type ServerSelectScalar = {
   id?: boolean
   name?: boolean
   imageUrl?: boolean
+  description?: boolean
   inviteCode?: boolean
   profileId?: boolean
   visibility?: boolean
@@ -1050,7 +1095,7 @@ export type ServerSelectScalar = {
   generalChannelId?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "imageUrl" | "inviteCode" | "profileId" | "visibility" | "memberCount" | "createdAt" | "updatedAt" | "generalChannelId", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "imageUrl" | "description" | "inviteCode" | "profileId" | "visibility" | "memberCount" | "createdAt" | "updatedAt" | "generalChannelId", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   generalChannel?: boolean | Prisma.Server$generalChannelArgs<ExtArgs>
   profile?: boolean | Prisma.ProfileDefaultArgs<ExtArgs>
@@ -1079,6 +1124,7 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: string
     name: string
     imageUrl: string
+    description: string | null
     inviteCode: string
     profileId: string
     visibility: $Enums.ServerVisibility
@@ -1516,6 +1562,7 @@ export interface ServerFieldRefs {
   readonly id: Prisma.FieldRef<"Server", 'String'>
   readonly name: Prisma.FieldRef<"Server", 'String'>
   readonly imageUrl: Prisma.FieldRef<"Server", 'String'>
+  readonly description: Prisma.FieldRef<"Server", 'String'>
   readonly inviteCode: Prisma.FieldRef<"Server", 'String'>
   readonly profileId: Prisma.FieldRef<"Server", 'String'>
   readonly visibility: Prisma.FieldRef<"Server", 'ServerVisibility'>

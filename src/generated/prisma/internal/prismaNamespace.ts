@@ -2414,6 +2414,7 @@ export const ServerScalarFieldEnum = {
   id: 'id',
   name: 'name',
   imageUrl: 'imageUrl',
+  description: 'description',
   inviteCode: 'inviteCode',
   profileId: 'profileId',
   visibility: 'visibility',

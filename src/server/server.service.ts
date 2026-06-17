@@ -17,6 +17,7 @@ import type { InitialServerResponseDto } from './dto/initial-server-response.dto
 const serverSearchSelect = {
   id: true,
   name: true,
+  description: true,
   imageUrl: true,
   inviteCode: true,
   visibility: true,
@@ -120,6 +121,7 @@ export class ServerService {
         data: {
           profileId,
           name: dto.name,
+          description: dto.description?.trim() || null,
           imageUrl: dto.imageUrl,
           inviteCode: uuidv4(),
           visibility: dto.visibility ?? ServerVisibility.PRIVATE,
@@ -179,6 +181,7 @@ export class ServerService {
       where: { id: serverId },
       data: {
         name: dto.name,
+        description: dto.description?.trim() || null,
         imageUrl: dto.imageUrl,
         ...(dto.visibility ? { visibility: dto.visibility } : {}),
       },
