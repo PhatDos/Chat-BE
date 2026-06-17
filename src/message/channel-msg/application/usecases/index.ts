@@ -2,6 +2,7 @@ export * from './create-channel-message.usecase';
 export * from './update-channel-message.usecase';
 export * from './delete-channel-message.usecase';
 export * from './get-channel-messages.usecase';
+export * from './search-channel-messages.usecase';
 export * from './find-one-channel-message.usecase';
 export * from './mark-channel-as-read.usecase';
 export * from './update-channel-notify.usecase';

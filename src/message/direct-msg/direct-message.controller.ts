@@ -50,6 +50,25 @@ export class DirectMessageController {
     return this.directMessageService.getMessages(conversationId, cursor);
   }
 
+  @Get('search')
+  searchMessages(
+    @CurrentProfile() profile: Profile,
+    @Query('conversationId') conversationId: string,
+    @Query('q') query: string,
+    @Query('limit') limit?: string,
+  ) {
+    if (!profile) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    return this.directMessageService.searchMessages(
+      conversationId,
+      profile.id,
+      query,
+      limit ? Number(limit) : undefined,
+    );
+  }
+
   @Get('conversations/list')
   async getConversationsList(@CurrentProfile() profile: Profile) {
     const conversations = await this.directMessageService.getConversationsList(

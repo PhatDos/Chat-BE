@@ -83,6 +83,24 @@ export class PrismaChannelMessageRepository
     return { items: messages, nextCursor };
   }
 
+  async searchMessages(channelId: string, query: string, limit: number) {
+    const messages = await this.prisma.message.findMany({
+      where: {
+        channelId,
+        deleted: false,
+        content: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      take: limit,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      include: { member: { include: { profile: true } } },
+    });
+
+    return { items: messages };
+  }
+
   async findChannel(channelId: string) {
     return this.prisma.channel.findUnique({
       where: { id: channelId },

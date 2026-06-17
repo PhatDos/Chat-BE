@@ -22,6 +22,8 @@ export interface IChannelMessageRepository {
 
   getMessages(channelId: string, limit: number, cursor?: string): Promise<any>;
 
+  searchMessages(channelId: string, query: string, limit: number): Promise<any>;
+
   findChannel(channelId: string): Promise<any>;
 
   findMemberByUserId(userId: string, serverId: string): Promise<any>;
